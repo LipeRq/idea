@@ -41,6 +41,18 @@ test("ステップごとの入力チェック、戻る/次へで入力が残る"
   await page.goto("/");
   await expect(currentStep(page)).toContainText("会社情報");
 
+  // 優先したいこと(見た目はチップ)にキーボードで移ると、チップにフォーカス枠が出る
+  await page.getByLabel("会社名(任意)").focus();
+  for (let i = 0; i < 3; i++) await page.keyboard.press("Tab");
+  await expect(goalCheckbox(page, "コスト削減")).toBeFocused();
+  const chip = page.locator("label", { has: goalCheckbox(page, "コスト削減") });
+  await expect(chip).toHaveCSS("outline-style", "solid");
+  await expect(chip).toHaveCSS("outline-width", "2px");
+  await page.keyboard.press("Space");
+  await expect(goalCheckbox(page, "コスト削減")).toBeChecked();
+  await page.keyboard.press("Space");
+  await expect(goalCheckbox(page, "コスト削減")).not.toBeChecked();
+
   // ステップ1:業種・従業員規模は必須
   await nextButton(page).click();
   await expect(formAlert(page)).toHaveText("業種を選んでください");

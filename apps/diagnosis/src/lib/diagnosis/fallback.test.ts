@@ -7,7 +7,14 @@ const input: DiagnosisInput = {
   industry: "製造業",
   employees: "31〜100名",
   hourlyCost: 3_000,
-  taskHours: { inquiry: 80, documents: 60, minutes: 40, dataEntry: 120, search: 50, reporting: 30 },
+  taskHours: {
+    inquiry: 80,
+    documents: 60,
+    minutes: 40,
+    dataEntry: 120,
+    search: 50,
+    reporting: 30,
+  },
   readiness: {
     dataLocation: 1,
     manuals: 1,
@@ -36,7 +43,11 @@ describe("buildFallbackReport", () => {
     expect(report.recommendations.map((r) => r.taskId)).toEqual(
       result.top.map((t) => t.taskId),
     );
-    expect(report.roadmap.map((r) => r.period)).toEqual(["1ヶ月目", "2ヶ月目", "3ヶ月目"]);
+    expect(report.roadmap.map((r) => r.period)).toEqual([
+      "1ヶ月目",
+      "2ヶ月目",
+      "3ヶ月目",
+    ]);
   });
 
   it("準備度が低い項目があれば、その整備を助言に入れる", () => {
