@@ -1,7 +1,7 @@
 // コマンドライン: npx tsx src/cli.ts analyze <file> --out report.json
 import { readFile, writeFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
-import { analyzeFile } from "./analyze";
+import { analyzeFile } from "./analyzeFile";
 import { InventoryError } from "./errors";
 import { createClaudeClient, hasAnthropicCredentials, MODEL } from "./doc/ai";
 import { aiDocumentToJson, generateDocument } from "./doc/document";
@@ -32,7 +32,7 @@ AI と機密情報について:
   document は環境変数 ANTHROPIC_API_KEY(または ANTHROPIC_AUTH_TOKEN)があると、
   Claude(${MODEL})で概要・業務フロー・リスク評価・移行提案の文章を生成します。
   その際、VBA のソースコード・クエリの SQL・シート名・数式の例などが Anthropic 社の API に送信されます。
-  セルの値(データ本体)と作成者名は送信しません。接続文字列のパスワードは伏せ字にしてから送信します。
+  セルの値(データ本体)と作成者名は送信しません。接続文字列やコードに書かれたパスワードは伏せ字にしてから送信します。
   顧客の許可を得たファイルでのみ使ってください。送信したくない場合は --no-ai を指定してください。
   API キーが無い場合は、自動的に AI なしの標準レポートになります。
 `;

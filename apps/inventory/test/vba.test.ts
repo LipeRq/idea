@@ -1,17 +1,18 @@
 import CFB from "cfb";
 import iconv from "iconv-lite";
 import { describe, expect, it } from "vitest";
+import { readCompoundFile } from "../src/ole/compoundFile";
 import { decompressContainer } from "../src/vba/decompress";
 import { parseDirStream } from "../src/vba/dir";
 import { cfbStorage, extractVbaProject } from "../src/vba/project";
 import { decryptProjectData, parseProjectStream } from "../src/vba/projectStream";
 import { analyzeVbaProject } from "../src/vba/analyze";
-import { buildDirStream, buildProjectStream, buildVbaProjectBin, encryptProjectData, PROJECT_ID } from "./helpers/ovba";
+import { addStreams, buildDirStream, buildProjectStream, buildVbaProjectBin, buildVbaStreams, encryptProjectData, PROJECT_ID } from "./helpers/ovba";
 import { SALES, SAMPLE_PROJECT } from "./helpers/sampleVba";
 
 function extract(bin: Uint8Array) {
   const warnings: string[] = [];
-  const project = extractVbaProject(cfbStorage(CFB.read(bin, { type: "buffer" })), warnings);
+  const project = extractVbaProject(cfbStorage(readCompoundFile(bin)), warnings);
   return { project: project!, warnings };
 }
 
@@ -114,17 +115,20 @@ describe("vbaProject.bin からのソース抽出", () => {
   });
 
   it("モジュールのストリームが欠けていたら警告を出して続行する", () => {
-    const container = CFB.read(buildVbaProjectBin(SAMPLE_PROJECT), { type: "buffer" });
-    CFB.utils.cfb_del(container, "/VBA/CCustomer");
+    // cfb_del してから書き直すと cfb がツリーを壊すため、最初からストリームを入れずに組み立てる
+    const streams = buildVbaStreams(SAMPLE_PROJECT);
+    streams.delete("VBA/CCustomer");
+    const container = CFB.utils.cfb_new();
+    addStreams(container, "", streams);
+    const bin = new Uint8Array(CFB.write(container, { type: "buffer", fileType: "cfb" }) as Buffer);
     const warnings: string[] = [];
-    const project = extractVbaProject(cfbStorage(container), warnings)!;
+    const project = extractVbaProject(cfbStorage(readCompoundFile(bin)), warnings)!;
     expect(project.modules).toHaveLength(5);
     expect(warnings).toEqual(["モジュール「CCustomer」のストリームが見つかりません"]);
   });
 
   it("dir ストリームの解凍結果は spec どおりのレコード列になっている", () => {
-    const container = CFB.read(buildVbaProjectBin(SAMPLE_PROJECT), { type: "buffer" });
-    const dir = decompressContainer(cfbStorage(container).read("VBA/dir")!);
+    const dir = decompressContainer(cfbStorage(readCompoundFile(buildVbaProjectBin(SAMPLE_PROJECT))).read("VBA/dir")!);
     expect(dir[0] | (dir[1] << 8)).toBe(0x0001); // PROJECTSYSKIND から始まる
     expect([...dir.subarray(dir.length - 6)]).toEqual([0x10, 0, 0, 0, 0, 0]); // 終端
   });

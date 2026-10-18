@@ -1,16 +1,16 @@
 // 解析の入口。ファイル形式を判定し、形式ごとの抽出結果を InventoryReport にまとめる。
-import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
-import { basename } from "node:path";
-import CFB from "cfb";
+// Node.js 固有の API は使わない(ブラウザでも動く)。ファイルパスから読む analyzeFile は ./analyzeFile.ts にある。
 import { parseAccess } from "./access/access";
 import { readProperties } from "./excel/common";
 import { OpcPackage } from "./excel/opc";
 import { parseSpreadsheetMl, type WorkbookParts } from "./excel/ooxml";
 import { parseXls } from "./excel/xlsFile";
 import { parseXlsbWorkbook } from "./excel/xlsb";
-import { UnsupportedFileError } from "./errors";
+import { CorruptFileError, InventoryError, LimitExceededError, rethrowIfFatal, UnsupportedFileError } from "./errors";
 import { detectFindings } from "./findings";
+import { Budget, formatBytes, type AnalysisLimits } from "./limits";
+import { isCompoundFile, readCompoundFile } from "./ole/compoundFile";
+import { sha256Hex } from "./sha256";
 import {
   InventoryReportSchema,
   SCHEMA_VERSION,
@@ -19,6 +19,7 @@ import {
   type ExcelInfo,
   type FileFormat,
   type InventoryReport,
+  type Location,
   type Properties,
 } from "./schema";
 import { analyzeVbaProject } from "./vba/analyze";
@@ -34,12 +35,10 @@ export interface AnalyzeOptions {
   password?: string;
   /** レポートの生成日時(テスト用) */
   now?: Date;
-}
-
-
-export async function analyzeFile(path: string, options: AnalyzeOptions = {}): Promise<InventoryReport> {
-  const data = await readFile(path);
-  return analyzeBuffer(new Uint8Array(data.buffer, data.byteOffset, data.byteLength), basename(path), options);
+  /** 展開サイズ・件数・制限時間などの上限(既定値は DEFAULT_LIMITS) */
+  limits?: Partial<AnalysisLimits>;
+  /** SHA-256 の計算(既定は自前の実装。Node.js では node:crypto を渡すと速い) */
+  sha256?: (data: Uint8Array) => string;
 }
 
 interface Extracted {
@@ -55,14 +54,42 @@ interface Extracted {
   credentialLocations: string[];
 }
 
+/**
+ * バイト列を解析する(同期)。顧客から受け取った不明なファイルを想定し、壊れた・悪意のある入力でも
+ * InventoryError(UnsupportedFileError / PasswordError / CorruptFileError / LimitExceededError)を投げるか、結果を返す。
+ */
 export function analyzeBuffer(data: Uint8Array, fileName: string, options: AnalyzeOptions = {}): InventoryReport {
+  const budget = new Budget(options.limits);
+  if (data.length > budget.limits.maxInputBytes) {
+    throw new LimitExceededError(
+      "inputSize",
+      `ファイルサイズ(${formatBytes(data.length)})が上限(${formatBytes(budget.limits.maxInputBytes)})を超えているため、解析しません`,
+    );
+  }
+  try {
+    return analyze(data, fileName, options, budget);
+  } catch (e) {
+    if (e instanceof InventoryError) throw e;
+    throw new CorruptFileError(`ファイルが壊れているか、想定していない構造のため解析できませんでした(${describeInternalError(e)})`, { cause: e });
+  }
+}
+
+function describeInternalError(e: unknown): string {
+  const message = e instanceof Error ? e.message : String(e);
+  if (/call stack/i.test(message)) return "構造の入れ子が深すぎます";
+  if (/allocation failed|Invalid (typed )?array length|Invalid string length|out of memory/i.test(message)) return "必要なメモリを確保できません";
+  return message;
+}
+
+function analyze(data: Uint8Array, fileName: string, options: AnalyzeOptions, budget: Budget): InventoryReport {
   const warnings: string[] = [];
-  const extracted = extract(data, fileName, options, warnings);
+  const extracted = extract(data, fileName, options, warnings, budget);
   const host = extracted.kind;
 
   const vba = extracted.vba
     ? analyzeVbaProject(extracted.vba, {
         host,
+        budget,
         includeSource: options.includeSource ?? true,
         sheetNames: new Map(
           [...extracted.codeNames].flatMap(([k, v]) => {
@@ -129,7 +156,11 @@ export function analyzeBuffer(data: Uint8Array, fileName: string, options: Analy
     callGraph,
     entryPoints,
   };
-  const findings = detectFindings(partial, { credentialLocations: extracted.credentialLocations });
+  budget.checkNow();
+  const findings = detectFindings(partial, {
+    credentialLocations: extracted.credentialLocations,
+    sourceCredentialLocations: vba?.credentialLocations ?? ([] as Location[]),
+  });
 
   if (extracted.access && extracted.access.forms.length + extracted.access.reports.length > 0) {
     warnings.push("Accessのフォーム・レポートは名前の一覧のみです(画面レイアウトやコントロールの設定は解析していません)");
@@ -148,7 +179,7 @@ export function analyzeBuffer(data: Uint8Array, fileName: string, options: Analy
       format: extracted.format,
       kind: extracted.kind,
       sizeBytes: data.length,
-      sha256: createHash("sha256").update(data).digest("hex"),
+      sha256: (options.sha256 ?? sha256Hex)(data),
     },
     properties: extracted.properties,
     ...partial,
@@ -169,16 +200,14 @@ export function analyzeBuffer(data: Uint8Array, fileName: string, options: Analy
   return InventoryReportSchema.parse(report);
 }
 
-const OLE_MAGIC = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1];
-
-function extract(data: Uint8Array, fileName: string, options: AnalyzeOptions, warnings: string[]): Extracted {
+function extract(data: Uint8Array, fileName: string, options: AnalyzeOptions, warnings: string[], budget: Budget): Extracted {
   const ext = fileName.toLowerCase().split(".").pop() ?? "";
   const isZip = data[0] === 0x50 && data[1] === 0x4b;
-  const isOle = OLE_MAGIC.every((b, i) => data[i] === b);
+  const isOle = isCompoundFile(data);
   const jet = new TextDecoder("latin1").decode(data.subarray(4, 19));
 
   if (jet === "Standard Jet DB" || jet === "Standard ACE DB") {
-    const a = parseAccess(data, options.password, warnings);
+    const a = parseAccess(data, options.password, warnings, budget);
     return {
       format: jet === "Standard ACE DB" || ext === "accdb" ? "accdb" : "mdb",
       kind: "access",
@@ -194,16 +223,16 @@ function extract(data: Uint8Array, fileName: string, options: AnalyzeOptions, wa
   }
 
   if (isZip) {
-    const pkg = new OpcPackage(data);
+    const pkg = new OpcPackage(data, budget);
     const officeDoc = pkg.rels("").find((r) => r.type === "officeDocument");
     const workbookPath = officeDoc?.target ?? (pkg.bytes("xl/workbook.xml") ? "xl/workbook.xml" : "xl/workbook.bin");
     if (!/workbook\.(xml|bin)$/i.test(workbookPath) || !pkg.bytes(workbookPath)) {
       throw new UnsupportedFileError("Excelのブックとして読み込めませんでした(Word・PowerPoint などのファイルは対象外です)");
     }
     const binary = workbookPath.toLowerCase().endsWith(".bin");
-    const parts: WorkbookParts = binary ? parseXlsbWorkbook(pkg, workbookPath, warnings) : parseSpreadsheetMl(pkg, workbookPath);
+    const parts: WorkbookParts = binary ? parseXlsbWorkbook(pkg, workbookPath, warnings) : parseSpreadsheetMl(pkg, workbookPath, warnings);
     const vbaBin = parts.vbaProjectPath ? pkg.bytes(parts.vbaProjectPath) : null;
-    const vba = vbaBin ? readVbaFromOle(vbaBin, "", warnings) : null;
+    const vba = vbaBin ? readVbaFromOle(vbaBin, "", warnings, budget) : null;
     if (parts.excel.formulaTextAvailable === false) {
       warnings.push("xlsb 形式では数式の件数のみを数え、式の内容は取り出していません");
     }
@@ -222,11 +251,11 @@ function extract(data: Uint8Array, fileName: string, options: AnalyzeOptions, wa
   }
 
   if (isOle) {
-    const container = CFB.read(data, { type: "buffer" });
-    if (CFB.find(container, "EncryptionInfo")) {
+    const container = readCompoundFile(data, budget);
+    if (container.find("EncryptionInfo")) {
       throw new UnsupportedFileError("パスワードで暗号化されたブックは解析できません。パスワードを外してから読み込んでください");
     }
-    const xls = parseXls(container, warnings);
+    const xls = parseXls(container, warnings, budget);
     return {
       format: "xls",
       kind: "excel",
@@ -252,11 +281,12 @@ function ooxmlFormat(ext: string, hasVba: boolean): FileFormat {
   return hasVba ? "xlsm" : "xlsx";
 }
 
-export function readVbaFromOle(bin: Uint8Array, root: string, warnings: string[]): RawVbaProject | null {
+export function readVbaFromOle(bin: Uint8Array, root: string, warnings: string[], budget: Budget = new Budget()): RawVbaProject | null {
   try {
-    const container = CFB.read(bin, { type: "buffer" });
-    return extractVbaProject(cfbStorage(container, root), warnings);
+    const container = readCompoundFile(bin, budget);
+    return extractVbaProject(cfbStorage(container, root), warnings, budget);
   } catch (e) {
+    rethrowIfFatal(e);
     warnings.push(`VBAプロジェクトを読めませんでした: ${(e as Error).message}`);
     return null;
   }

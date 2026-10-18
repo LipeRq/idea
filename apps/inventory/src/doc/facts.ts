@@ -56,16 +56,23 @@ export interface DependencyGroup {
 /** 依存を種類ごと・対象ごとにまとめる(同じパスが何か所にもあれば1行にする) */
 export function groupDependencies(deps: Dependency[]): DependencyGroup[] {
   const groups = new Map<DependencyKind, DependencyGroup>();
+  const items = new Map<string, DependencyGroup["items"][number]>();
   for (const d of deps) {
-    const g = groups.get(d.kind) ?? { kind: d.kind, label: DEPENDENCY_KIND_LABEL[d.kind], items: [] };
-    const item = g.items.find((i) => i.target === d.target && i.category === d.category);
+    let g = groups.get(d.kind);
+    if (!g) {
+      g = { kind: d.kind, label: DEPENDENCY_KIND_LABEL[d.kind], items: [] };
+      groups.set(d.kind, g);
+    }
+    const key = `${d.kind}\u0000${d.target}\u0000${d.category ?? "\u0001"}`;
+    const item = items.get(key);
     if (item) {
       item.count++;
       item.locations.push(d.location);
     } else {
-      g.items.push({ target: d.target, category: d.category, count: 1, locations: [d.location] });
+      const created = { target: d.target, category: d.category, count: 1, locations: [d.location] };
+      items.set(key, created);
+      g.items.push(created);
     }
-    groups.set(d.kind, g);
   }
   return [...groups.values()];
 }

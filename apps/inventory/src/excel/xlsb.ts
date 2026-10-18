@@ -1,6 +1,8 @@
 // .xlsb(バイナリブック)の解析。シート一覧・使用範囲・数式の件数・名前定義を BIFF12 レコードから読む。
 import type { ControlMacro, DefinedName, ExternalLink, Sheet } from "../schema";
 import { collectControlMacros, rangeRef, readExternalLink } from "./common";
+import { rethrowIfFatal } from "../errors";
+import type { Budget } from "../limits";
 import type { OpcPackage } from "./opc";
 import type { WorkbookParts } from "./ooxml";
 
@@ -11,9 +13,10 @@ const BRT_WB_PROP = 0x99;
 const BRT_BUNDLE_SH = 0x9c;
 const BRT_FMLA = new Set([0x08, 0x09, 0x0a, 0x0b]);
 
-export function* biff12Records(buf: Uint8Array): Generator<{ type: number; data: Uint8Array }> {
+export function* biff12Records(buf: Uint8Array, budget?: Budget): Generator<{ type: number; data: Uint8Array }> {
   let pos = 0;
   while (pos < buf.length) {
+    budget?.check();
     let type = buf[pos++];
     if (type & 0x80) type = (type & 0x7f) | ((buf[pos++] & 0x7f) << 7);
     let size = 0;
@@ -52,6 +55,7 @@ class Reader {
 }
 
 export function parseXlsbWorkbook(pkg: OpcPackage, workbookPath: string, warnings: string[]): WorkbookParts {
+  const budget = pkg.budget;
   const wb = pkg.bytes(workbookPath) ?? new Uint8Array();
   const rels = pkg.rels(workbookPath);
   const relById = new Map(rels.map((r) => [r.id, r]));
@@ -59,7 +63,7 @@ export function parseXlsbWorkbook(pkg: OpcPackage, workbookPath: string, warning
   const bundles: { name: string; state: number; relId: string | null }[] = [];
   const names: { name: string; itab: number; flags: number }[] = [];
 
-  for (const rec of biff12Records(wb)) {
+  for (const rec of biff12Records(wb, budget)) {
     try {
       if (rec.type === BRT_BUNDLE_SH) {
         const r = new Reader(rec.data);
@@ -77,21 +81,23 @@ export function parseXlsbWorkbook(pkg: OpcPackage, workbookPath: string, warning
         const code = new Reader(rec.data, 8).wideString();
         if (code) codeNames.set(code.toLowerCase(), "ブック");
       }
-    } catch {
+    } catch (e) {
+      rethrowIfFatal(e);
       warnings.push(`xlsb のレコード(0x${rec.type.toString(16)})を読めませんでした`);
     }
   }
 
   const sheets: Sheet[] = [];
   const controlMacros: ControlMacro[] = [];
-  bundles.forEach((b, index) => {
+  budget.cap(bundles, budget.limits.maxSheets, warnings, "シート").forEach((b, index) => {
+    budget.checkNow();
     const rel = b.relId ? relById.get(b.relId) : undefined;
     const bin = rel && !rel.external ? pkg.bytes(rel.target) : null;
     let usedRange: string | null = null;
     let formulaCount = 0;
     let codeName: string | null = null;
     if (bin) {
-      for (const rec of biff12Records(bin)) {
+      for (const rec of biff12Records(bin, budget)) {
         if (BRT_FMLA.has(rec.type)) formulaCount++;
         else if (rec.type === BRT_WS_DIM && rec.data.length >= 16) {
           const r = new Reader(rec.data);
@@ -118,7 +124,7 @@ export function parseXlsbWorkbook(pkg: OpcPackage, workbookPath: string, warning
     if (rel && !rel.external) controlMacros.push(...collectControlMacros(pkg, rel.target, b.name, null));
   });
 
-  const definedNames: DefinedName[] = names.map((n) => ({
+  const definedNames: DefinedName[] = budget.cap(names, budget.limits.maxListItems, warnings, "名前定義").map((n) => ({
     name: n.name,
     scope: n.itab !== 0xffffffff ? (sheets[n.itab]?.name ?? String(n.itab)) : null,
     refersTo: null,
@@ -126,8 +132,8 @@ export function parseXlsbWorkbook(pkg: OpcPackage, workbookPath: string, warning
     builtIn: (n.flags & 0x20) !== 0 || n.name.startsWith("_xlnm."),
   }));
 
-  const externalLinks: ExternalLink[] = rels
-    .filter((r) => r.type === "externalLink" && !r.external)
+  const externalLinks: ExternalLink[] = budget
+    .cap(rels.filter((r) => r.type === "externalLink" && !r.external), budget.limits.maxListItems, warnings, "外部リンク")
     .map((r, i) => readExternalLink(pkg, r.target, i + 1));
   if (rels.some((r) => r.type === "connections")) {
     warnings.push("xlsb 形式の外部データ接続(connections.bin)は内容を解析していません");

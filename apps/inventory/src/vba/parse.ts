@@ -33,6 +33,8 @@ export interface ParsedModule {
   declares: Declare[];
   hasOptionExplicit: boolean;
   withEvents: string[];
+  /** モジュールレベルで宣言された変数・定数の名前(呼び出しの解決で、同名のプロシージャと区別する) */
+  moduleVariables: string[];
   lineCount: number;
   codeLineCount: number;
   commentLineCount: number;
@@ -62,6 +64,11 @@ const SUFFIX_TYPE: Record<string, string> = {
   "@": "Currency",
 };
 
+/** VBA の行継続は 24 回まで。壊れたソースで延々とつながるのを防ぐため、これを超えたら新しい論理行にする */
+const MAX_CONTINUATIONS = 64;
+/** 1つの論理行として解析する最大文字数(VBE の上限は 1 行 1023 文字 × 25 行) */
+const MAX_LOGICAL_LINE = 32 * 1024;
+
 export function parseModuleSource(source: string): ParsedModule {
   const physical = source.split("\n");
   let commentLineCount = 0;
@@ -77,10 +84,12 @@ export function parseModuleSource(source: string): ParsedModule {
   for (let i = 0; i < physical.length; i++) {
     const start = i;
     let text = physical[i];
-    while (/(^|\s)_\s*$/.test(text) && i + 1 < physical.length) {
+    let joined = 0;
+    while (joined < MAX_CONTINUATIONS && text.length < MAX_LOGICAL_LINE && /(^|\s)_\s*$/.test(text) && i + 1 < physical.length) {
       text = text.replace(/_\s*$/, "") + " " + physical[++i].trimStart();
+      joined++;
     }
-    const { code, bare, strings } = splitCode(text);
+    const { code, bare, strings } = splitCode(text.length > MAX_LOGICAL_LINE ? text.slice(0, MAX_LOGICAL_LINE) : text);
     lines.push({ start: start + 1, end: i + 1, code, bare, strings, proc: -1 });
   }
 
@@ -88,8 +97,11 @@ export function parseModuleSource(source: string): ParsedModule {
   const declares: Declare[] = [];
   let hasOptionExplicit = false;
   const withEvents: string[] = [];
+  const moduleVariables: string[] = [];
   let current: ParsedProcedure | null = null;
   let flags = { handler: false, resumeNext: false };
+  // 条件付きコンパイル(#If VBA7 Then ... #Else ... #End If)。64ビット版で読まれない分岐かどうかを追う
+  const branches: { seenPositive: boolean; legacy: boolean }[] = [];
 
   const close = (endLine: number) => {
     if (!current) return;
@@ -101,12 +113,32 @@ export function parseModuleSource(source: string): ParsedModule {
 
   for (const line of lines) {
     const code = line.code.replace(/^\d+\s+/, "");
+    const directive = /^#\s*(If|ElseIf|Else|End\s*If)\b\s*(.*?)(?:\s+Then)?\s*$/i.exec(code);
+    if (directive) {
+      const kind = directive[1].toLowerCase().replace(/\s+/g, "");
+      const cond = directive[2];
+      const top = branches[branches.length - 1];
+      if (kind === "if") branches.push({ seenPositive: isWin64Condition(cond), legacy: isNotWin64Condition(cond) });
+      else if (kind === "elseif" && top) {
+        top.legacy = top.seenPositive || isNotWin64Condition(cond);
+        top.seenPositive ||= isWin64Condition(cond);
+      } else if (kind === "else" && top) top.legacy = top.seenPositive;
+      else if (kind === "endif") branches.pop();
+      continue;
+    }
     if (!current) {
       if (/^Option\s+Explicit\b/i.test(code)) hasOptionExplicit = true;
       for (const m of line.bare.matchAll(WITH_EVENTS_RE)) withEvents.push(m[1]);
       const d = DECLARE_RE.exec(code);
       if (d) {
-        declares.push({ name: d[2], lib: d[3], alias: d[4] ?? null, ptrSafe: Boolean(d[1]), line: line.start });
+        declares.push({
+          name: d[2],
+          lib: d[3],
+          alias: d[4] ?? null,
+          ptrSafe: Boolean(d[1]),
+          line: line.start,
+          legacyBranch: branches.some((b) => b.legacy),
+        });
         continue;
       }
       const header = parseProcedureHeader(code, line.start);
@@ -114,7 +146,11 @@ export function parseModuleSource(source: string): ParsedModule {
         current = header;
         flags = { handler: false, resumeNext: false };
         line.proc = procedures.length;
+        // 1行で書かれたプロシージャ(Sub A(): MsgBox 1: End Sub)
+        if (/:\s*End\s+(Sub|Function|Property)\s*$/i.test(line.bare)) close(line.end);
+        continue;
       }
+      moduleVariables.push(...declaredNames(line.bare, true));
       continue;
     }
 
@@ -142,10 +178,46 @@ export function parseModuleSource(source: string): ParsedModule {
     declares,
     hasOptionExplicit,
     withEvents,
+    moduleVariables,
     lineCount: physical.length === 1 && physical[0] === "" ? 0 : physical.length,
     codeLineCount,
     commentLineCount,
   };
+}
+
+const isWin64Condition = (cond: string) => /^\(?\s*(VBA7|Win64)\s*\)?$/i.test(cond.trim());
+const isNotWin64Condition = (cond: string) => /^Not\s+\(?\s*(VBA7|Win64)\s*\)?$/i.test(cond.trim());
+
+const DECLARATION_RE = /^(?:(?:Public|Private|Global|Friend)\s+)?(?:(Dim|Static|Const|ReDim(?:\s+Preserve)?|Public|Private|Global)\s+)(?:(?:Const|WithEvents|Shared)\s+)?(.+)$/i;
+const NOT_VARIABLE_RE = /^(?:(?:Public|Private|Global|Friend)\s+)?(?:Declare|Sub|Function|Property|Enum|Type|Event|Implements)\b/i;
+const LEADING_IDENT_RE = new RegExp(String.raw`^\s*(${IDENT})`, "u");
+
+/**
+ * Dim / Private / Const などの宣言文で宣言される名前を返す(Dim a As Long, b(1 To 3) As String → a, b)。
+ * moduleLevel が false のときは手続き内の宣言(Dim / Static / Const / ReDim)だけを見る。
+ */
+export function declaredNames(bare: string, moduleLevel: boolean): string[] {
+  if (NOT_VARIABLE_RE.test(bare)) return [];
+  const m = DECLARATION_RE.exec(bare);
+  if (!m) return [];
+  if (!moduleLevel && !/^(Dim|Static|Const|ReDim)/i.test(m[1])) return [];
+  const names: string[] = [];
+  let depth = 0;
+  let part = "";
+  for (const c of m[2]) {
+    if (c === "(") depth++;
+    else if (c === ")") depth--;
+    if (c === "," && depth === 0) {
+      const n = LEADING_IDENT_RE.exec(part);
+      if (n) names.push(n[1]);
+      part = "";
+      continue;
+    }
+    part += c;
+  }
+  const n = LEADING_IDENT_RE.exec(part);
+  if (n) names.push(n[1]);
+  return names;
 }
 
 function parseProcedureHeader(code: string, line: number): ParsedProcedure | null {

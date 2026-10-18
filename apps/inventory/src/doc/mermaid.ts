@@ -1,8 +1,15 @@
 // Mermaid の図を組み立てる。ラベルはすべて引用符で囲み、ID は n1, n2 ... の連番にする。
 import type { InventoryReport } from "../schema";
 
+/** Mermaid のラベル。引用符・山括弧・バッククォート(Markdown のコードフェンスを閉じないように)・改行を無害化する */
 export function mermaidLabel(text: string): string {
-  return `"${text.replace(/"/g, "#quot;").replace(/</g, "#lt;").replace(/>/g, "#gt;").replace(/\r?\n/g, " ")}"`;
+  return `"${text
+    .replace(/#/g, "#35;")
+    .replace(/"/g, "#quot;")
+    .replace(/</g, "#lt;")
+    .replace(/>/g, "#gt;")
+    .replace(/`/g, "#96;")
+    .replace(/[\r\n]+/g, " ")}"`;
 }
 
 export const MAX_GRAPH_NODES = 60;
@@ -38,9 +45,10 @@ export function callFlowDiagram(r: InventoryReport, maxNodes = MAX_GRAPH_NODES):
     }
   }
   const all = new Set([...r.callGraph.flatMap((e) => [e.from, e.to])]);
+  let head = 0;
   const visit = () => {
-    while (queue.length > 0) {
-      const cur = queue.shift()!;
+    while (head < queue.length) {
+      const cur = queue[head++];
       order.push(cur);
       for (const next of adjacency.get(cur) ?? []) {
         if (!seen.has(next.to)) {

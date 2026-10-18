@@ -1,6 +1,7 @@
 // MSysQueries の行から保存済みクエリの SQL を組み立てる。
 // 行の意味づけは Jackcess(Apache License 2.0)の QueryImpl 系クラスの解析結果を参考にした。
 import type { QueryType } from "../schema";
+import { hasCredentials, maskSecrets } from "../secrets";
 
 export interface QueryRow {
   attribute: number;
@@ -94,6 +95,8 @@ export interface BuiltQuery {
   /** 追加・テーブル作成クエリの書き込み先 */
   target: string | null;
   connect: string | null;
+  /** IN [ODBC;…;PWD=…] のような外部データベースの指定にパスワードが書かれていたか */
+  remoteCredentials: boolean;
 }
 
 export function buildQuery(objectFlags: number, unsorted: QueryRow[]): BuiltQuery {
@@ -109,10 +112,13 @@ export function buildQuery(objectFlags: number, unsorted: QueryRow[]): BuiltQuer
   } catch {
     sql = null;
   }
+  // パススルー・データ定義はサーバー側の SQL がそのまま入るので、パスワードの指定を伏せる
+  if (sql && (type === "passThrough" || type === "dataDefinition")) sql = maskSecrets(sql);
   const typeRow = q.one(ATTR.type);
   const connect = type === "passThrough" ? (typeRow?.name1 ?? null) : null;
   const target = type === "append" || type === "makeTable" ? (typeRow?.name1 ?? null) : null;
-  return { type, sql, tables: [...new Set(tables)], target, connect };
+  const remoteCredentials = [q.one(ATTR.remoteDb)?.expression, typeRow?.expression].some((x) => x && x.includes(";") && hasCredentials(x));
+  return { type, sql, tables: [...new Set(tables)], target, connect, remoteCredentials };
 }
 
 function compareOrder(a: QueryRow, b: QueryRow): number {
@@ -212,9 +218,10 @@ class QueryRows {
     return t?.name1 ? ` INTO ${quoteIdentifier(t.name1)}${this.remoteDb({ ...t, name1: t.name2, expression: t.expression })}` : "";
   }
 
+  /** IN 'パス' [接続文字列]。接続文字列のパスワードは伏せる */
   private remoteDb(row: QueryRow | undefined): string {
     if (!row || (row.name1 === null && row.expression === null)) return "";
-    return ` IN '${row.name1 ?? ""}'${row.expression !== null ? ` [${row.expression}]` : ""}`;
+    return ` IN '${row.name1 ?? ""}'${row.expression !== null ? ` [${maskSecrets(row.expression)}]` : ""}`;
   }
 
   private append(): string {

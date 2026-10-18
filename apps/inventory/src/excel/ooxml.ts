@@ -1,8 +1,10 @@
 // .xlsm / .xlam / .xlsx / .xltm(SpreadsheetML の XML)の解析。
 import type { Connection, ControlMacro, DefinedName, ExcelInfo, ExternalLink, Sheet } from "../schema";
+import type { Budget } from "../limits";
 import { hasCredentials, maskSecrets } from "../secrets";
 import { attr, collectControlMacros, readExternalLink } from "./common";
 import { decodeXmlText, nodeText, type OpcPackage, type XmlNode } from "./opc";
+import { firstElement, scanElements } from "./xmlScan";
 
 export interface WorkbookParts {
   excel: ExcelInfo;
@@ -34,7 +36,8 @@ const CONNECTION_TYPE: Record<string, string> = {
   "8": "DSP",
 };
 
-export function parseSpreadsheetMl(pkg: OpcPackage, workbookPath: string): WorkbookParts {
+export function parseSpreadsheetMl(pkg: OpcPackage, workbookPath: string, warnings: string[] = []): WorkbookParts {
+  const budget = pkg.budget;
   const wbXml = pkg.xml(workbookPath)?.workbook ?? {};
   const rels = pkg.rels(workbookPath);
   const relById = new Map(rels.map((r) => [r.id, r]));
@@ -44,12 +47,13 @@ export function parseSpreadsheetMl(pkg: OpcPackage, workbookPath: string): Workb
 
   const sheets: Sheet[] = [];
   const controlMacros: ControlMacro[] = [];
-  const sheetNodes: XmlNode[] = wbXml.sheets?.sheet ?? [];
+  const sheetNodes: XmlNode[] = budget.cap(asArray(wbXml.sheets?.sheet), budget.limits.maxSheets, warnings, "シート");
   sheetNodes.forEach((node, index) => {
+    budget.checkNow();
     const name = String(node.name ?? `Sheet${index + 1}`);
     const rel = relById.get(String(node.id ?? ""));
     const xml = rel && !rel.external ? pkg.text(rel.target) : null;
-    const scan = xml ? scanSheetXml(xml) : null;
+    const scan = xml ? scanSheetXml(xml, budget) : null;
     const state = String(node.state ?? "visible");
     sheets.push({
       name,
@@ -67,7 +71,8 @@ export function parseSpreadsheetMl(pkg: OpcPackage, workbookPath: string): Workb
     if (rel && !rel.external) controlMacros.push(...collectControlMacros(pkg, rel.target, name, xml));
   });
 
-  const definedNames: DefinedName[] = (wbXml.definedNames?.definedName ?? []).map((n: XmlNode) => {
+  const nameNodes = budget.cap(asArray(wbXml.definedNames?.definedName), budget.limits.maxListItems, warnings, "名前定義");
+  const definedNames: DefinedName[] = nameNodes.map((n: XmlNode) => {
     const name = String(n.name ?? "");
     const local = n.localSheetId !== undefined ? Number(n.localSheetId) : null;
     return {
@@ -80,14 +85,14 @@ export function parseSpreadsheetMl(pkg: OpcPackage, workbookPath: string): Workb
   });
 
   const externalLinks: ExternalLink[] = [];
-  (wbXml.externalReferences?.externalReference ?? []).forEach((ref: XmlNode, i: number) => {
+  budget.cap(asArray(wbXml.externalReferences?.externalReference), budget.limits.maxListItems, warnings, "外部リンク").forEach((ref: XmlNode, i: number) => {
     const rel = relById.get(String(ref.id ?? ""));
     if (rel && !rel.external) externalLinks.push(readExternalLink(pkg, rel.target, i + 1));
   });
 
   const connectionsRel = rels.find((r) => r.type === "connections");
   const credentialLocations: string[] = [];
-  const connections = connectionsRel ? parseConnections(pkg.xml(connectionsRel.target), credentialLocations) : [];
+  const connections = connectionsRel ? parseConnections(pkg.xml(connectionsRel.target), credentialLocations, warnings, budget) : [];
   const vbaRel = rels.find((r) => r.type === "vbaProject");
 
   return {
@@ -115,28 +120,34 @@ interface SheetScan {
   brokenRefCount: number;
 }
 
-/** シートXMLは大きくなりうるので、DOMにせず正規表現で走査する。セルの値は読まない。 */
-export function scanSheetXml(xml: string): SheetScan {
-  const codeName = /<(?:\w+:)?sheetPr\b[^>]*\bcodeName="([^"]*)"/.exec(xml)?.[1] ?? null;
-  const dimension = /<(?:\w+:)?dimension\b[^>]*\bref="([^"]*)"/.exec(xml)?.[1] ?? null;
+/** シートXMLは大きくなりうるので、DOMにせず線形時間のスキャナで走査する。セルの値は読まない。 */
+export function scanSheetXml(xml: string, budget?: Budget): SheetScan {
+  // sheetPr / dimension は sheetData より前にある
+  const dataAt = xml.search(/<(?:[\w.-]+:)?sheetData[\s/>]/);
+  const head = xml.slice(0, dataAt >= 0 ? dataAt : Math.min(xml.length, 1 << 20));
+  const sheetPr = firstElement(head, "sheetPr");
+  const dimensionTag = firstElement(head, "dimension");
+  const codeName = sheetPr ? attr(sheetPr.attrs, "codeName") : null;
+  const dimension = dimensionTag ? attr(dimensionTag.attrs, "ref") : null;
   let formulaCount = 0;
   let externalRefCount = 0;
   let brokenRefCount = 0;
   const samples: Sheet["formulaSamples"] = [];
   const seen = new Set<string>();
-  for (const m of xml.matchAll(/<(?:x:)?f\b([^>]*?)(?:\/>|>([\s\S]*?)<\/(?:x:)?f>)/g)) {
+  for (const el of scanElements(xml, "f", { prefix: "(?:x:)?", withInner: true })) {
     formulaCount++;
-    const text = m[2] ? decodeXmlText(m[2]) : "";
+    budget?.check();
+    const text = el.inner ? decodeXmlText(el.inner) : "";
     if (!text) continue; // 共有数式の子セルは式テキストを持たない
     if (/\[\d+\]/.test(text)) externalRefCount++;
     if (text.includes("#REF!")) brokenRefCount++;
     if (samples.length < MAX_FORMULA_SAMPLES && !seen.has(text)) {
       seen.add(text);
-      samples.push({ cell: cellRefBefore(xml, m.index ?? 0), formula: text });
+      samples.push({ cell: cellRefBefore(xml, el.index), formula: text });
     }
   }
   return {
-    codeName: codeName ? decodeXmlText(codeName) : null,
+    codeName,
     dimension,
     formulaCount,
     samples,
@@ -149,11 +160,12 @@ function cellRefBefore(xml: string, index: number): string | null {
   const start = Math.max(xml.lastIndexOf("<c ", index), xml.lastIndexOf("<x:c ", index));
   if (start < 0) return null;
   const end = xml.indexOf(">", start);
+  if (end < 0) return null;
   return attr(xml.slice(start + 2, end), "r");
 }
 
-function parseConnections(doc: XmlNode, credentialLocations: string[]): Connection[] {
-  const list: XmlNode[] = doc?.connections?.connection ?? [];
+function parseConnections(doc: XmlNode, credentialLocations: string[], warnings: string[], budget: Budget): Connection[] {
+  const list: XmlNode[] = budget.cap(asArray(doc?.connections?.connection), budget.limits.maxListItems, warnings, "データ接続");
   return list.map((c) => {
     const db = c.dbPr ?? c.olapPr ?? null;
     const raw = db?.connection ? String(db.connection) : null;
@@ -166,8 +178,14 @@ function parseConnections(doc: XmlNode, credentialLocations: string[]): Connecti
       name: String(c.name ?? c.id ?? ""),
       type,
       connectionString: raw ? maskSecrets(raw) : (web ?? text),
-      command: db?.command ? String(db.command) : null,
+      command: db?.command ? maskSecrets(String(db.command)) : null,
       description: c.description ? String(c.description) : null,
     };
   });
+}
+
+/** XML の要素が1つでも配列でも、配列にそろえる(壊れたファイルで文字列などが来ても落ちないように) */
+function asArray(v: unknown): XmlNode[] {
+  if (v === undefined || v === null) return [];
+  return (Array.isArray(v) ? v : [v]).filter((x) => x !== null && typeof x === "object");
 }

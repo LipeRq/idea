@@ -11,7 +11,7 @@ import {
   type Procedure,
 } from "../schema";
 import type { AiDocument } from "./aiSchema";
-import { MODEL } from "./ai";
+import { MODEL } from "./model";
 import { estimateComplexity, FORMAT_LABEL, formatLocation, groupDependencies } from "./facts";
 import { businessFlowDiagram, callFlowDiagram, MAX_GRAPH_NODES, queryDiagram, relationshipDiagram } from "./mermaid";
 import { ruleBasedHearingItems, ruleBasedMigrations } from "./migration";
@@ -23,13 +23,48 @@ export interface RenderOptions {
 }
 
 export const DATA_NOTICE =
-  "AIを使う場合、VBAのソースコード・クエリのSQL・シート名などの解析内容が Anthropic 社の API(Claude)に送信されます。セルの値(データ本体)と作成者名は送信しません。接続文字列のパスワードは伏せ字にしてから送信します。";
+  "AIを使う場合、VBAのソースコード・クエリのSQL・シート名などの解析内容が Anthropic 社の API(Claude)に送信されます。セルの値(データ本体)と作成者名は送信しません。接続文字列やコードに書かれたパスワードは伏せ字にしてから送信します。";
 
-const cell = (v: unknown) =>
-  String(v ?? "")
-    .replace(/\|/g, "\\|")
-    .replace(/\r?\n/g, "<br>");
-const code = (v: string) => (v ? `\`${v.replace(/`/g, "'")}\`` : "");
+// ---- エスケープ ----
+// シート名・プロシージャ名・SQL などファイル由来の文字列と、AI が書いた文章は、そのまま Markdown に入れると
+// HTML(<img onerror=…>)・リンク・画像([x](javascript:…)、![](https://…))として解釈されうる。
+// 仕様書はブラウザで表示されることもあるため、すべて文字として表示されるように変換してから入れる。
+
+/** 組み立て済みの Markdown(エスケープ済み)。table() に渡すとそのまま使う */
+class Raw {
+  constructor(readonly text: string) {}
+}
+const raw = (text: string) => new Raw(text);
+
+/** 1行の文字列として表示する(HTML のタグ・リンク・画像の記法を無効にする) */
+export function escapeInline(v: unknown): string {
+  return String(v ?? "")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/[[\]]/g, "\\$&")
+    .replace(/[\r\n]+/g, " ");
+}
+
+/** 段落として表示する(改行は保ち、行頭の # > - などで見出し・引用・リストにならないようにする) */
+export function escapeParagraph(v: unknown): string {
+  return String(v ?? "")
+    .split(/\r?\n/)
+    .map((line) => escapeInline(line).replace(/^(\s*)([#>+*=-]|\d+[.)]|`{3,}|~{3,}|\|)/, "$1\\$2"))
+    .join("\n");
+}
+
+const cell = (v: unknown) => {
+  const text = v instanceof Raw ? v.text : escapeInline(v);
+  return text.replace(/\|/g, "\\|").replace(/\r?\n/g, "<br>");
+};
+const code = (v: string) => raw(v ? `\`${v.replace(/`/g, "'").replace(/[\r\n]+/g, " ")}\`` : "");
+const lines = (items: string[]) => raw(items.map(escapeInline).join("<br>"));
+
+/** 中身に含まれるどのバッククォートの並びよりも長いフェンス */
+function fence(content: string): string {
+  const longest = Math.max(0, ...[...content.matchAll(/`+/g)].map((m) => m[0].length));
+  return "`".repeat(Math.max(3, longest + 1));
+}
 
 function table(headers: string[], rows: unknown[][]): string {
   return [`| ${headers.join(" | ")} |`, `| ${headers.map(() => "---").join(" | ")} |`, ...rows.map((r) => `| ${r.map(cell).join(" | ")} |`)].join("\n");
@@ -47,19 +82,19 @@ export function renderMarkdown(r: InventoryReport, options: RenderOptions = {}):
   let n = 0;
   const section = (title: string) => push(`## ${++n}. ${title}`, "");
 
-  push(`# 棚卸しレポート: ${r.file.name}`, "");
+  push(`# 棚卸しレポート: ${escapeInline(r.file.name)}`, "");
   push(
     `> 生成日時: ${r.generatedAt} / ${r.tool.name} ${r.tool.version}`,
     ai
       ? `> 件数・行数・依存関係は解析結果からの機械的な集計です。概要・業務フロー・リスク評価・移行提案などの文章は AI(${MODEL})による推定を含むため、現場への確認を前提にご覧ください。`
-      : `> AIを使わず、解析結果だけで作成した標準レポートです。${options.aiError ? `(AIによる文章生成に失敗したため: ${options.aiError})` : ""}`,
+      : `> AIを使わず、解析結果だけで作成した標準レポートです。${options.aiError ? `(AIによる文章生成に失敗したため: ${escapeInline(options.aiError)})` : ""}`,
     "",
   );
 
   // 1. 概要
   const complexity = estimateComplexity(r);
   section("概要");
-  push(ai ? ai.overall.overview : standardOverview(r), "");
+  push(escapeParagraph(ai ? ai.overall.overview : standardOverview(r)), "");
   push(
     table(
       ["項目", "内容"],
@@ -83,14 +118,14 @@ export function renderMarkdown(r: InventoryReport, options: RenderOptions = {}):
       [[r.stats.sheetCount, r.stats.formulaCount, r.stats.moduleCount, r.stats.procedureCount, `${r.stats.codeLineCount}(${r.stats.totalLineCount})`, r.stats.tableCount, r.stats.queryCount, r.stats.dependencyCount]],
     ),
     "",
-    `移行難易度の機械的な目安: **${complexity.level}**(${complexity.reasons.join(" / ")})`,
+    `移行難易度の機械的な目安: **${complexity.level}**(${escapeInline(complexity.reasons.join(" / "))})`,
     "",
   );
 
   // 2. 処理の流れ
   section("処理の流れ");
   if (ai && ai.overall.businessFlow.steps.length > 0) {
-    push("### 業務フロー(AIによる推定)", "", ai.overall.businessFlow.summary, "", "```mermaid", businessFlowDiagram(ai.overall.businessFlow.steps), "```", "");
+    push("### 業務フロー(AIによる推定)", "", escapeParagraph(ai.overall.businessFlow.summary), "", "```mermaid", businessFlowDiagram(ai.overall.businessFlow.steps), "```", "");
   }
   push("### 起動のきっかけ", "");
   if (r.entryPoints.length === 0) push("起動のきっかけ(イベント・ボタン等)は見つかりませんでした。", "");
@@ -150,10 +185,10 @@ export function renderMarkdown(r: InventoryReport, options: RenderOptions = {}):
   const migrations = ai ? ai.overall.migrations : ruleBasedMigrations(r);
   if (!ai) push("> AIを使わない場合は、抽出結果の特徴からルールで選んだ目安を示します。", "");
   push(table(["移行先", "適合度", "難易度", "理由", "進め方", "注意点"], migrations.map((m) => [m.target, m.fit, m.difficulty, m.reason, m.approach, m.concerns])), "");
-  if (ai) push(`**おすすめの進め方**: ${ai.overall.recommendation}`, "");
+  if (ai) push(`**おすすめの進め方**: ${escapeInline(ai.overall.recommendation)}`, "");
 
   section("現場に確認すること");
-  push(...(ai ? ai.overall.hearingItems : ruleBasedHearingItems(r)).map((q) => `- ${q}`), "");
+  push(...(ai ? ai.overall.hearingItems : ruleBasedHearingItems(r)).map((q) => `- ${escapeInline(q)}`), "");
 
   // 付録
   push("## 付録", "", "### 解析の制約・警告", "");
@@ -162,9 +197,9 @@ export function renderMarkdown(r: InventoryReport, options: RenderOptions = {}):
     "シートのセルの値(データ本体)は読み取っていません。数式・構造・コードのみを対象にしています。",
     "呼び出し関係は静的な解析です。文字列を組み立てて実行するマクロ名や、オブジェクト変数経由のクラスメソッド呼び出しは検出できないことがあります。",
   ];
-  push(...constraints.map((w) => `- ${w}`), "");
+  push(...constraints.map((w) => `- ${escapeInline(w)}`), "");
   if (ai) {
-    push("### AIへの入力について", "", `- ${DATA_NOTICE}`, ...ai.notes.map((n) => `- ${n}`), "");
+    push("### AIへの入力について", "", `- ${DATA_NOTICE}`, ...ai.notes.map((n) => `- ${escapeInline(n)}`), "");
   }
   return out.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
 }
@@ -202,7 +237,7 @@ function renderExcel(r: InventoryReport, push: Push, section: Section) {
         stateLabel[s.state],
         s.usedRange ?? "",
         s.formulaCount,
-        s.formulaSamples.map((f) => `${f.cell ? `${f.cell}: ` : ""}${code(f.formula)}`).join("<br>"),
+        raw(s.formulaSamples.map((f) => `${f.cell ? `${escapeInline(f.cell)}: ` : ""}${code(f.formula).text}`).join("<br>")),
       ]),
     ),
     "",
@@ -232,7 +267,7 @@ function renderVba(r: InventoryReport, ai: AiDocument | null, push: Push, sectio
   const v = r.vba!;
   section("VBAモジュール");
   push(
-    `VBAプロジェクト「${v.name}」/ 文字コード ${v.encoding}(コードページ ${v.codePage})${v.lockedForViewing ? " / 表示用にロックされています(解析は可能)" : ""}`,
+    `VBAプロジェクト「${escapeInline(v.name)}」/ 文字コード ${escapeInline(v.encoding)}(コードページ ${v.codePage})${v.lockedForViewing ? " / 表示用にロックされています(解析は可能)" : ""}`,
     "",
   );
   push(
@@ -249,9 +284,9 @@ function renderVba(r: InventoryReport, ai: AiDocument | null, push: Push, sectio
   for (const m of v.modules) {
     if (m.procedures.length === 0) continue;
     const narrative = ai?.modules.get(m.name);
-    push(`#### ${m.name}(${MODULE_TYPE_LABEL[m.type]})`, "");
-    if (narrative?.purpose) push(narrative.purpose, "");
-    if (narrative && narrative.concerns.length > 0) push(...narrative.concerns.map((c) => `- 気になる点: ${c}`), "");
+    push(`#### ${escapeInline(m.name)}(${MODULE_TYPE_LABEL[m.type]})`, "");
+    if (narrative?.purpose) push(escapeParagraph(narrative.purpose), "");
+    if (narrative && narrative.concerns.length > 0) push(...narrative.concerns.map((c) => `- 気になる点: ${escapeInline(c)}`), "");
     push(
       table(
         ["プロシージャ", "種類", "スコープ", "行", "引数", "エラー処理", "呼び出し先", "呼び出し元", ...(ai ? ["概要"] : [])],
@@ -262,8 +297,8 @@ function renderVba(r: InventoryReport, ai: AiDocument | null, push: Push, sectio
           `${p.startLine}〜${p.endLine}`,
           paramsText(p),
           { handler: "あり", resumeNext: "Resume Next", none: "なし" }[p.errorHandling],
-          p.calls.join("<br>"),
-          p.calledBy.join("<br>"),
+          lines(p.calls),
+          lines(p.calledBy),
           ...(ai ? [narrative?.procedures.get(p.name) ?? ""] : []),
         ]),
       ),
@@ -281,11 +316,11 @@ function paramsText(p: Procedure): string {
 function renderAccess(r: InventoryReport, ai: AiDocument | null, push: Push, section: Section) {
   const a = r.access!;
   section("Access");
-  push(`データベースエンジン: ${a.engine}`, "");
+  push(`データベースエンジン: ${escapeInline(a.engine)}`, "");
   push("### テーブル", "");
   if (a.tables.length === 0) push("ローカルのテーブルはありません。", "");
   else {
-    push(table(["テーブル", "件数", "列数", "列(型)"], a.tables.map((t) => [t.name, t.rowCount, t.columns.length, t.columns.map((c) => `${c.name}: ${c.type}${c.autoNumber ? "(自動採番)" : ""}`).join("<br>")])), "");
+    push(table(["テーブル", "件数", "列数", "列(型)"], a.tables.map((t) => [t.name, t.rowCount, t.columns.length, lines(t.columns.map((c) => `${c.name}: ${c.type}${c.autoNumber ? "(自動採番)" : ""}`))])), "");
   }
   if (a.linkedTables.length > 0) {
     push("### リンクテーブル", "", table(["名前", "種類", "参照先テーブル", "参照先", "接続文字列(パスワードは伏せ字)"], a.linkedTables.map((t) => [t.name, t.kind, t.sourceTable ?? "", code(t.database ?? ""), code(t.connect ?? "")])), "");
@@ -310,7 +345,9 @@ function renderAccess(r: InventoryReport, ai: AiDocument | null, push: Push, sec
     const summaries = ai?.modules.get("保存済みクエリ")?.procedures;
     push(table(["クエリ", "種類", "参照", ...(summaries ? ["概要"] : [])], visible.map((q) => [q.name, QUERY_TYPE_LABEL[q.type], q.tables.join("、"), ...(summaries ? [summaries.get(q.name) ?? ""] : [])])), "");
     for (const q of visible) {
-      push(`<details><summary>${q.name} の SQL</summary>`, "", "```sql", q.sql ?? "-- SQLを復元できませんでした", "```", "", "</details>", "");
+      const sql = q.sql ?? "-- SQLを復元できませんでした";
+      const f = fence(sql);
+      push(`<details><summary>${escapeInline(q.name)} の SQL</summary>`, "", `${f}sql`, sql, f, "", "</details>", "");
     }
   }
   const hidden = a.queries.length - visible.length;

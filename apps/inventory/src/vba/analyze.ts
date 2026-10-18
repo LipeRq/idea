@@ -1,8 +1,10 @@
 // 取り出したVBAソースから、プロシージャ・呼び出し関係・外部依存・起動のきっかけを組み立てる。
+import { Budget } from "../limits";
 import type {
   CallEdge,
   Dependency,
   EntryPoint,
+  Location,
   ModuleType,
   Procedure,
   VbaModule,
@@ -10,8 +12,8 @@ import type {
   VbaReference,
 } from "../schema";
 import { detectEvent } from "./events";
-import { parseModuleSource, type LogicalLine, type ParsedModule } from "./parse";
-import { hasCredentials, maskSecrets, maskSecretsInSource } from "../secrets";
+import { declaredNames, parseModuleSource, type LogicalLine, type ParsedModule } from "./parse";
+import { hasCredentials, maskVbaSource } from "../secrets";
 import type { RawVbaProject } from "./project";
 
 export interface VbaAnalysis {
@@ -19,6 +21,8 @@ export interface VbaAnalysis {
   callGraph: CallEdge[];
   dependencies: Dependency[];
   entryPoints: EntryPoint[];
+  /** ソースに書かれたパスワード(伏せ字にした箇所) */
+  credentialLocations: Location[];
 }
 
 export interface VbaAnalysisOptions {
@@ -26,6 +30,7 @@ export interface VbaAnalysisOptions {
   includeSource: boolean;
   /** シートのコード名(Sheet1)→ シート名(売上) */
   sheetNames?: Map<string, string>;
+  budget?: Budget;
 }
 
 interface ModuleContext {
@@ -33,19 +38,37 @@ interface ModuleContext {
   type: ModuleType;
   parsed: ParsedModule;
   procedures: Procedure[];
+  /** 伏せ字にした後のソース */
+  source: string;
+  /** プロシージャごとのローカル変数・引数(小文字) */
+  locals: Set<string>[];
+  /** モジュールレベルの変数・定数(小文字) */
+  moduleVariables: Set<string>;
 }
 
 const IDENT = String.raw`[\p{L}_][\p{L}\p{N}_]*`;
 const CHAIN_RE = new RegExp(String.raw`([.!]\s*)?(${IDENT}(?:\s*\.\s*${IDENT})*)`, "gu");
+const FOR_LOOP_RE = new RegExp(String.raw`^For\s+(?:Each\s+)?(${IDENT})(?![\p{L}\p{N}_])`, "iu");
 
 export function analyzeVbaProject(raw: RawVbaProject, options: VbaAnalysisOptions): VbaAnalysis {
+  const budget = options.budget ?? new Budget();
+  const credentialLocations: Location[] = [];
   const contexts: ModuleContext[] = raw.modules.map((m) => {
-    const parsed = parseModuleSource(m.source);
+    budget.checkNow();
+    // パスワードは解析の前に伏せる(依存の一覧・JSON・AI への入力のどこにも元の値が残らないように)
+    const masked = maskVbaSource(m.source, () => budget.check());
+    const parsed = parseModuleSource(masked.source);
     const sheetLabel = options.sheetNames?.get(m.name.toLowerCase());
+    const usedIds = new Set<string>();
     const procedures = parsed.procedures.map((p): Procedure => {
       const event = detectEvent(p.name, m.name, m.type, parsed.withEvents, sheetLabel);
+      // Property Get / Let のように同じ名前が複数あるときは、2つ目以降の ID に種類を付けて区別する
+      let id = `${m.name}.${p.name}`;
+      if (usedIds.has(id.toLowerCase())) id = `${id}(${KIND_SUFFIX[p.kind]})`;
+      for (let n = 2; usedIds.has(id.toLowerCase()); n++) id = `${m.name}.${p.name}(${KIND_SUFFIX[p.kind]}${n})`;
+      usedIds.add(id.toLowerCase());
       return {
-        id: `${m.name}.${p.name}`,
+        id,
         name: p.name,
         kind: p.kind,
         scope: p.scope,
@@ -62,7 +85,26 @@ export function analyzeVbaProject(raw: RawVbaProject, options: VbaAnalysisOption
         calledBy: [],
       };
     });
-    return { name: m.name, type: m.type, parsed, procedures };
+    const locals = parsed.procedures.map((p) => new Set(p.params.map((x) => x.name.toLowerCase())));
+    for (const line of parsed.lines) {
+      if (line.proc < 0) continue;
+      for (const n of declaredNames(line.bare, false)) locals[line.proc].add(n.toLowerCase());
+      const loop = FOR_LOOP_RE.exec(line.bare);
+      if (loop) locals[line.proc].add(loop[1].toLowerCase());
+    }
+    for (const lineNo of masked.secretLines) {
+      const proc = parsed.procedures.find((p) => p.startLine <= lineNo && lineNo <= p.endLine);
+      credentialLocations.push({ module: m.name, ...(proc ? { procedure: proc.name } : {}), line: lineNo });
+    }
+    return {
+      name: m.name,
+      type: m.type,
+      parsed,
+      procedures,
+      source: masked.source,
+      locals,
+      moduleVariables: new Set(parsed.moduleVariables.map((n) => n.toLowerCase())),
+    };
   });
 
   const resolver = new Resolver(contexts, raw.name);
@@ -90,17 +132,21 @@ export function analyzeVbaProject(raw: RawVbaProject, options: VbaAnalysisOption
     }
 
     for (const line of ctx.parsed.lines) {
+      budget.check();
       const proc = line.proc >= 0 ? ctx.procedures[line.proc] : null;
       const location = { module: ctx.name, procedure: proc?.name, line: line.start };
       dependencies.push(...scanDependencies(line, location));
       if (!proc || line.start === proc.startLine) continue;
 
-      const locals = localNames(ctx.parsed.procedures[line.proc].params.map((x) => x.name), line);
+      const locals = ctx.locals[line.proc];
       for (const m of line.bare.matchAll(CHAIN_RE)) {
         if (m[1]) continue; // With ブロック内の .Member や Me!Field
         const parts = m[2].split(".").map((s) => s.trim());
-        if (parts.length === 1 && (locals.has(parts[0].toLowerCase()) || parts[0].toLowerCase() === proc.name.toLowerCase())) {
-          continue;
+        if (parts.length === 1) {
+          const lower = parts[0].toLowerCase();
+          // ローカル変数・引数・モジュールの変数、関数名への戻り値の代入、名前付き引数(Foo:=1)は呼び出しではない
+          if (locals.has(lower) || ctx.moduleVariables.has(lower) || lower === proc.name.toLowerCase()) continue;
+          if (/^\s*:=/.test(line.bare.slice((m.index ?? 0) + m[0].length))) continue;
         }
         const target = resolver.resolveChain(parts, ctx);
         if (target) addEdge({ from: proc.id, to: target.id, kind: target.kind, line: line.start });
@@ -129,19 +175,26 @@ export function analyzeVbaProject(raw: RawVbaProject, options: VbaAnalysisOption
       dependencies.push({
         kind: "winApi",
         target: `${d.lib}: ${d.alias ?? d.name}`,
-        category: d.ptrSafe ? "PtrSafe" : "PtrSafe なし",
+        category: d.ptrSafe ? "PtrSafe" : d.legacyBranch ? "PtrSafe なし(64ビット版では使われない #If の分岐)" : "PtrSafe なし",
         location: { module: ctx.name, line: d.line },
       });
     }
   }
 
   const callGraph = [...edges.values()];
-  const byId = new Map(contexts.flatMap((c) => c.procedures.map((p) => [p.id, p] as const)));
+  const byId = new Map(contexts.flatMap((c) => c.procedures.map((p) => [p.id, { p, calls: new Set<string>(), calledBy: new Set<string>() }] as const)));
   for (const e of callGraph) {
+    budget.check();
     const from = byId.get(e.from);
-    if (from && !from.calls.includes(e.to)) from.calls.push(e.to);
+    if (from && !from.calls.has(e.to)) {
+      from.calls.add(e.to);
+      from.p.calls.push(e.to);
+    }
     const to = byId.get(e.to);
-    if (to && !to.calledBy.includes(e.from)) to.calledBy.push(e.from);
+    if (to && !to.calledBy.has(e.from)) {
+      to.calledBy.add(e.from);
+      to.p.calledBy.push(e.from);
+    }
   }
 
   for (const ref of raw.references) {
@@ -163,7 +216,7 @@ export function analyzeVbaProject(raw: RawVbaProject, options: VbaAnalysisOption
     hasOptionExplicit: ctx.parsed.hasOptionExplicit,
     procedures: ctx.procedures,
     declares: ctx.parsed.declares,
-    source: options.includeSource ? maskSecretsInSource(raw.modules[i].source) : null,
+    source: options.includeSource ? ctx.source : null,
   }));
 
   return {
@@ -179,8 +232,17 @@ export function analyzeVbaProject(raw: RawVbaProject, options: VbaAnalysisOption
     callGraph,
     dependencies,
     entryPoints,
+    credentialLocations,
   };
 }
+
+const KIND_SUFFIX: Record<Procedure["kind"], string> = {
+  sub: "Sub",
+  function: "Function",
+  propertyGet: "Get",
+  propertyLet: "Let",
+  propertySet: "Set",
+};
 
 class Resolver {
   private modules = new Map<string, ModuleContext>();
@@ -247,18 +309,6 @@ class Resolver {
   private global(procName: string): Procedure | undefined {
     return this.globals.get(procName.toLowerCase())?.[0];
   }
-}
-
-function localNames(params: string[], line: LogicalLine): Set<string> {
-  const names = new Set(params.map((p) => p.toLowerCase()));
-  const m = /^(?:Dim|Static|Const|ReDim(?:\s+Preserve)?)\s+(.+)$/i.exec(line.bare);
-  if (m) {
-    for (const part of m[1].split(",")) {
-      const n = new RegExp(`^\\s*(${IDENT})`, "u").exec(part);
-      if (n) names.add(n[1].toLowerCase());
-    }
-  }
-  return names;
 }
 
 interface DynamicCall {
@@ -342,7 +392,7 @@ function scanDependencies(line: LogicalLine, location: Dependency["location"]): 
     line.strings.find((s) => PATH_RE.test(s) || EMBEDDED_PATH_RE.test(s) || FILE_EXT_RE.test(s.trim())) ?? firstLiteral();
 
   for (const s of line.strings) {
-    if (CONN_RE.test(s)) add("connectionString", maskSecrets(s), hasCredentials(s) ? "認証情報を含む" : null);
+    if (CONN_RE.test(s)) add("connectionString", s, hasCredentials(s) ? "認証情報を含む" : null);
     else if (SQL_RE.test(s)) add("sql", s.trim());
     else if (/^(https?|ftp):\/\//i.test(s)) add("url", s);
     else if (PATH_RE.test(s)) add("filePath", s, pathCategory(s));
@@ -374,8 +424,10 @@ function scanDependencies(line: LogicalLine, location: Dependency["location"]): 
   if (/\bSendKeys\b/i.test(bare)) add("sendKeys", line.strings[0] ?? "");
   const wb = /\bWorkbooks\s*\.\s*(Open|OpenText|OpenXML)\b/i.exec(bare);
   if (wb) add("workbook", pathLiteral(), `Workbooks.${wb[1]}`);
-  const open = /\bOpen\s+.+?\s+For\s+(Input|Output|Append|Binary|Random)\b/i.exec(bare);
-  if (open) add("fileIo", pathLiteral(), `Open ... For ${open[1]}`);
+  // Open <ファイル> For Output ...(.+? を使うと Open が多い行で2乗の時間がかかるため、位置を比べる)
+  const openAt = bare.search(/\bOpen\s/i);
+  const forMode = openAt >= 0 ? /\sFor\s+(Input|Output|Append|Binary|Random)\b/i.exec(bare.slice(openAt + 5)) : null;
+  if (forMode) add("fileIo", pathLiteral(), `Open ... For ${forMode[1]}`);
   const fileCmd = /(?<![.\p{L}\p{N}_])(Kill|FileCopy|MkDir|RmDir)\b/iu.exec(bare);
   if (fileCmd) add("fileIo", pathLiteral(), fileCmd[1]);
   const docmd = /\bDoCmd\s*\.\s*(TransferSpreadsheet|TransferText|TransferDatabase|OutputTo|ImportXML|ExportXML)\b/i.exec(bare);

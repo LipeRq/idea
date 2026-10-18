@@ -15,7 +15,8 @@ export function parseProjectStream(bytes: Uint8Array, codePage: number): Project
   let lockedForViewing: boolean | null = null;
   let hasPassword: boolean | null = null;
 
-  for (const line of decodeText(bytes, codePage).split(/\r\n|\r|\n/)) {
+  // PROJECT ストリームは通常数 KB。壊れたファイルで巨大でも先頭だけを見れば十分
+  for (const line of decodeText(bytes.subarray(0, 4 * 1024 * 1024), codePage).split(/\r\n|\r|\n/)) {
     if (line.startsWith("[")) break; // [Host Extender Info] 以降はモジュール情報ではない
     const eq = line.indexOf("=");
     if (eq <= 0) continue;

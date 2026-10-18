@@ -1,6 +1,9 @@
 // OOXML(Open Packaging Conventions)の zip パッケージを読むための小さなヘルパー。
-import { strFromU8, unzipSync } from "fflate";
+import { strFromU8 } from "fflate";
 import { XMLParser } from "fast-xml-parser";
+import { CorruptFileError } from "../errors";
+import { Budget } from "../limits";
+import { ZipArchive } from "./zip";
 
 export interface Relationship {
   id: string;
@@ -33,21 +36,21 @@ const parser = new XMLParser({
 export type XmlNode = any;
 
 export class OpcPackage {
-  private entries = new Map<string, Uint8Array>();
+  private readonly zip: ZipArchive;
+  readonly budget: Budget;
 
-  constructor(zip: Uint8Array) {
-    const files = unzipSync(zip);
-    for (const [name, data] of Object.entries(files)) {
-      this.entries.set(name.replace(/^\/+/, "").toLowerCase(), data);
-    }
+  constructor(zip: Uint8Array, budget: Budget = new Budget()) {
+    this.budget = budget;
+    this.zip = new ZipArchive(zip, budget);
   }
 
   paths(): string[] {
-    return [...this.entries.keys()];
+    return this.zip.names();
   }
 
+  /** 部品を展開して返す(必要になった部品だけを展開する) */
   bytes(path: string): Uint8Array | null {
-    return this.entries.get(path.replace(/^\/+/, "").toLowerCase()) ?? null;
+    return this.zip.read(path);
   }
 
   text(path: string): string | null {
@@ -60,7 +63,12 @@ export class OpcPackage {
 
   xml(path: string): XmlNode | null {
     const t = this.text(path);
-    return t === null ? null : parser.parse(t);
+    if (t === null) return null;
+    if (/<!DOCTYPE|<!ENTITY/i.test(t)) {
+      throw new CorruptFileError(`「${path}」に DTD(DOCTYPE)宣言が含まれています。Office が作るファイルには含まれないため、解析を中止しました`);
+    }
+    this.budget.checkNow();
+    return parser.parse(t);
   }
 
   rels(partPath: string): Relationship[] {

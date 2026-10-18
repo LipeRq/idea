@@ -1,5 +1,7 @@
 // .xls(BIFF8)の Workbook ストリームから、シート一覧・使用範囲・数式の件数・名前定義・外部ブック参照を読む。
 import type { DefinedName, ExcelInfo, ExternalLink, Sheet } from "../schema";
+import { Budget } from "../limits";
+import { maskSecrets } from "../secrets";
 import { rangeRef } from "./common";
 
 const BOF = 0x0809;
@@ -40,10 +42,11 @@ interface Rec {
   offset: number;
 }
 
-function* records(buf: Uint8Array, start = 0): Generator<Rec> {
+function* records(buf: Uint8Array, start = 0, budget?: Budget): Generator<Rec> {
   const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
   let pos = start;
   while (pos + 4 <= buf.length) {
+    budget?.check();
     const type = view.getUint16(pos, true);
     const len = view.getUint16(pos + 2, true);
     if (pos + 4 + len > buf.length) return;
@@ -68,7 +71,7 @@ function readChars(d: Uint8Array, at: number, cch: number): { text: string; end:
   return { text, end: start + cch };
 }
 
-export function parseXlsWorkbook(stream: Uint8Array, warnings: string[]): XlsWorkbook {
+export function parseXlsWorkbook(stream: Uint8Array, warnings: string[], budget: Budget = new Budget()): XlsWorkbook {
   const codeNames = new Map<string, string>();
   const empty: ExcelInfo = {
     sheets: [],
@@ -91,7 +94,7 @@ export function parseXlsWorkbook(stream: Uint8Array, warnings: string[]): XlsWor
   const externalLinks: ExternalLink[] = [];
   let encrypted = false;
 
-  for (const rec of records(stream)) {
+  for (const rec of records(stream, 0, budget)) {
     if (rec.offset > 0 && rec.type === EOF) break; // ブック全体(globals)の終わり
     const d = rec.data;
     if (rec.type === FILEPASS) {
@@ -119,7 +122,9 @@ export function parseXlsWorkbook(stream: Uint8Array, warnings: string[]): XlsWor
         sheetNames.push(s.text);
         p = s.end;
       }
-      externalLinks.push({ index: externalLinks.length + 1, type: "workbook", target: decodeVirtualPath(text), sheetNames });
+      if (externalLinks.length < budget.limits.maxListItems) {
+        externalLinks.push({ index: externalLinks.length + 1, type: "workbook", target: maskSecrets(decodeVirtualPath(text)), sheetNames });
+      }
     } else if (rec.type === CODENAME && d.length >= 3) {
       codeNames.set(readChars(d, 2, u16(d, 0)).text.toLowerCase(), "ブック");
     }
@@ -130,20 +135,42 @@ export function parseXlsWorkbook(stream: Uint8Array, warnings: string[]): XlsWor
     return { excel: empty, codeNames };
   }
 
-  const sheets: Sheet[] = bound.map((b, index) => {
+  // 各シートのサブストリームを読む。壊れたファイルで同じ位置を何度も指していても、同じ範囲は1回だけ読む。
+  // また、読んだバイト数の合計がストリームの数倍を超えたら(シートの位置が重なり合っているなど)打ち切る
+  const scanned = new Map<number, { usedRange: string | null; formulaCount: number; codeName: string | null }>();
+  let scannedBytes = 0;
+  let truncated = false;
+  const scanSheet = (offset: number) => {
+    const cached = scanned.get(offset);
+    if (cached) return cached;
     let usedRange: string | null = null;
     let formulaCount = 0;
     let codeName: string | null = null;
-    for (const rec of records(stream, b.offset)) {
-      if (rec.type === EOF) break;
-      const d = rec.data;
-      if (rec.type === FORMULA) formulaCount++;
-      else if (rec.type === DIMENSIONS && d.length >= 12) {
-        usedRange = rangeRef(u32(d, 0), u32(d, 4) - 1, u16(d, 8), u16(d, 10) - 1);
-      } else if (rec.type === CODENAME && d.length >= 3) {
-        codeName = readChars(d, 2, u16(d, 0)).text;
+    if (!truncated) {
+      for (const rec of records(stream, offset, budget)) {
+        scannedBytes += 4 + rec.data.length;
+        if (scannedBytes > stream.length * 4 + 1_000_000) {
+          truncated = true;
+          warnings.push("シートの位置情報が不正なため、一部のシートは使用範囲・数式の件数を読んでいません");
+          break;
+        }
+        if (rec.type === EOF || (rec.type === BOF && rec.offset !== offset)) break;
+        const d = rec.data;
+        if (rec.type === FORMULA) formulaCount++;
+        else if (rec.type === DIMENSIONS && d.length >= 12) {
+          usedRange = rangeRef(u32(d, 0), u32(d, 4) - 1, u16(d, 8), u16(d, 10) - 1);
+        } else if (rec.type === CODENAME && d.length >= 3) {
+          codeName = readChars(d, 2, u16(d, 0)).text;
+        }
       }
     }
+    const result = { usedRange, formulaCount, codeName };
+    scanned.set(offset, result);
+    return result;
+  };
+
+  const sheets: Sheet[] = budget.cap(bound, budget.limits.maxSheets, warnings, "シート").map((b, index) => {
+    const { usedRange, formulaCount, codeName } = scanSheet(b.offset);
     if (codeName) codeNames.set(codeName.toLowerCase(), `シート「${b.name}」`);
     return {
       name: b.name,
@@ -159,7 +186,7 @@ export function parseXlsWorkbook(stream: Uint8Array, warnings: string[]): XlsWor
     };
   });
 
-  const definedNames: DefinedName[] = rawNames.map((n) => ({
+  const definedNames: DefinedName[] = budget.cap(rawNames, budget.limits.maxListItems, warnings, "名前定義").map((n) => ({
     name: n.name,
     scope: n.itab > 0 ? (sheets[n.itab - 1]?.name ?? String(n.itab)) : null,
     refersTo: null,

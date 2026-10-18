@@ -1,6 +1,8 @@
 // OOXML 系(.xlsm / .xlsb)で共通の部品: 文書プロパティ、ボタン等に登録されたマクロ、外部リンク。
 import type { ControlMacro, ExternalLink, Properties } from "../schema";
+import { maskSecrets } from "../secrets";
 import { decodeXmlText, nodeText, type OpcPackage } from "./opc";
+import { firstElement, innerTexts, scanElements } from "./xmlScan";
 
 export const EMPTY_PROPERTIES: Properties = {
   title: null,
@@ -42,22 +44,24 @@ export function normalizeMacroName(macro: string): string {
 
 /** シートに関連付いた描画(図形・フォームコントロール)から登録マクロを集める */
 export function collectControlMacros(pkg: OpcPackage, sheetPath: string, sheetName: string, sheetXml: string | null): ControlMacro[] {
-  const found: ControlMacro[] = [];
+  const found = new Map<string, ControlMacro>();
   const add = (control: string, text: string | null, macro: string) => {
     const name = normalizeMacroName(decodeXmlText(macro));
     if (!name) return;
-    const existing = found.find((f) => f.macro === name);
+    const existing = found.get(name);
     if (existing) {
       existing.text ??= text;
       return;
     }
-    found.push({ sheet: sheetName, control, text, macro: name });
+    if (found.size < pkg.budget.limits.maxListItems) found.set(name, { sheet: sheetName, control, text, macro: name });
   };
 
   if (sheetXml) {
-    for (const m of sheetXml.matchAll(/<control\b([^>]*)>([\s\S]*?)<\/control>/g)) {
-      const macro = /\bmacro="([^"]+)"/.exec(m[2])?.[1];
-      if (macro) add(attr(m[1], "name") ?? "コントロール", attr(m[2], "altText"), macro);
+    for (const el of scanElements(sheetXml, "control", { withInner: true })) {
+      pkg.budget.check();
+      const pr = el.inner ? firstElement(el.inner, "controlPr") : null;
+      const macro = pr ? attr(pr.attrs, "macro") : null;
+      if (macro) add(attr(el.attrs, "name") ?? "コントロール", pr ? attr(pr.attrs, "altText") : null, macro);
     }
   }
 
@@ -66,54 +70,64 @@ export function collectControlMacros(pkg: OpcPackage, sheetPath: string, sheetNa
     if (rel.type === "drawing") {
       const xml = pkg.text(rel.target);
       if (!xml) continue;
-      for (const m of xml.matchAll(/<(?:xdr:)?(sp|pic|graphicFrame|cxnSp)\b([^>]*)>([\s\S]*?)<\/(?:xdr:)?\1>/g)) {
-        const macro = attr(m[2], "macro");
-        if (!macro) continue;
-        const name = /<(?:xdr:)?cNvPr\b[^>]*\bname="([^"]*)"/.exec(m[3])?.[1];
-        add(name ? decodeXmlText(name) : "図形", textOf(m[3], /<a:t>([\s\S]*?)<\/a:t>/g), macro);
+      for (const el of scanElements(xml, "sp|pic|graphicFrame|cxnSp", { prefix: "(?:xdr:)?", withInner: true })) {
+        pkg.budget.check();
+        const macro = attr(el.attrs, "macro");
+        if (!macro || el.inner === null) continue;
+        const cNvPr = firstElement(el.inner, "cNvPr", { prefix: "(?:xdr:)?" });
+        const name = cNvPr ? attr(cNvPr.attrs, "name") : null;
+        const text = innerTexts(el.inner, "<a:t>", "</a:t>").map(decodeXmlText).join("").trim();
+        add(name ?? "図形", text || null, macro);
       }
     } else if (rel.type === "vmlDrawing") {
       const xml = pkg.text(rel.target);
       if (!xml) continue;
-      for (const m of xml.matchAll(/<v:shape\b([^>]*)>([\s\S]*?)<\/v:shape>/g)) {
-        const macro = /<x:FmlaMacro>([\s\S]*?)<\/x:FmlaMacro>/.exec(m[2])?.[1];
+      for (const el of scanElements(xml, "shape", { prefix: "v:", withInner: true })) {
+        pkg.budget.check();
+        if (el.inner === null) continue;
+        const macro = innerTexts(el.inner, "<x:FmlaMacro>", "</x:FmlaMacro>")[0];
         if (!macro) continue;
-        const type = /ObjectType="([^"]+)"/.exec(m[2])?.[1] ?? "コントロール";
-        const box = /<v:textbox\b[^>]*>([\s\S]*?)<\/v:textbox>/.exec(m[2])?.[1];
+        const data = firstElement(el.inner, "ClientData", { prefix: "x:" });
+        const type = (data ? attr(data.attrs, "ObjectType") : null) ?? "コントロール";
+        const box = firstElement(el.inner, "textbox", { prefix: "v:", withInner: true })?.inner;
         add(type, box ? stripTags(box) : null, macro);
       }
     }
   }
-  return found;
+  return [...found.values()];
 }
 
 /** 外部リンク(xl/externalLinks/externalLinkN.xml)の参照先 */
 export function readExternalLink(pkg: OpcPackage, partPath: string, index: number): ExternalLink {
   const rels = pkg.rels(partPath);
   const xml = pkg.text(partPath) ?? "";
-  const target = (id: string | undefined) => {
+  const target = (id: string | null) => {
     const r = rels.find((x) => x.id === id) ?? rels[0];
-    return r ? decodeTarget(r.target) : "(不明)";
+    return r ? maskSecrets(decodeTarget(r.target)) : "(不明)";
   };
-  const book = /<externalBook\b([^>]*)>/.exec(xml);
+  const book = firstElement(xml, "externalBook");
   if (book) {
-    const sheetNames = [...xml.matchAll(/<sheetName\b[^>]*\bval="([^"]*)"/g)].map((m) => decodeXmlText(m[1]));
-    return { index, type: "workbook", target: target(attr(book[1], "r:id") ?? undefined), sheetNames };
+    const sheetNames: string[] = [];
+    for (const el of scanElements(xml, "sheetName")) {
+      const v = attr(el.attrs, "val");
+      if (v !== null && sheetNames.length < pkg.budget.limits.maxListItems) sheetNames.push(v);
+    }
+    return { index, type: "workbook", target: target(attr(book.attrs, "r:id")), sheetNames };
   }
-  const dde = /<ddeLink\b([^>]*)>/.exec(xml);
+  const dde = firstElement(xml, "ddeLink");
   if (dde) {
     return {
       index,
       type: "dde",
-      target: `${attr(dde[1], "ddeService") ?? ""}|${attr(dde[1], "ddeTopic") ?? ""}`,
+      target: `${attr(dde.attrs, "ddeService") ?? ""}|${attr(dde.attrs, "ddeTopic") ?? ""}`,
       sheetNames: [],
     };
   }
-  const ole = /<oleLink\b([^>]*)>/.exec(xml);
+  const ole = firstElement(xml, "oleLink");
   if (ole) {
-    return { index, type: "ole", target: target(attr(ole[1], "r:id") ?? undefined), sheetNames: [] };
+    return { index, type: "ole", target: target(attr(ole.attrs, "r:id")), sheetNames: [] };
   }
-  return { index, type: rels.length > 0 ? "workbook" : "unknown", target: rels[0] ? decodeTarget(rels[0].target) : "(不明)", sheetNames: [] };
+  return { index, type: rels.length > 0 ? "workbook" : "unknown", target: rels[0] ? maskSecrets(decodeTarget(rels[0].target)) : "(不明)", sheetNames: [] };
 }
 
 function decodeTarget(t: string): string {
@@ -125,13 +139,8 @@ function decodeTarget(t: string): string {
 }
 
 export function attr(attrs: string, name: string): string | null {
-  const m = new RegExp(`(?:^|\\s)${name.replace(/[.:]/g, "\\$&")}="([^"]*)"`).exec(attrs);
-  return m ? decodeXmlText(m[1]) : null;
-}
-
-function textOf(xml: string, re: RegExp): string | null {
-  const t = [...xml.matchAll(re)].map((m) => decodeXmlText(m[1])).join("").trim();
-  return t || null;
+  const m = new RegExp(`(?:^|\\s)${name.replace(/[.:]/g, "\\$&")}=(?:"([^"]*)"|'([^']*)')`).exec(attrs);
+  return m ? decodeXmlText(m[1] ?? m[2]) : null;
 }
 
 function stripTags(s: string): string | null {

@@ -5,7 +5,10 @@ const LONG_PROCEDURE_LINES = 200;
 
 type Input = Pick<InventoryReport, "excel" | "access" | "vba" | "dependencies" | "callGraph" | "entryPoints">;
 
-export function detectFindings(r: Input, extra: { credentialLocations: string[] }): Finding[] {
+export function detectFindings(
+  r: Input,
+  extra: { credentialLocations: string[]; sourceCredentialLocations?: Location[] },
+): Finding[] {
   const findings: Finding[] = [];
   const add = (f: Omit<Finding, "count"> & { count?: number }) => {
     const count = f.count ?? f.locations.length;
@@ -18,8 +21,9 @@ export function detectFindings(r: Input, extra: { credentialLocations: string[] 
   const modules = r.vba?.modules ?? [];
   const procedures = modules.flatMap((m) => m.procedures.map((p) => ({ m, p })));
 
+  // #If VBA7 Then … #Else の #Else 側など、64ビット版では使われない分岐の Declare は対象外
   const noPtrSafe = modules.flatMap((m) =>
-    m.declares.filter((d) => !d.ptrSafe).map((d): Location => ({ module: m.name, line: d.line })),
+    m.declares.filter((d) => !d.ptrSafe && !d.legacyBranch).map((d): Location => ({ module: m.name, line: d.line })),
   );
   add({
     ruleId: "VBA-API-64BIT",
@@ -30,15 +34,17 @@ export function detectFindings(r: Input, extra: { credentialLocations: string[] 
   });
 
   const credentials = deps("connectionString", (d) => d.category === "認証情報を含む");
+  const credentialLocations = new Map<string, Location>();
+  for (const l of [...locs(credentials), ...(extra.sourceCredentialLocations ?? []), ...extra.credentialLocations.map((p): Location => ({ part: p }))]) {
+    const key = l.module ? `${l.module}\u0000${l.line ?? ""}` : `part\u0000${l.part ?? ""}`;
+    if (!credentialLocations.has(key)) credentialLocations.set(key, l);
+  }
   add({
     ruleId: "CRED-HARDCODED",
     severity: "high",
-    title: "接続文字列にパスワードが書かれている",
-    detail: "ファイルを開ける人なら誰でも認証情報を読めます。移行時は資格情報の管理方法を見直してください(出力ではマスク済み)。",
-    locations: [
-      ...locs(credentials),
-      ...extra.credentialLocations.map((l): Location => ({ part: l })),
-    ],
+    title: "パスワードが接続文字列やコードに直接書かれている",
+    detail: "ファイルを開ける人なら誰でも認証情報(DBの接続、シートやブックの保護など)を読めます。移行時は資格情報の管理方法を見直してください(出力では伏せ字にしています)。",
+    locations: [...credentialLocations.values()],
   });
 
   add({

@@ -115,6 +115,10 @@ export const DeclareSchema = z.object({
   alias: z.string().nullable(),
   ptrSafe: z.boolean(),
   line: z.number().int(),
+  legacyBranch: z
+    .boolean()
+    .default(false)
+    .describe("#If VBA7 / Win64 の #Else 側など、64ビット版の Office ではコンパイルされない分岐にあるか"),
 });
 export type Declare = z.infer<typeof DeclareSchema>;
 

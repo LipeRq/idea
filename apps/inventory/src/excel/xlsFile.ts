@@ -1,9 +1,10 @@
 // .xls(OLE複合ファイル)全体の読み取り: Workbook ストリーム、VBA(_VBA_PROJECT_CUR)、文書プロパティ。
-import CFB, { type CFB$Container } from "cfb";
-import { UnsupportedFileError } from "../errors";
+import { rethrowIfFatal, UnsupportedFileError } from "../errors";
+import type { CompoundFile } from "../ole/compoundFile";
 import type { ExcelInfo, Properties } from "../schema";
 import { decodeText } from "../vba/codepage";
 import { cfbStorage, extractVbaProject, type RawVbaProject } from "../vba/project";
+import type { Budget } from "../limits";
 import { EMPTY_PROPERTIES } from "./common";
 import { parseXlsWorkbook } from "./xls";
 
@@ -14,26 +15,28 @@ export interface XlsFile {
   codeNames: Map<string, string>;
 }
 
-export function parseXls(container: CFB$Container, warnings: string[]): XlsFile {
-  const stream = streamOf(container, "Workbook") ?? streamOf(container, "Book");
+export function parseXls(container: CompoundFile, warnings: string[], budget?: Budget): XlsFile {
+  const stream = container.read("Workbook") ?? container.read("Book");
   if (!stream) throw new UnsupportedFileError("Excelのブックとして読み込めませんでした(Workbook ストリームがありません)");
-  const { excel, codeNames } = parseXlsWorkbook(stream, warnings);
+  const { excel, codeNames } = parseXlsWorkbook(stream, warnings, budget);
   warnings.push(".xls 形式では数式の件数のみを数え、式の内容とボタンへのマクロ登録は取り出していません");
 
   let vba: RawVbaProject | null = null;
   try {
-    vba = extractVbaProject(cfbStorage(container, "_VBA_PROJECT_CUR"), warnings);
+    vba = extractVbaProject(cfbStorage(container, "_VBA_PROJECT_CUR"), warnings, budget);
   } catch (e) {
+    rethrowIfFatal(e);
     warnings.push(`VBAプロジェクトを読めませんでした: ${(e as Error).message}`);
   }
 
-  const summary = streamOf(container, "\u0005SummaryInformation");
+  let summary: Uint8Array | null = null;
+  try {
+    summary = container.read("\u0005SummaryInformation");
+  } catch (e) {
+    rethrowIfFatal(e);
+    warnings.push(`文書プロパティ(SummaryInformation)を読めませんでした: ${(e as Error).message}`);
+  }
   return { excel, vba, properties: summary ? readSummaryInformation(summary) : EMPTY_PROPERTIES, codeNames };
-}
-
-function streamOf(container: CFB$Container, name: string): Uint8Array | null {
-  const entry = CFB.find(container, name);
-  return entry?.content ? Uint8Array.from(entry.content as ArrayLike<number>) : null;
 }
 
 // [MS-OLEPS] の SummaryInformation から主要な項目だけを読む
@@ -43,7 +46,7 @@ export function readSummaryInformation(buf: Uint8Array): Properties {
   try {
     const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
     const sectionOffset = view.getUint32(44, true);
-    const count = view.getUint32(sectionOffset + 4, true);
+    const count = Math.min(view.getUint32(sectionOffset + 4, true), Math.floor(buf.length / 8));
     const props = new Map<number, number>();
     for (let i = 0; i < count; i++) {
       const at = sectionOffset + 8 + i * 8;

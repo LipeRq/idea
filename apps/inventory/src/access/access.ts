@@ -1,8 +1,12 @@
 // .accdb / .mdb の解析。mdb-reader でテーブルとシステムテーブル(MSysObjects など)を読む。
+// mdb-reader は Node.js の Buffer を前提にしている。Node.js では組み込みの buffer、ブラウザでは npm の buffer パッケージ
+// (バンドラが "buffer" を解決する)を使い、グローバルの Buffer が無ければ設定する(mdb-reader のブラウザ版が参照するため)。
+import { Buffer } from "buffer";
 import MDBReader from "mdb-reader";
 import type { AccessInfo, AccessQuery, Dependency, EntryPoint, LinkedTable, Properties, Relationship } from "../schema";
-import { PasswordError } from "../errors";
+import { CorruptFileError, InventoryError, PasswordError, rethrowIfFatal } from "../errors";
 import { EMPTY_PROPERTIES } from "../excel/common";
+import { Budget } from "../limits";
 import { hasCredentials, maskSecrets } from "../secrets";
 import { extractVbaProject, type RawVbaProject } from "../vba/project";
 import { buildQuery, type QueryRow } from "./queries";
@@ -41,12 +45,41 @@ const ENGINES: Record<number, string> = {
 
 type Row = Record<string, unknown>;
 
-export function parseAccess(data: Uint8Array, password: string | undefined, warnings: string[]): AccessExtract {
+/** 1つのクエリとして SQL を組み立てる MSysQueries の行数の上限(通常は数十行) */
+const MAX_QUERY_ROWS = 2_000;
+/** 暗号化(Office のパスワード暗号化)の鍵導出の繰り返し回数の上限。通常は 100000 */
+const MAX_SPIN_COUNT = 10_000_000;
+
+if (typeof (globalThis as { Buffer?: unknown }).Buffer === "undefined") {
+  (globalThis as { Buffer?: unknown }).Buffer = Buffer;
+}
+
+/**
+ * mdb-reader に渡すバッファ。ページの読み出し(slice)のたびに制限時間を確認する。
+ * 壊れたファイルでページのつながりが循環していると mdb-reader が止まらなくなるため、その対策。
+ */
+function guardedBuffer(data: Uint8Array, budget: Budget): Buffer {
   const buffer = Buffer.from(data.buffer, data.byteOffset, data.byteLength);
+  const slice = buffer.slice;
+  Object.defineProperty(buffer, "slice", {
+    value(this: Buffer, start?: number, end?: number) {
+      budget.check();
+      return slice.call(this, start, end);
+    },
+  });
+  return buffer;
+}
+
+export function parseAccess(data: Uint8Array, password: string | undefined, warnings: string[], budget: Budget = new Budget()): AccessExtract {
+  const spin = /spinCount="(\d+)"/.exec(new TextDecoder("latin1").decode(data.subarray(0, 8192)));
+  if (spin && Number(spin[1]) > MAX_SPIN_COUNT) {
+    throw new CorruptFileError(`暗号化の設定(spinCount=${spin[1]})が異常に大きいため、解析を中止しました。ファイルが壊れている可能性があります`);
+  }
   let reader: MDBReader;
   try {
-    reader = new MDBReader(buffer, { password });
+    reader = new MDBReader(guardedBuffer(data, budget), { password });
   } catch (e) {
+    if (e instanceof InventoryError) throw e;
     if (/password/i.test((e as Error).message)) {
       throw new PasswordError(
         password
@@ -54,13 +87,14 @@ export function parseAccess(data: Uint8Array, password: string | undefined, warn
           : "データベースにパスワードが設定されています。--password でパスワードを指定してください",
       );
     }
-    throw e;
+    throw new CorruptFileError(`Access のデータベースとして読み込めませんでした(${(e as Error).message})`, { cause: e });
   }
   const credentialLocations: string[] = [];
   const dependencies: Dependency[] = [];
   const entryPoints: EntryPoint[] = [];
 
-  const tables = reader.getTableNames().map((name) => {
+  const tables = budget.cap(reader.getTableNames(), budget.limits.maxAccessTables, warnings, "テーブル").map((name) => {
+    budget.checkNow();
     try {
       const t = reader.getTable(name);
       return {
@@ -75,12 +109,13 @@ export function parseAccess(data: Uint8Array, password: string | undefined, warn
         })),
       };
     } catch (e) {
+      rethrowIfFatal(e);
       warnings.push(`テーブル「${name}」の定義を読めませんでした: ${(e as Error).message}`);
       return { name, rowCount: 0, columns: [] };
     }
   });
 
-  const objects = readSystemTable(reader, "MSysObjects", warnings);
+  const objects = readSystemTable(reader, "MSysObjects", warnings, budget);
   const byType = (type: number) =>
     objects.filter((o) => o.Type === type && typeof o.Name === "string" && !String(o.Name).startsWith("~"));
   const names = (type: number) => byType(type).map((o) => String(o.Name)).sort((a, b) => a.localeCompare(b, "ja"));
@@ -106,7 +141,7 @@ export function parseAccess(data: Uint8Array, password: string | undefined, warn
   });
 
   const queryRows = new Map<number, QueryRow[]>();
-  for (const r of readSystemTable(reader, "MSysQueries", warnings)) {
+  for (const r of readSystemTable(reader, "MSysQueries", warnings, budget)) {
     const id = r.ObjectId as number;
     const list = queryRows.get(id) ?? [];
     list.push({
@@ -124,11 +159,18 @@ export function parseAccess(data: Uint8Array, password: string | undefined, warn
     .filter((o) => o.Type === OBJ.query && typeof o.Name === "string")
     .map((o) => {
       const name = String(o.Name);
-      const built = buildQuery(Number(o.Flags ?? 0), queryRows.get(o.Id as number) ?? []);
-      if (built.sql === null && built.type !== "unknown") {
+      budget.check();
+      const rows = queryRows.get(o.Id as number) ?? [];
+      const built =
+        rows.length > MAX_QUERY_ROWS
+          ? { type: "unknown" as const, sql: null, tables: [], target: null, connect: null, remoteCredentials: false }
+          : buildQuery(Number(o.Flags ?? 0), rows);
+      if (rows.length > MAX_QUERY_ROWS) warnings.push(`クエリ「${name}」の定義が大きすぎるため、SQLを復元していません`);
+      else if (built.sql === null && built.type !== "unknown") {
         warnings.push(`クエリ「${name}」のSQLを復元できませんでした`);
       }
       if (built.connect && hasCredentials(built.connect)) credentialLocations.push(`パススルークエリ「${name}」`);
+      if (built.remoteCredentials) credentialLocations.push(`クエリ「${name}」の外部データベース指定`);
       if (built.connect) {
         dependencies.push({
           kind: "connectionString",
@@ -149,7 +191,7 @@ export function parseAccess(data: Uint8Array, password: string | undefined, warn
     })
     .sort((a, b) => Number(a.hidden) - Number(b.hidden) || a.name.localeCompare(b.name, "ja"));
 
-  const relationships = readRelationships(readSystemTable(reader, "MSysRelationships", warnings));
+  const relationships = readRelationships(readSystemTable(reader, "MSysRelationships", warnings, budget));
 
   const macros = names(OBJ.macro);
   for (const m of macros) {
@@ -164,23 +206,28 @@ export function parseAccess(data: Uint8Array, password: string | undefined, warn
   let vbaStatus: AccessInfo["vbaStatus"] = "none";
   if (data[0x14] === 0) warnings.push("Access 97(Jet3)形式のため、VBAモジュールは解析していません");
   try {
-    const storageRows: StorageRow[] = readSystemTable(reader, "MSysAccessStorage", warnings).map((r) => ({
+    const storageRows: StorageRow[] = readSystemTable(reader, "MSysAccessStorage", warnings, budget).map((r) => ({
       id: Number(r.Id),
       parentId: Number(r.ParentId),
       name: String(r.Name ?? ""),
       type: Number(r.Type),
       data: r.Lv instanceof Uint8Array ? r.Lv : null,
     }));
-    vba = storageRows.length > 0 ? extractVbaProject(accessStorage(storageRows), warnings) : null;
+    vba = storageRows.length > 0 ? extractVbaProject(accessStorage(storageRows), warnings, budget) : null;
     if (vba && vba.modules.length > 0) vbaStatus = "extracted";
   } catch (e) {
+    rethrowIfFatal(e);
     vbaStatus = "failed";
     warnings.push(`AccessのVBAプロジェクトを読めませんでした: ${(e as Error).message}`);
   }
 
-  const updates = objects.map((o) => o.DateUpdate).filter((d): d is Date => d instanceof Date);
-  const created = reader.getCreationDate();
-  const modified = updates.length > 0 ? new Date(Math.max(...updates.map((d) => d.getTime()))) : null;
+  // 件数が多くても落ちないように(Math.max(...配列) は要素数が多いとスタックがあふれる)
+  let latest = -Infinity;
+  for (const o of objects) {
+    if (o.DateUpdate instanceof Date && !Number.isNaN(o.DateUpdate.getTime())) latest = Math.max(latest, o.DateUpdate.getTime());
+  }
+  const created = safeDate(() => reader.getCreationDate());
+  const modified = latest > -Infinity ? new Date(latest) : null;
 
   return {
     access: {
@@ -208,13 +255,27 @@ export function parseAccess(data: Uint8Array, password: string | undefined, warn
   };
 }
 
-function readSystemTable(reader: MDBReader, name: string, warnings: string[]): Row[] {
+function readSystemTable(reader: MDBReader, name: string, warnings: string[], budget: Budget): Row[] {
   try {
-    return reader.getTable(name).getData() as Row[];
+    const rowLimit = budget.limits.maxSystemRows;
+    const rows = reader.getTable(name).getData({ rowLimit }) as Row[];
+    if (rows.length >= rowLimit) warnings.push(`システムテーブル ${name} の行が多すぎるため、先頭の ${rowLimit} 行だけを読みました`);
+    return rows;
   } catch (e) {
+    rethrowIfFatal(e);
     const msg = (e as Error).message;
     if (!/could not find table/i.test(msg)) warnings.push(`システムテーブル ${name} を読めませんでした: ${msg}`);
     return [];
+  }
+}
+
+function safeDate(read: () => Date | null): Date | null {
+  try {
+    const d = read();
+    return d && !Number.isNaN(d.getTime()) ? d : null;
+  } catch (e) {
+    rethrowIfFatal(e);
+    return null;
   }
 }
 
