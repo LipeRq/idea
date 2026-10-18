@@ -1,0 +1,8 @@
+{
+  "name": "ai-consulting-portfolio",
+  "private": true,
+  "scripts": {
+    "dev:diagnosis": "npm run dev --prefix apps/diagnosis",
+    "test:diagnosis": "npm test --prefix apps/diagnosis"
+  }
+}
