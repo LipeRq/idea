@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 import { READINESS_QUESTIONS, TASKS, type TaskId } from "../src/lib/diagnosis/master";
 
 export type CompanyAnswers = {
@@ -12,6 +12,12 @@ export type CompanyAnswers = {
 export function formAlert(page: Page) {
   // Next.js のルートアナウンサーも role="alert" を持つので、フォームの中に絞る
   return page.locator("form").getByRole("alert");
+}
+
+/** 欄がエラー状態で、aria-describedby が指す要素にエラーの文言がある */
+export async function expectInvalidWith(field: Locator, message: string | RegExp) {
+  await expect(field).toHaveAttribute("aria-invalid", "true");
+  await expect(field).toHaveAccessibleDescription(message);
 }
 
 export function currentStep(page: Page) {
@@ -88,6 +94,17 @@ export async function answerAllReadiness(page: Page, optionIndex: number) {
   for (let i = 0; i < READINESS_QUESTIONS.length; i++) {
     await readinessRadio(page, i, optionIndex).check();
   }
+}
+
+/** 診断を最後まで進めて結果を表示する(議事録100時間・準備度すべて最高 → 年216万円) */
+export async function diagnoseKnownInput(page: Page, companyName = "テスト工業") {
+  await page.goto("/");
+  await fillCompanyStep(page, { companyName, industry: "製造業", employees: "31〜100名" });
+  await nextButton(page).click();
+  await fillHoursStep(page, { minutes: 100 }, 3000);
+  await nextButton(page).click();
+  await answerAllReadiness(page, 3);
+  await submitAndWaitForResult(page);
 }
 
 export async function submitAndWaitForResult(page: Page) {

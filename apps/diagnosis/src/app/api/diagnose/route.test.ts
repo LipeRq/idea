@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { calculateDiagnosis } from "@/lib/diagnosis/calculate";
 import { buildFallbackReport } from "@/lib/diagnosis/fallback";
 import type { DiagnosisInput } from "@/lib/diagnosis/schema";
+import { verifyReport } from "@/lib/report/token";
 import { POST } from "./route";
 
 // 実際のAPIは呼ばない。client.beta.messages.stream だけを差し替える
@@ -75,6 +76,7 @@ describe("POST /api/diagnose", () => {
     const expected = calculateDiagnosis(validInput);
     expect(body.result).toEqual(expected);
     expect(body.report).toEqual(buildFallbackReport(expected));
+    expect(body).not.toHaveProperty("reportToken");
     expect(streamMock).not.toHaveBeenCalled();
   });
 
@@ -101,8 +103,7 @@ describe("POST /api/diagnose", () => {
     vi.stubEnv("ANTHROPIC_API_KEY", "sk-ant-test");
     vi.spyOn(console, "error").mockImplementation(() => {});
     streamMock.mockReturnValue({
-      finalMessage: () =>
-        Promise.resolve({ stop_reason: "refusal", parsed_output: null }),
+      finalMessage: () => Promise.resolve({ stop_reason: "refusal", content: [] }),
     });
 
     const body = await (await postJson(validInput)).json();
@@ -123,12 +124,18 @@ describe("POST /api/diagnose", () => {
     };
     streamMock.mockReturnValue({
       finalMessage: () =>
-        Promise.resolve({ stop_reason: "end_turn", parsed_output: aiReport }),
+        Promise.resolve({
+          stop_reason: "end_turn",
+          content: [{ type: "text", text: JSON.stringify(aiReport) }],
+        }),
     });
 
     const body = await (await postJson(validInput)).json();
 
     expect(body.aiGenerated).toBe(true);
+    // PDFを作るときにAIの文章が改ざんされていないことを確かめる署名
+    expect(verifyReport(body.reportToken, validInput, body.report)).toBe(true);
+    expect(verifyReport(body.reportToken, validInput, { ...body.report, summary: "改ざん" })).toBe(false);
     expect(body.report.summary).toBe("AIの総評");
     expect(body.report.recommendations.map((r: { title: string }) => r.title)).toEqual(
       body.result.top.map((t: { taskId: string }) => `AI:${t.taskId}`),
@@ -212,6 +219,13 @@ describe("POST /api/diagnose", () => {
       const res = await postJson({ ...validInput, challenges: "あ".repeat(1_000) });
       expect(res.status).toBe(200);
     });
+  });
+
+  it("回数の上限は RATE_LIMIT_DIAGNOSE_PER_HOUR で変えられる", async () => {
+    vi.stubEnv("RATE_LIMIT_DIAGNOSE_PER_HOUR", "1");
+    const ip = "203.0.113.88";
+    expect((await postJson(validInput, { "x-forwarded-for": ip })).status).toBe(200);
+    expect((await postJson(validInput, { "x-forwarded-for": ip })).status).toBe(429);
   });
 
   it("同じ送信元から1時間に6回目のリクエストは429", async () => {

@@ -7,7 +7,8 @@ import type { Lead, LeadAdapter } from "./types";
 
 const DEFAULT_ENDPOINT = "https://webto.salesforce.com/servlet/servlet.WebToLead";
 const ORG_ID = /^00D[A-Za-z0-9]{12}(?:[A-Za-z0-9]{3})?$/;
-const FIELD_NAME = /^[A-Za-z][A-Za-z0-9_]{0,79}$/;
+// カスタム項目のID(00N で始まる)や項目名(first_name など)
+const FIELD_NAME = /^[A-Za-z0-9_]{1,80}$/;
 const SEND_TIMEOUT_MS = 10_000;
 
 /** 標準項目以外に送れる値。SALESFORCE_FIELD_MAP で Salesforce の項目(カスタム項目のIDなど)に対応付ける */

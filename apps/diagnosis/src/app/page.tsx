@@ -39,7 +39,7 @@ export default function Home() {
       <DiagnosisApp />
 
       <footer className="no-print border-t border-line pt-6 text-xs text-muted">
-        入力内容は診断レポートの作成にのみ使用します。会社名や課題の記入は任意です。
+        入力内容は診断レポートの作成に使用します。無料相談をお申し込みいただいた場合に限り、診断結果の要約を担当者にお送りします。会社名や課題の記入は任意です。
       </footer>
     </main>
   );

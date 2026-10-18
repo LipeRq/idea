@@ -29,10 +29,8 @@ export const inputClass =
   "w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-base text-ink focus:outline-2 focus:outline-accent aria-[invalid=true]:border-critical";
 
 /** エラーのある欄に付ける属性 */
-export function invalidProps(invalid: boolean, describedBy: string = FORM_ERROR_ID) {
-  return invalid
-    ? { "aria-invalid": true as const, "aria-describedby": describedBy }
-    : {};
+function invalidProps(invalid: boolean) {
+  return invalid ? { "aria-invalid": true as const, "aria-describedby": FORM_ERROR_ID } : {};
 }
 
 export function StepIndicator({ step }: { step: number }) {

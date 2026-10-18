@@ -4,6 +4,7 @@ import {
   backButton,
   currentStep,
   employeesSelect,
+  expectInvalidWith,
   expectNoHorizontalScroll,
   fillCompanyStep,
   fillHoursStep,
@@ -18,8 +19,8 @@ import {
   submitAndWaitForResult,
 } from "./helpers";
 
-// 診断APIは同じ送信元から1時間に5回まで。このファイル全体で診断する回数は4回に抑えている。
 // E2Eのサーバーは APIキーなしで起動するので、結果は標準レポート(決まった文面と数値)になる。
+// 回数制限の上限は playwright.config.ts で緩めている。
 
 const company = {
   companyName: "テスト工業",
@@ -53,12 +54,16 @@ test("ステップごとの入力チェック、戻る/次へで入力が残る"
   await page.keyboard.press("Space");
   await expect(goalCheckbox(page, "コスト削減")).not.toBeChecked();
 
-  // ステップ1:業種・従業員規模は必須
+  // ステップ1:業種・従業員規模は必須。エラーは該当する欄に結び付く
   await nextButton(page).click();
   await expect(formAlert(page)).toHaveText("業種を選んでください");
+  await expectInvalidWith(industrySelect(page), "業種を選んでください");
+  await expect(employeesSelect(page)).not.toHaveAttribute("aria-invalid");
   await industrySelect(page).selectOption("製造業");
   await nextButton(page).click();
   await expect(formAlert(page)).toHaveText("従業員規模を選んでください");
+  await expect(industrySelect(page)).not.toHaveAttribute("aria-invalid");
+  await expectInvalidWith(employeesSelect(page), "従業員規模を選んでください");
   await fillCompanyStep(page, company);
   await nextButton(page).click();
 
@@ -81,6 +86,9 @@ test("ステップごとの入力チェック、戻る/次へで入力が残る"
   await hoursInput(page, "minutes").fill("-5");
   await nextButton(page).click();
   await expect(formAlert(page)).toHaveText("時間は0〜10,000の数字で入力してください");
+  // 範囲外の欄だけがエラーになる
+  await expectInvalidWith(hoursInput(page, "minutes"), "時間は0〜10,000の数字で入力してください");
+  await expect(hoursInput(page, "inquiry")).not.toHaveAttribute("aria-invalid");
   await hoursInput(page, "minutes").fill("10001");
   await nextButton(page).click();
   await expect(formAlert(page)).toHaveText("時間は0〜10,000の数字で入力してください");
@@ -95,6 +103,9 @@ test("ステップごとの入力チェック、戻る/次へで入力が残る"
   for (let i = 0; i < 5; i++) await readinessRadio(page, i, 2).check();
   await page.getByRole("button", { name: "診断する" }).click();
   await expect(formAlert(page)).toHaveText("すべての項目に回答してください");
+  // 未回答の項目(6問目)の選択肢だけがエラーになる
+  await expectInvalidWith(readinessRadio(page, 5, 0), "すべての項目に回答してください");
+  await expect(readinessRadio(page, 0, 0)).not.toHaveAttribute("aria-invalid");
 
   // 戻ると、エラーは消え、入力した内容が残っている
   await backButton(page).click();

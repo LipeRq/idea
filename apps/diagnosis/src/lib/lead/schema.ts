@@ -3,10 +3,12 @@ import { DiagnosisInputSchema } from "../diagnosis/schema";
 
 // 無料相談の申し込みフォーム。画面(送信前の確認)とサーバー(受け付け時の検証)で同じスキーマを使う。
 
+// Salesforce のリードの項目の長さ(姓80・会社名255・メール80・電話40)に収まるようにする。
+// (超えると Web-to-Lead でリードが作られないことがある)
 export const LEAD_LIMITS = {
   companyName: 100,
   name: 50,
-  email: 254,
+  email: 80,
   phone: 30,
   message: 2_000,
 } as const;

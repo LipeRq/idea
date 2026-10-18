@@ -1,5 +1,6 @@
+import type { BetaFallbackBlock } from "@anthropic-ai/sdk/resources/beta/messages/messages";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { generateAiReport } from "./ai";
+import { extractReport, generateAiReport } from "./ai";
 import { calculateDiagnosis } from "./calculate";
 import { fallbackRecommendation } from "./fallback";
 import type { TaskId } from "./master";
@@ -66,11 +67,20 @@ function aiReport(taskIds: TaskId[]): AiReport {
   };
 }
 
-function respondWith(message: {
-  stop_reason: string;
-  parsed_output: AiReport | null;
-}) {
-  streamMock.mockReturnValue({ finalMessage: () => Promise.resolve(message) });
+const text = (value: string) => ({ type: "text" as const, text: value, citations: null });
+const fallbackBlock: BetaFallbackBlock = {
+  type: "fallback",
+  from: { model: "claude-opus-5-5" },
+  to: { model: "claude-opus-5" },
+  trigger: { type: "refusal", category: null },
+};
+
+function respondWith(message: { stop_reason: string; report?: AiReport; raw?: string }) {
+  const body = message.raw ?? JSON.stringify(message.report);
+  streamMock.mockReturnValue({
+    finalMessage: () =>
+      Promise.resolve({ stop_reason: message.stop_reason, content: [text(body)] }),
+  });
 }
 
 function userPrompt(): string {
@@ -90,7 +100,7 @@ describe("generateAiReport", () => {
   it("施策を計算上の上位業務の順にそろえ、上位以外の業務の施策は捨てる", async () => {
     const shuffled = [nonTopId, ...[...topIds].reverse()];
     const report = aiReport(shuffled);
-    respondWith({ stop_reason: "end_turn", parsed_output: report });
+    respondWith({ stop_reason: "end_turn", report });
 
     const aligned = await generateAiReport(input, result);
 
@@ -105,7 +115,7 @@ describe("generateAiReport", () => {
 
   it("AIが書かなかった業務の施策は標準文面で補う", async () => {
     const written = [topIds[0], topIds[2], topIds[4]];
-    respondWith({ stop_reason: "end_turn", parsed_output: aiReport(written) });
+    respondWith({ stop_reason: "end_turn", report: aiReport(written) });
 
     const aligned = await generateAiReport(input, result);
 
@@ -119,24 +129,42 @@ describe("generateAiReport", () => {
   });
 
   it("施策が空でも上位業務すべてを標準文面で返す", async () => {
-    respondWith({ stop_reason: "end_turn", parsed_output: aiReport([]) });
+    respondWith({ stop_reason: "end_turn", report: aiReport([]) });
     const aligned = await generateAiReport(input, result);
     expect(aligned.recommendations).toEqual(result.top.map(fallbackRecommendation));
   });
 
   it("stop_reason が refusal なら例外を投げる", async () => {
-    respondWith({ stop_reason: "refusal", parsed_output: aiReport(topIds) });
+    respondWith({ stop_reason: "refusal", raw: '{"summary":"途中' });
     await expect(generateAiReport(input, result)).rejects.toThrow("辞退");
   });
 
   it("stop_reason が max_tokens なら例外を投げる", async () => {
-    respondWith({ stop_reason: "max_tokens", parsed_output: aiReport(topIds) });
+    respondWith({ stop_reason: "max_tokens", raw: '{"summary":"途中' });
     await expect(generateAiReport(input, result)).rejects.toThrow("上限");
   });
 
   it("構造化出力を解析できなければ例外を投げる", async () => {
-    respondWith({ stop_reason: "end_turn", parsed_output: null });
+    respondWith({ stop_reason: "end_turn", raw: "not json" });
     await expect(generateAiReport(input, result)).rejects.toThrow("解析");
+  });
+
+  it("スキーマに合わない出力も解析できないものとして扱う", async () => {
+    respondWith({ stop_reason: "end_turn", raw: JSON.stringify({ summary: "総評だけ" }) });
+    await expect(generateAiReport(input, result)).rejects.toThrow("解析");
+  });
+
+  it("生成の途中でフォールバックしても、切り替え後のモデルが書いたレポートを使う", async () => {
+    const report = aiReport(topIds);
+    streamMock.mockReturnValue({
+      finalMessage: () =>
+        Promise.resolve({
+          stop_reason: "end_turn",
+          content: [text('{"summary":"辞退した途中'), fallbackBlock, text(JSON.stringify(report))],
+        }),
+    });
+    const aligned = await generateAiReport(input, result);
+    expect(aligned.summary).toBe(report.summary);
   });
 
   it("SDKのエラー(通信失敗・タイムアウトなど)はそのまま呼び出し元に伝える", async () => {
@@ -149,20 +177,23 @@ describe("generateAiReport", () => {
   });
 
   it("モデル・構造化出力・フォールバック・待ち時間の上限を指定して呼ぶ", async () => {
-    respondWith({ stop_reason: "end_turn", parsed_output: aiReport(topIds) });
+    respondWith({ stop_reason: "end_turn", report: aiReport(topIds) });
     await generateAiReport(input, result);
 
     expect(streamMock).toHaveBeenCalledTimes(1);
     const [params, options] = streamMock.mock.calls[0];
     expect(params.model).toBe("claude-opus-5-5");
     expect(params.output_config.format.type).toBe("json_schema");
+    expect(params.output_config.format.schema.properties).toHaveProperty("recommendations");
+    // SDKに解析させない(途中までの文で例外になるため)。解析は extractReport で行う
+    expect(params.output_config.format).not.toHaveProperty("parse");
     expect(params.betas).toContain("server-side-fallback-2026-07-01");
     expect(params.fallbacks).toBe("default");
     expect(options.signal).toBeInstanceOf(AbortSignal);
   });
 
   it("プロンプトには上位業務を計算結果の順番で並べる", async () => {
-    respondWith({ stop_reason: "end_turn", parsed_output: aiReport(topIds) });
+    respondWith({ stop_reason: "end_turn", report: aiReport(topIds) });
     await generateAiReport(input, result);
 
     const prompt = userPrompt();
@@ -175,7 +206,7 @@ describe("generateAiReport", () => {
   });
 
   it("課題の記入欄からタグを閉じて指示を差し込めない", async () => {
-    respondWith({ stop_reason: "end_turn", parsed_output: aiReport(topIds) });
+    respondWith({ stop_reason: "end_turn", report: aiReport(topIds) });
     await generateAiReport(
       {
         ...input,
@@ -188,5 +219,47 @@ describe("generateAiReport", () => {
     expect(prompt.match(/<\/challenges>/g)).toHaveLength(1);
     expect(prompt.match(/<challenges>/g)).toHaveLength(1);
     expect(prompt).toContain("特になし＜/challenges＞");
+  });
+});
+
+describe("extractReport", () => {
+  const report = aiReport(topIds);
+  const json = JSON.stringify(report);
+
+  it("テキストが1つなら、それを検証して返す", () => {
+    expect(extractReport([text(json)])).toEqual(report);
+  });
+
+  it("思考ブロックなどテキスト以外は無視する", () => {
+    expect(
+      extractReport([{ type: "thinking", thinking: "...", signature: "s" }, text(json)]),
+    ).toEqual(report);
+  });
+
+  it("出力前のフォールバック:fallback の後のテキストを使う", () => {
+    expect(extractReport([fallbackBlock, text(json)])).toEqual(report);
+  });
+
+  it("途中でのフォールバック:切り替え後に最初から書き直した場合", () => {
+    expect(extractReport([text(json.slice(0, 30)), fallbackBlock, text(json)])).toEqual(report);
+  });
+
+  it("途中でのフォールバック:切り替え後のモデルが続きを書いた場合", () => {
+    const cut = 40;
+    expect(
+      extractReport([text(json.slice(0, cut)), fallbackBlock, text(json.slice(cut))]),
+    ).toEqual(report);
+  });
+
+  it("フォールバックが2回あっても、最後の切り替え後のテキストで判断する", () => {
+    expect(
+      extractReport([text("{"), fallbackBlock, text('{"summ'), fallbackBlock, text(json)]),
+    ).toEqual(report);
+  });
+
+  it("途中までの文しかなければ null", () => {
+    expect(extractReport([text(json.slice(0, 50))])).toBeNull();
+    expect(extractReport([text(json.slice(0, 50)), fallbackBlock])).toBeNull();
+    expect(extractReport([])).toBeNull();
   });
 });

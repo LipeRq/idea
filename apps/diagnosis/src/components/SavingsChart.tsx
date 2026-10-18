@@ -11,7 +11,11 @@ type Props = {
 
 // 業務別の年間削減見込み額。単一系列なので凡例は置かず、見出しで内容を示す。
 export function SavingsChart({ tasks, topIds }: Props) {
-  const [active, setActive] = useState<string | null>(null);
+  // ホバーとフォーカスは別に持つ。スクロールでポインターが棒から外れても、
+  // キーボードでフォーカスした棒のツールチップは消さない
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [focused, setFocused] = useState<string | null>(null);
+  const active = hovered ?? focused;
   const max = Math.max(...tasks.map((t) => t.annualSavedAmount), 1);
   const sorted = [...tasks].sort(
     (a, b) => b.annualSavedAmount - a.annualSavedAmount,
@@ -41,10 +45,10 @@ export function SavingsChart({ tasks, topIds }: Props) {
               role="img"
               aria-label={`${t.name}: 年間${formatYen(t.annualSavedAmount)}、月${formatHours(t.monthlySavedHours)}の削減見込み`}
               className="group flex h-7 cursor-default items-center gap-2 outline-none"
-              onPointerEnter={() => setActive(t.taskId)}
-              onPointerLeave={() => setActive(null)}
-              onFocus={() => setActive(t.taskId)}
-              onBlur={() => setActive(null)}
+              onPointerEnter={() => setHovered(t.taskId)}
+              onPointerLeave={() => setHovered(null)}
+              onFocus={() => setFocused(t.taskId)}
+              onBlur={() => setFocused(null)}
             >
               <div
                 className={`h-5 rounded-r-[4px] transition-colors ${
