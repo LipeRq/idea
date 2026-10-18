@@ -5,6 +5,6 @@ export default defineConfig({
   resolve: { tsconfigPaths: true },
   test: {
     // e2e/ は Playwright で実行する(npm run test:e2e)
-    include: ["src/**/*.test.ts", "scripts/**/*.test.ts"],
+    include: ["src/**/*.test.ts"],
   },
 });

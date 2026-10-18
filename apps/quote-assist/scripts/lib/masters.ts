@@ -67,13 +67,13 @@ export const rateTable: RateTable = {
     { id: "C3604", name: "C3604", group: "copper", aliases: ["C3604BD", "快削黄銅", "黄銅", "真鍮"], densityGPerCm3: 8.5, pricePerKg: 1500, minChargePerLot: 1500 },
   ],
   treatments: [
-    { id: "electroless_ni", name: "無電解ニッケルめっき", kind: "surface", aliases: ["無電解ニッケル", "無電解NI", "無電解ニッケルメッキ"], pricing: "per_kg", unitPrice: 3000, minLotCharge: 12000, leadDays: 5, materialGroups: [...ALL_GROUPS] },
-    { id: "hard_anodize", name: "硬質アルマイト", kind: "surface", aliases: ["硬質陽極酸化"], pricing: "per_piece", unitPrice: 350, minLotCharge: 12000, leadDays: 5, materialGroups: ["aluminum"] },
+    { id: "electroless_ni", name: "無電解ニッケルめっき", kind: "surface", aliases: ["無電解ニッケル", "無電解NI", "無電解ニッケルメッキ"], pricing: "per_kg", unitPrice: 1200, minLotCharge: 12000, leadDays: 5, materialGroups: [...ALL_GROUPS] },
     { id: "white_anodize", name: "白アルマイト", kind: "surface", aliases: ["アルマイト(白)", "クリアアルマイト"], pricing: "per_piece", unitPrice: 150, minLotCharge: 8000, leadDays: 4, materialGroups: ["aluminum"] },
     { id: "black_anodize", name: "黒アルマイト", kind: "surface", aliases: ["アルマイト(黒)"], pricing: "per_piece", unitPrice: 180, minLotCharge: 8000, leadDays: 4, materialGroups: ["aluminum"] },
-    { id: "black_oxide", name: "黒染め", kind: "surface", aliases: ["四三酸化鉄皮膜"], pricing: "per_kg", unitPrice: 600, minLotCharge: 5000, leadDays: 3, materialGroups: ["steel"] },
-    { id: "trivalent_chromate", name: "三価クロメート", kind: "surface", aliases: ["亜鉛めっき", "電気亜鉛めっき"], pricing: "per_kg", unitPrice: 800, minLotCharge: 6000, leadDays: 4, materialGroups: ["steel"] },
-    { id: "quench_temper", name: "焼入れ焼戻し", kind: "heat", aliases: ["焼入焼戻", "調質", "ズブ焼入れ"], pricing: "per_kg", unitPrice: 800, minLotCharge: 8000, leadDays: 4, materialGroups: ["steel"] },
+    { id: "hard_anodize", name: "硬質アルマイト", kind: "surface", aliases: ["硬質陽極酸化"], pricing: "per_piece", unitPrice: 350, minLotCharge: 12000, leadDays: 5, materialGroups: ["aluminum"] },
+    { id: "black_oxide", name: "黒染め", kind: "surface", aliases: ["四三酸化鉄皮膜"], pricing: "per_kg", unitPrice: 400, minLotCharge: 5000, leadDays: 3, materialGroups: ["steel"] },
+    { id: "trivalent_chromate", name: "三価クロメート", kind: "surface", aliases: ["亜鉛めっき", "電気亜鉛めっき"], pricing: "per_kg", unitPrice: 500, minLotCharge: 6000, leadDays: 4, materialGroups: ["steel"] },
+    { id: "quench_temper", name: "焼入れ焼戻し", kind: "heat", aliases: ["焼入焼戻", "調質", "ズブ焼入れ"], pricing: "per_kg", unitPrice: 600, minLotCharge: 8000, leadDays: 4, materialGroups: ["steel"] },
     { id: "induction_hardening", name: "高周波焼入れ", kind: "heat", aliases: ["高周波焼入", "高周波"], pricing: "per_piece", unitPrice: 500, minLotCharge: 15000, leadDays: 5, materialGroups: ["steel"] },
   ],
   rules: {

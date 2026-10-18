@@ -14,9 +14,11 @@ export function formatPercent(rate: number, digits = 0): string {
   return `${(rate * 100).toFixed(digits)}%`;
 }
 
-/** 2026-10-18 → 2026年10月18日 */
+/** 2026-10-18 → 2026年10月18日。日時(ISO形式)は日本時間の日付にする */
 export function formatDate(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
+  const date =
+    iso.length > 10 ? new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date(iso)) : iso;
+  const [y, m, d] = date.split("-").map(Number);
   return `${y}年${m}月${d}日`;
 }
 

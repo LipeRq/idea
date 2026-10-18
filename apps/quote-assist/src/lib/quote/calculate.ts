@@ -7,6 +7,17 @@ import type { QuoteInput, QuoteLine, QuoteResult, QuoteTier } from "./types";
 
 export class QuoteInputError extends Error {}
 
+/** 仕上がり形状の体積[cm³] */
+export function volumeCm3(d: Dimensions): number {
+  if (d.shape === "round") return (Math.PI * ((d.diameterMm ?? 0) / 2) ** 2 * d.lengthMm) / 1000;
+  return (d.lengthMm * (d.widthMm ?? 0) * (d.heightMm ?? 0)) / 1000;
+}
+
+/** 仕上がり重量[kg](外形の体積から。穴・ポケットは差し引かない)。重量単価の外注費に使う */
+export function partWeightKg(dimensions: Dimensions, densityGPerCm3: number): number {
+  return Math.max(0.001, round((volumeCm3(dimensions) * densityGPerCm3) / 1000, 3));
+}
+
 /** 素材(取り代を含む)の重量[kg]。小数3桁に丸める */
 export function blankWeightKg(
   dimensions: Dimensions,
@@ -70,6 +81,7 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
   const material = rates.materials.find((m) => m.id === input.material.materialId);
   if (!material) throw new QuoteInputError(`単価表にない材質です: ${input.material.materialId}`);
   const weightKg = blankWeightKg(input.material.dimensions, material.densityGPerCm3, rates);
+  const partKg = partWeightKg(input.material.dimensions, material.densityGPerCm3);
   const pricePerKg = input.material.pricePerKgOverride ?? material.pricePerKg;
   const materialByWeight = Math.round(weightKg * quantity * pricePerKg);
   const materialAmount = Math.max(materialByWeight, material.minChargePerLot);
@@ -140,13 +152,13 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
     const unitPrice = t.unitPriceOverride ?? rate.unitPrice;
     const byUnit =
       rate.pricing === "per_kg"
-        ? Math.round(unitPrice * weightKg * quantity)
+        ? Math.round(unitPrice * partKg * quantity)
         : Math.round(unitPrice * quantity);
     const amount = Math.max(byUnit, rate.minLotCharge);
     outsourcingTotal += amount;
     const unitBasis =
       rate.pricing === "per_kg"
-        ? `${formatYen(unitPrice)}/kg × ${formatNumber(weightKg, 3)}kg × ${quantity}個`
+        ? `${formatYen(unitPrice)}/kg × 仕上がり${formatNumber(partKg, 3)}kg × ${quantity}個`
         : `${formatYen(unitPrice)}/個 × ${quantity}個`;
     lines.push({
       kind: "treatment",
@@ -213,6 +225,7 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
   return {
     quantity,
     weightKgPerPiece: weightKg,
+    partWeightKgPerPiece: partKg,
     lines,
     directCost,
     overhead,

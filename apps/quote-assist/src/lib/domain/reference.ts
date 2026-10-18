@@ -217,7 +217,7 @@ export const BacklogItemSchema = z.object({
 export type BacklogItem = z.infer<typeof BacklogItemSchema>;
 
 export const BACKLOG_STATUS_LABEL: Record<BacklogItem["status"], string> = {
-  president_review: "社長の確認待ち",
+  president_review: "社長・工場長の確認待ち",
   waiting_customer: "顧客の回答待ち",
   answered: "回答済み",
 };

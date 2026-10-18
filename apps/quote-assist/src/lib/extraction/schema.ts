@@ -4,6 +4,11 @@ import { PROCESS_TYPES, SHAPES } from "../domain/reference";
 
 // Claude に返させる抽出結果の構造。値はまだ正規化前(単価表のidではなく図面の表記)。
 // デモモードの固定結果も同じ形にして、正規化以降の処理を共通にする。
+// 選択肢のある項目も文字列で受け取る(SDKは enum をAPIに送らず説明文に移したうえで、受信後に
+// zodで検証する。想定外の値が1つでも来ると抽出全体が失敗するため、値の丸めは normalize.ts で行う)。
+
+const oneOf = (values: readonly string[], description: string) =>
+  z.string().describe(`${description}。次のいずれか:${values.join(" / ")}`);
 
 const SourceSchema = z.object({
   document: z
@@ -18,11 +23,10 @@ const SourceSchema = z.object({
 
 const meta = {
   raw: z.string().nullable().describe("文書に書かれていた表記そのまま。記載がなければ null"),
-  confidence: z
-    .enum(["high", "medium", "low"])
-    .describe(
-      "high=明記されていて読み違いの余地がない、medium=表記ゆれ・推定・一部判読困難を含む、low=記載がない・読み取れない・文書間で矛盾している",
-    ),
+  confidence: oneOf(
+    ["high", "medium", "low"],
+    "確からしさ。high=明記されていて読み違いの余地がない、medium=表記ゆれ・推定・一部判読困難を含む、low=記載がない・読み取れない・文書間で矛盾している",
+  ),
   sources: z.array(SourceSchema).describe("根拠。図面とメールの両方に記載があれば両方。記載がなければ空"),
   note: z.string().nullable().describe("あいまいな点・矛盾・前提。なければ null"),
 };
@@ -49,7 +53,7 @@ export const ExtractionOutputSchema = z.object({
   dimensions: z.object({
     value: z
       .object({
-        shape: z.enum(SHAPES).describe("block=角物、round=丸物(軸・円筒)、sheet=板金の板物"),
+        shape: oneOf(SHAPES, "形状。block=角物、round=丸物(軸・円筒)、sheet=板金の板物"),
         lengthMm: z.number().describe("長さ(mm)"),
         widthMm: z.number().nullable().describe("幅(mm)。丸物は null"),
         heightMm: z.number().nullable().describe("厚さ・高さ・板厚(mm)。丸物は null"),
@@ -75,10 +79,8 @@ export const ExtractionOutputSchema = z.object({
   dueDate: text("希望納期を YYYY-MM-DD で。年がなければ受付日以降で最も近い日付。記載がなければ null"),
   inspection: text("検査成績書・ミルシートなど提出書類の要求。不要と明記されていれば「不要」、記載がなければ null"),
   processType: z.object({
-    value: z
-      .enum(PROCESS_TYPES)
-      .nullable()
-      .describe("主な加工種別。milling=マシニングによる切削、turning=旋盤による旋削、sheet=板金"),
+    value: oneOf(PROCESS_TYPES, "主な加工種別。milling=マシニングによる切削、turning=旋盤による旋削、sheet=板金")
+      .nullable(),
     ...meta,
   }),
   features: z
@@ -88,7 +90,7 @@ export const ExtractionOutputSchema = z.object({
   questions: z
     .array(
       z.object({
-        field: z.enum([...FIELD_KEYS, "other"]),
+        field: oneOf([...FIELD_KEYS, "other"], "対象の項目"),
         issue: z.string().describe("確認が必要な理由。1文"),
         question: z.string().describe("顧客に送る質問文。丁寧な日本語で1〜2文"),
       }),

@@ -206,6 +206,10 @@ export const InquirySchema = z.object({
       unitPrice: z.number().int(),
       total: z.number().int(),
       standardLeadDays: z.number().int(),
+      weightKgPerPiece: z.number(),
+      // 承認した時点の明細(あとで単価表が変わっても、承認した見積の内容は変えない)
+      lines: z.array(z.object({ kind: z.string(), label: z.string(), basis: z.string(), amount: z.number().int() })),
+      tiers: z.array(z.object({ quantity: z.number().int(), unitPrice: z.number().int(), total: z.number().int() })),
     })
     .nullable(),
   reviewLog: z.array(ReviewLogEntrySchema),

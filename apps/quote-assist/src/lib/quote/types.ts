@@ -72,7 +72,10 @@ export type QuoteTier = { quantity: number; unitPrice: number; total: number };
 
 export type QuoteResult = {
   quantity: number;
+  /** 素材(取り代込み)の重量 */
   weightKgPerPiece: number;
+  /** 仕上がり重量(重量単価の外注費に使う) */
+  partWeightKgPerPiece: number;
   lines: QuoteLine[];
   directCost: number;
   overhead: number;

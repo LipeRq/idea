@@ -37,6 +37,7 @@ const FILES = {
   backlog: ["backlog.json", z.array(BacklogItemSchema)],
 } as const;
 
+// 読み込み先は実行時の環境変数で決まるため、ビルド時のファイルトレースからは外す(turbopackIgnore)
 export function referenceDir(): string {
   return process.env.QUOTE_ASSIST_REFERENCE_DIR || path.join(process.cwd(), "data");
 }
@@ -46,13 +47,13 @@ let cached: { key: string; data: ReferenceData } | null = null;
 export async function loadReferenceData(dir = referenceDir()): Promise<ReferenceData> {
   // ファイルの更新時刻が変わったときだけ読み直す
   const entries = Object.entries(FILES) as [keyof ReferenceData, (typeof FILES)[keyof ReferenceData]][];
-  const mtimes = await Promise.all(entries.map(([, [file]]) => stat(path.join(dir, file)).then((s) => s.mtimeMs)));
+  const mtimes = await Promise.all(entries.map(([, [file]]) => stat(/*turbopackIgnore: true*/ path.join(/*turbopackIgnore: true*/ dir, file)).then((s) => s.mtimeMs)));
   const key = `${dir}:${mtimes.join(",")}`;
   if (cached?.key === key) return cached.data;
 
   const loaded = await Promise.all(
     entries.map(async ([name, [file, schema]]) => {
-      const text = await readFile(path.join(dir, file), "utf8");
+      const text = await readFile(/*turbopackIgnore: true*/ path.join(/*turbopackIgnore: true*/ dir, file), "utf8");
       const result = schema.safeParse(JSON.parse(text));
       if (!result.success) {
         throw new Error(`参照データ ${file} の形式が正しくありません: ${result.error.issues[0]?.message}`);

@@ -15,7 +15,7 @@
       "diameterMm": 42
     },
     "materialId": "C3604",
-    "weightKg": 0.46,
+    "weightKg": 0.342,
     "toleranceMm": 0.005,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -69,8 +69,8 @@
         "cycleHoursPerPiece": 0.12
       }
     ],
-    "unitPrice": 6670,
-    "amount": 333500,
+    "unitPrice": 5420,
+    "amount": 271000,
     "result": "won",
     "lostReason": null,
     "responseDays": 3,
@@ -92,7 +92,7 @@
       "diameterMm": 10
     },
     "materialId": "S45C",
-    "weightKg": 0.042,
+    "weightKg": 0.022,
     "toleranceMm": 0.005,
     "surfaceTreatmentId": null,
     "heatTreatmentId": "quench_temper",
@@ -170,7 +170,7 @@
       "diameterMm": 65
     },
     "materialId": "SS400",
-    "weightKg": 0.855,
+    "weightKg": 0.651,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -223,8 +223,8 @@
         "cycleHoursPerPiece": 0.13
       }
     ],
-    "unitPrice": 5810,
-    "amount": 581000,
+    "unitPrice": 5480,
+    "amount": 548000,
     "result": "won",
     "lostReason": null,
     "responseDays": 4,
@@ -246,7 +246,7 @@
       "diameterMm": 14
     },
     "materialId": "SUS304",
-    "weightKg": 0.486,
+    "weightKg": 0.323,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -296,7 +296,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.181,
+    "weightKg": 0.128,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -373,7 +373,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.532,
+    "weightKg": 0.408,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -440,7 +440,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.762,
+    "weightKg": 0.617,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -490,7 +490,7 @@
       "diameterMm": 20
     },
     "materialId": "S45C",
-    "weightKg": 0.832,
+    "weightKg": 0.617,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -518,8 +518,8 @@
       }
     ],
     "actualProcesses": null,
-    "unitPrice": 5710,
-    "amount": 114200,
+    "unitPrice": 5390,
+    "amount": 107800,
     "result": "lost",
     "lostReason": "他社に決定(理由不明)",
     "responseDays": 3,
@@ -541,7 +541,7 @@
       "diameterMm": null
     },
     "materialId": "A6061",
-    "weightKg": 2.025,
+    "weightKg": 1.667,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -608,7 +608,7 @@
       "diameterMm": 18
     },
     "materialId": "SUS304",
-    "weightKg": 0.069,
+    "weightKg": 0.04,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -674,7 +674,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.233,
+    "weightKg": 0.172,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -725,7 +725,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 3.247,
+    "weightKg": 2.706,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -792,7 +792,7 @@
       "diameterMm": null
     },
     "materialId": "A6061",
-    "weightKg": 1.962,
+    "weightKg": 1.535,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -858,7 +858,7 @@
       "diameterMm": 105
     },
     "materialId": "SS400",
-    "weightKg": 1.079,
+    "weightKg": 0.68,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -901,8 +901,8 @@
         "cycleHoursPerPiece": 0.05
       }
     ],
-    "unitPrice": 3780,
-    "amount": 189000,
+    "unitPrice": 3280,
+    "amount": 164000,
     "result": "won",
     "lostReason": null,
     "responseDays": 3,
@@ -926,7 +926,7 @@
       "diameterMm": null
     },
     "materialId": "A7075",
-    "weightKg": 0.22,
+    "weightKg": 0.158,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -993,7 +993,7 @@
       "diameterMm": 48
     },
     "materialId": "S45C",
-    "weightKg": 0.337,
+    "weightKg": 0.227,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -1045,7 +1045,7 @@
       "diameterMm": 8
     },
     "materialId": "SUS304",
-    "weightKg": 0.038,
+    "weightKg": 0.018,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -1101,7 +1101,7 @@
       "diameterMm": 22
     },
     "materialId": "S45C",
-    "weightKg": 0.042,
+    "weightKg": 0.018,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -1151,7 +1151,7 @@
       "diameterMm": 150
     },
     "materialId": "S45C",
-    "weightKg": 3.464,
+    "weightKg": 2.636,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": "induction_hardening",
@@ -1206,8 +1206,8 @@
         "cycleHoursPerPiece": 0.05
       }
     ],
-    "unitPrice": 38350,
-    "amount": 76700,
+    "unitPrice": 32550,
+    "amount": 65100,
     "result": "won",
     "lostReason": null,
     "responseDays": 2,
@@ -1229,7 +1229,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.541,
+    "weightKg": 0.383,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -1295,7 +1295,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.057,
+    "weightKg": 0.036,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -1372,7 +1372,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.595,
+    "weightKg": 0.478,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -1438,7 +1438,7 @@
       "diameterMm": 28
     },
     "materialId": "SUS304",
-    "weightKg": 0.126,
+    "weightKg": 0.078,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -1488,7 +1488,7 @@
       "diameterMm": 12
     },
     "materialId": "S45C",
-    "weightKg": 0.125,
+    "weightKg": 0.075,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": null,
@@ -1565,7 +1565,7 @@
       "diameterMm": 36
     },
     "materialId": "SUS304",
-    "weightKg": 0.294,
+    "weightKg": 0.21,
     "toleranceMm": 0.005,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -1642,7 +1642,7 @@
       "diameterMm": 16
     },
     "materialId": "SCM435",
-    "weightKg": 0.045,
+    "weightKg": 0.024,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -1720,7 +1720,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.3,
+    "weightKg": 0.238,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -1777,7 +1777,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.7,
+    "weightKg": 0.642,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -1853,7 +1853,7 @@
       "diameterMm": 55
     },
     "materialId": "SUS304",
-    "weightKg": 0.377,
+    "weightKg": 0.245,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -1910,7 +1910,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 2.498,
+    "weightKg": 1.998,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -1977,7 +1977,7 @@
       "diameterMm": null
     },
     "materialId": "S45C",
-    "weightKg": 0.371,
+    "weightKg": 0.254,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": "quench_temper",
@@ -2021,8 +2021,8 @@
         "cycleHoursPerPiece": 0.06
       }
     ],
-    "unitPrice": 4570,
-    "amount": 137100,
+    "unitPrice": 4400,
+    "amount": 132000,
     "result": "won",
     "lostReason": null,
     "responseDays": 3,
@@ -2044,7 +2044,7 @@
       "diameterMm": 130
     },
     "materialId": "S45C",
-    "weightKg": 2.508,
+    "weightKg": 1.876,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": "quench_temper",
@@ -2098,8 +2098,8 @@
         "cycleHoursPerPiece": 0.05
       }
     ],
-    "unitPrice": 11360,
-    "amount": 113600,
+    "unitPrice": 10200,
+    "amount": 102000,
     "result": "won",
     "lostReason": null,
     "responseDays": 4,
@@ -2121,7 +2121,7 @@
       "diameterMm": 12
     },
     "materialId": "SUS303",
-    "weightKg": 0.05,
+    "weightKg": 0.028,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -2172,7 +2172,7 @@
       "diameterMm": 28
     },
     "materialId": "SUS304",
-    "weightKg": 0.138,
+    "weightKg": 0.088,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -2224,7 +2224,7 @@
       "diameterMm": 12
     },
     "materialId": "SUS304",
-    "weightKg": 0.322,
+    "weightKg": 0.202,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -2274,7 +2274,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.5,
+    "weightKg": 0.428,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -2331,7 +2331,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.1,
+    "weightKg": 0.066,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -2382,7 +2382,7 @@
       "diameterMm": 9
     },
     "materialId": "SUS304",
-    "weightKg": 0.045,
+    "weightKg": 0.023,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -2448,7 +2448,7 @@
       "diameterMm": 20
     },
     "materialId": "SCM435",
-    "weightKg": 0.815,
+    "weightKg": 0.604,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": null,
@@ -2498,7 +2498,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 1.088,
+    "weightKg": 0.803,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -2549,7 +2549,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.33,
+    "weightKg": 0.216,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -2599,7 +2599,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 2.298,
+    "weightKg": 1.609,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -2654,7 +2654,7 @@
       "diameterMm": null
     },
     "materialId": "S45C",
-    "weightKg": 0.989,
+    "weightKg": 0.742,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -2722,7 +2722,7 @@
       "diameterMm": 15
     },
     "materialId": "S45C",
-    "weightKg": 0.09,
+    "weightKg": 0.055,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": "quench_temper",
@@ -2788,7 +2788,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.414,
+    "weightKg": 0.364,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -2866,7 +2866,7 @@
       "diameterMm": 38
     },
     "materialId": "SUS303",
-    "weightKg": 2.146,
+    "weightKg": 1.799,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -2909,8 +2909,8 @@
         "cycleHoursPerPiece": 0.1
       }
     ],
-    "unitPrice": 17910,
-    "amount": 358200,
+    "unitPrice": 12260,
+    "amount": 245200,
     "result": "won",
     "lostReason": null,
     "responseDays": 1,
@@ -2932,7 +2932,7 @@
       "diameterMm": 14
     },
     "materialId": "SUS304",
-    "weightKg": 0.387,
+    "weightKg": 0.256,
     "toleranceMm": 0.005,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -3008,7 +3008,7 @@
       "diameterMm": 26
     },
     "materialId": "S45C",
-    "weightKg": 0.062,
+    "weightKg": 0.029,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": "quench_temper",
@@ -3076,7 +3076,7 @@
       "diameterMm": 10
     },
     "materialId": "SUS304",
-    "weightKg": 0.016,
+    "weightKg": 0.006,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -3126,7 +3126,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 1.62,
+    "weightKg": 1.341,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -3204,7 +3204,7 @@
       "diameterMm": 95
     },
     "materialId": "SUS304",
-    "weightKg": 1.675,
+    "weightKg": 1.293,
     "toleranceMm": 0.005,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -3290,7 +3290,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.827,
+    "weightKg": 0.716,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": null,
@@ -3324,8 +3324,8 @@
       }
     ],
     "actualProcesses": null,
-    "unitPrice": 2820,
-    "amount": 564000,
+    "unitPrice": 2430,
+    "amount": 486000,
     "result": "lost",
     "lostReason": "納期が合わない",
     "responseDays": 3,
@@ -3347,7 +3347,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.317,
+    "weightKg": 0.223,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -3414,7 +3414,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 6.534,
+    "weightKg": 4.922,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -3467,8 +3467,8 @@
         "cycleHoursPerPiece": 0.06
       }
     ],
-    "unitPrice": 21240,
-    "amount": 212400,
+    "unitPrice": 18660,
+    "amount": 186600,
     "result": "won",
     "lostReason": null,
     "responseDays": 3,
@@ -3490,7 +3490,7 @@
       "diameterMm": 18
     },
     "materialId": "SUS304",
-    "weightKg": 0.069,
+    "weightKg": 0.04,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -3556,7 +3556,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.528,
+    "weightKg": 0.485,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -3612,7 +3612,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.565,
+    "weightKg": 0.507,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": null,
@@ -3669,7 +3669,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.314,
+    "weightKg": 0.254,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -3724,7 +3724,7 @@
       "diameterMm": 10
     },
     "materialId": "A5052",
-    "weightKg": 0.006,
+    "weightKg": 0.002,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -3792,7 +3792,7 @@
       "diameterMm": 20
     },
     "materialId": "S45C",
-    "weightKg": 0.603,
+    "weightKg": 0.444,
     "toleranceMm": 0.005,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": "induction_hardening",
@@ -3880,7 +3880,7 @@
       "diameterMm": 28
     },
     "materialId": "C3604",
-    "weightKg": 0.276,
+    "weightKg": 0.199,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -3947,7 +3947,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.369,
+    "weightKg": 0.327,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4023,7 +4023,7 @@
       "diameterMm": 55
     },
     "materialId": "SUS304",
-    "weightKg": 0.377,
+    "weightKg": 0.245,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4080,7 +4080,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 3.309,
+    "weightKg": 2.798,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -4147,7 +4147,7 @@
       "diameterMm": 26
     },
     "materialId": "SUS303",
-    "weightKg": 0.759,
+    "weightKg": 0.589,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4202,7 +4202,7 @@
       "diameterMm": 15
     },
     "materialId": "S45C",
-    "weightKg": 0.13,
+    "weightKg": 0.083,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4269,7 +4269,7 @@
       "diameterMm": 36
     },
     "materialId": "A5052",
-    "weightKg": 0.054,
+    "weightKg": 0.033,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -4321,7 +4321,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.19,
+    "weightKg": 0.157,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4398,7 +4398,7 @@
       "diameterMm": 120
     },
     "materialId": "S45C",
-    "weightKg": 1.492,
+    "weightKg": 0.977,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -4455,7 +4455,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.414,
+    "weightKg": 0.364,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4533,7 +4533,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.259,
+    "weightKg": 0.212,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4610,7 +4610,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.428,
+    "weightKg": 0.392,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4665,7 +4665,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.13,
+    "weightKg": 0.094,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": null,
@@ -4742,7 +4742,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.457,
+    "weightKg": 0.377,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4797,7 +4797,7 @@
       "diameterMm": 55
     },
     "materialId": "SUS304",
-    "weightKg": 0.377,
+    "weightKg": 0.245,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4854,7 +4854,7 @@
       "diameterMm": 18
     },
     "materialId": "SUS304",
-    "weightKg": 0.096,
+    "weightKg": 0.061,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4906,7 +4906,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.755,
+    "weightKg": 0.69,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -4962,7 +4962,7 @@
       "diameterMm": null
     },
     "materialId": "S45C",
-    "weightKg": 1.269,
+    "weightKg": 0.898,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": null,
@@ -4989,8 +4989,8 @@
       }
     ],
     "actualProcesses": null,
-    "unitPrice": 6880,
-    "amount": 137600,
+    "unitPrice": 6150,
+    "amount": 123000,
     "result": "lost",
     "lostReason": "価格(他社より高い)",
     "responseDays": 5,
@@ -5012,7 +5012,7 @@
       "diameterMm": 125
     },
     "materialId": "SS400",
-    "weightKg": 2.929,
+    "weightKg": 2.312,
     "toleranceMm": 0.005,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -5099,7 +5099,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 0.918,
+    "weightKg": 0.671,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -5149,7 +5149,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 1.421,
+    "weightKg": 1.121,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -5227,7 +5227,7 @@
       "diameterMm": 40
     },
     "materialId": "SUS304",
-    "weightKg": 2.246,
+    "weightKg": 1.893,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -5305,7 +5305,7 @@
       "diameterMm": 80
     },
     "materialId": "S45C",
-    "weightKg": 0.765,
+    "weightKg": 0.513,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -5362,7 +5362,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 0.986,
+    "weightKg": 0.707,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -5406,8 +5406,8 @@
         "cycleHoursPerPiece": 0.11
       }
     ],
-    "unitPrice": 10520,
-    "amount": 210400,
+    "unitPrice": 7880,
+    "amount": 157600,
     "result": "won",
     "lostReason": null,
     "responseDays": 2,
@@ -5429,7 +5429,7 @@
       "diameterMm": 15
     },
     "materialId": "S45C",
-    "weightKg": 0.07,
+    "weightKg": 0.042,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -5506,7 +5506,7 @@
       "diameterMm": 20
     },
     "materialId": "S45C",
-    "weightKg": 0.881,
+    "weightKg": 0.654,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -5584,7 +5584,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 1.804,
+    "weightKg": 1.427,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -5629,8 +5629,8 @@
         "cycleHoursPerPiece": 0.12
       }
     ],
-    "unitPrice": 19520,
-    "amount": 585600,
+    "unitPrice": 14750,
+    "amount": 442500,
     "result": "won",
     "lostReason": null,
     "responseDays": 4,
@@ -5654,7 +5654,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.44,
+    "weightKg": 0.358,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -5710,7 +5710,7 @@
       "diameterMm": 12
     },
     "materialId": "SUS304",
-    "weightKg": 0.021,
+    "weightKg": 0.009,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -5776,7 +5776,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.799,
+    "weightKg": 0.585,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -5842,7 +5842,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.382,
+    "weightKg": 0.295,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -5909,7 +5909,7 @@
       "diameterMm": 16
     },
     "materialId": "S45C",
-    "weightKg": 0.056,
+    "weightKg": 0.032,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -5976,7 +5976,7 @@
       "diameterMm": null
     },
     "materialId": "A6061",
-    "weightKg": 3.267,
+    "weightKg": 2.701,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -6044,7 +6044,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.714,
+    "weightKg": 0.58,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -6099,7 +6099,7 @@
       "diameterMm": 125
     },
     "materialId": "SUS304",
-    "weightKg": 2.959,
+    "weightKg": 2.336,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -6176,7 +6176,7 @@
       "diameterMm": 16
     },
     "materialId": "SUS304",
-    "weightKg": 0.079,
+    "weightKg": 0.048,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -6231,7 +6231,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 1.441,
+    "weightKg": 1.119,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -6276,8 +6276,8 @@
         "cycleHoursPerPiece": 0.06
       }
     ],
-    "unitPrice": 7590,
-    "amount": 379500,
+    "unitPrice": 7050,
+    "amount": 352500,
     "result": "won",
     "lostReason": null,
     "responseDays": 3,
@@ -6299,7 +6299,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.593,
+    "weightKg": 0.428,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -6349,7 +6349,7 @@
       "diameterMm": 105
     },
     "materialId": "S45C",
-    "weightKg": 1.151,
+    "weightKg": 0.748,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -6393,8 +6393,8 @@
         "cycleHoursPerPiece": 0.06
       }
     ],
-    "unitPrice": 8640,
-    "amount": 172800,
+    "unitPrice": 5340,
+    "amount": 106800,
     "result": "won",
     "lostReason": null,
     "responseDays": 3,
@@ -6416,7 +6416,7 @@
       "diameterMm": 34
     },
     "materialId": "S45C",
-    "weightKg": 2.279,
+    "weightKg": 1.889,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -6459,8 +6459,8 @@
         "cycleHoursPerPiece": 0.05
       }
     ],
-    "unitPrice": 7760,
-    "amount": 77600,
+    "unitPrice": 6970,
+    "amount": 69700,
     "result": "won",
     "lostReason": null,
     "responseDays": 1,
@@ -6482,7 +6482,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.102,
+    "weightKg": 0.071,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -6539,7 +6539,7 @@
       "diameterMm": null
     },
     "materialId": "A7075",
-    "weightKg": 0.602,
+    "weightKg": 0.477,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -6589,7 +6589,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.528,
+    "weightKg": 0.459,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -6667,7 +6667,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.095,
+    "weightKg": 0.067,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -6722,7 +6722,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.495,
+    "weightKg": 0.374,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -6774,7 +6774,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.33,
+    "weightKg": 0.216,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -6840,7 +6840,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 2.212,
+    "weightKg": 1.308,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -6891,7 +6891,7 @@
       "diameterMm": 20
     },
     "materialId": "S45C",
-    "weightKg": 0.538,
+    "weightKg": 0.395,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": "induction_hardening",
@@ -6968,7 +6968,7 @@
       "diameterMm": 18
     },
     "materialId": "C3604",
-    "weightKg": 0.029,
+    "weightKg": 0.011,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -7034,7 +7034,7 @@
       "diameterMm": null
     },
     "materialId": "S45C",
-    "weightKg": 0.574,
+    "weightKg": 0.412,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -7101,7 +7101,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.261,
+    "weightKg": 0.232,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -7179,7 +7179,7 @@
       "diameterMm": null
     },
     "materialId": "C3604",
-    "weightKg": 3.432,
+    "weightKg": 2.876,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -7234,7 +7234,7 @@
       "diameterMm": 8
     },
     "materialId": "S45C",
-    "weightKg": 0.071,
+    "weightKg": 0.036,
     "toleranceMm": 0.005,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": "quench_temper",
@@ -7295,7 +7295,7 @@
       "diameterMm": 40
     },
     "materialId": "C3604",
-    "weightKg": 0.333,
+    "weightKg": 0.235,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -7361,7 +7361,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.881,
+    "weightKg": 0.722,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -7439,7 +7439,7 @@
       "diameterMm": null
     },
     "materialId": "A6061",
-    "weightKg": 2.484,
+    "weightKg": 2.014,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -7490,7 +7490,7 @@
       "diameterMm": null
     },
     "materialId": "A6061",
-    "weightKg": 1.306,
+    "weightKg": 1.063,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -7560,7 +7560,7 @@
       "diameterMm": 30
     },
     "materialId": "S45C",
-    "weightKg": 0.128,
+    "weightKg": 0.078,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": "quench_temper",
@@ -7610,7 +7610,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.082,
+    "weightKg": 0.057,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": null,
@@ -7665,7 +7665,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.278,
+    "weightKg": 0.18,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -7717,7 +7717,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 1.258,
+    "weightKg": 0.96,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -7761,8 +7761,8 @@
         "cycleHoursPerPiece": 0.05
       }
     ],
-    "unitPrice": 14500,
-    "amount": 580000,
+    "unitPrice": 11120,
+    "amount": 444800,
     "result": "won",
     "lostReason": null,
     "responseDays": 3,
@@ -7784,7 +7784,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.419,
+    "weightKg": 0.357,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -7840,7 +7840,7 @@
       "diameterMm": null
     },
     "materialId": "S45C",
-    "weightKg": 0.674,
+    "weightKg": 0.495,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -7891,7 +7891,7 @@
       "diameterMm": 26
     },
     "materialId": "S45C",
-    "weightKg": 0.959,
+    "weightKg": 0.75,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -7969,7 +7969,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.141,
+    "weightKg": 0.113,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -8046,7 +8046,7 @@
       "diameterMm": null
     },
     "materialId": "S45C",
-    "weightKg": 3.187,
+    "weightKg": 2.643,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -8112,7 +8112,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 1.154,
+    "weightKg": 0.872,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -8162,7 +8162,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 1.77,
+    "weightKg": 1.392,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -8238,7 +8238,7 @@
       "diameterMm": null
     },
     "materialId": "S45C",
-    "weightKg": 0.725,
+    "weightKg": 0.53,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": "quench_temper",
@@ -8281,8 +8281,8 @@
         "cycleHoursPerPiece": 0.06
       }
     ],
-    "unitPrice": 6640,
-    "amount": 132800,
+    "unitPrice": 6050,
+    "amount": 121000,
     "result": "won",
     "lostReason": null,
     "responseDays": 4,
@@ -8304,7 +8304,7 @@
       "diameterMm": 90
     },
     "materialId": "SS400",
-    "weightKg": 1.44,
+    "weightKg": 1.099,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -8354,7 +8354,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.575,
+    "weightKg": 0.412,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -8406,7 +8406,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.314,
+    "weightKg": 0.238,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -8474,7 +8474,7 @@
       "diameterMm": 38
     },
     "materialId": "S45C",
-    "weightKg": 0.197,
+    "weightKg": 0.125,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -8525,7 +8525,7 @@
       "diameterMm": 80
     },
     "materialId": "SUS304",
-    "weightKg": 0.901,
+    "weightKg": 0.638,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -8602,7 +8602,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.637,
+    "weightKg": 0.475,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "hard_anodize",
     "heatTreatmentId": null,
@@ -8652,7 +8652,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 2.323,
+    "weightKg": 1.876,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -8704,7 +8704,7 @@
       "diameterMm": null
     },
     "materialId": "S45C",
-    "weightKg": 0.528,
+    "weightKg": 0.37,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": "quench_temper",
@@ -8754,7 +8754,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.33,
+    "weightKg": 0.285,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -8810,7 +8810,7 @@
       "diameterMm": 10
     },
     "materialId": "SCM435",
-    "weightKg": 0.198,
+    "weightKg": 0.114,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -8860,7 +8860,7 @@
       "diameterMm": null
     },
     "materialId": "S45C",
-    "weightKg": 4.239,
+    "weightKg": 3.602,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -8893,8 +8893,8 @@
       }
     ],
     "actualProcesses": null,
-    "unitPrice": 44140,
-    "amount": 44140,
+    "unitPrice": 43220,
+    "amount": 43220,
     "result": "lost",
     "lostReason": "価格(他社より高い)",
     "responseDays": 6,
@@ -8916,7 +8916,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 2.316,
+    "weightKg": 1.799,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -8982,7 +8982,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.517,
+    "weightKg": 0.333,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -9049,7 +9049,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.517,
+    "weightKg": 0.333,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -9116,7 +9116,7 @@
       "diameterMm": 30
     },
     "materialId": "C3604",
-    "weightKg": 0.08,
+    "weightKg": 0.036,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -9184,7 +9184,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 1.549,
+    "weightKg": 1.216,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -9241,7 +9241,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 1.665,
+    "weightKg": 1.271,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -9284,8 +9284,8 @@
         "cycleHoursPerPiece": 0.04
       }
     ],
-    "unitPrice": 15520,
-    "amount": 155200,
+    "unitPrice": 11050,
+    "amount": 110500,
     "result": "won",
     "lostReason": null,
     "responseDays": 2,
@@ -9307,7 +9307,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 1.277,
+    "weightKg": 0.965,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -9385,7 +9385,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.778,
+    "weightKg": 0.611,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "hard_anodize",
     "heatTreatmentId": null,
@@ -9451,7 +9451,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 4.036,
+    "weightKg": 3.319,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -9501,7 +9501,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.555,
+    "weightKg": 0.514,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -9579,7 +9579,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 2.474,
+    "weightKg": 2.011,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -9633,8 +9633,8 @@
         "cycleHoursPerPiece": 0.05
       }
     ],
-    "unitPrice": 24850,
-    "amount": 497000,
+    "unitPrice": 18230,
+    "amount": 364600,
     "result": "won",
     "lostReason": null,
     "responseDays": 3,
@@ -9658,7 +9658,7 @@
       "diameterMm": 20
     },
     "materialId": "SUS304",
-    "weightKg": 0.043,
+    "weightKg": 0.02,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "electroless_ni",
     "heatTreatmentId": null,
@@ -9724,7 +9724,7 @@
       "diameterMm": 34
     },
     "materialId": "SUS304",
-    "weightKg": 0.315,
+    "weightKg": 0.23,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -9774,7 +9774,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 5.995,
+    "weightKg": 5.01,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -9851,7 +9851,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 2.481,
+    "weightKg": 2.024,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -9902,7 +9902,7 @@
       "diameterMm": null
     },
     "materialId": "A7075",
-    "weightKg": 0.756,
+    "weightKg": 0.614,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -9972,7 +9972,7 @@
       "diameterMm": 13
     },
     "materialId": "SCM435",
-    "weightKg": 0.103,
+    "weightKg": 0.063,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": null,
@@ -10050,7 +10050,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 4.577,
+    "weightKg": 3.561,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -10077,8 +10077,8 @@
       }
     ],
     "actualProcesses": null,
-    "unitPrice": 17970,
-    "amount": 53910,
+    "unitPrice": 16540,
+    "amount": 49620,
     "result": "lost",
     "lostReason": "価格(他社より高い)",
     "responseDays": 3,
@@ -10100,7 +10100,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.709,
+    "weightKg": 0.531,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -10166,7 +10166,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.321,
+    "weightKg": 0.217,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -10244,7 +10244,7 @@
       "diameterMm": 16
     },
     "materialId": "S45C",
-    "weightKg": 0.523,
+    "weightKg": 0.363,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -10294,7 +10294,7 @@
       "diameterMm": null
     },
     "materialId": "S45C",
-    "weightKg": 4.004,
+    "weightKg": 3.391,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": "quench_temper",
@@ -10321,8 +10321,8 @@
       }
     ],
     "actualProcesses": null,
-    "unitPrice": 17180,
-    "amount": 859000,
+    "unitPrice": 14320,
+    "amount": 716000,
     "result": "lost",
     "lostReason": "価格(他社より高い)",
     "responseDays": 4,
@@ -10344,7 +10344,7 @@
       "diameterMm": 20
     },
     "materialId": "S45C",
-    "weightKg": 0.277,
+    "weightKg": 0.197,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": null,
@@ -10398,8 +10398,8 @@
         "cycleHoursPerPiece": 0.05
       }
     ],
-    "unitPrice": 5030,
-    "amount": 251500,
+    "unitPrice": 4900,
+    "amount": 245000,
     "result": "won",
     "lostReason": null,
     "responseDays": 3,
@@ -10421,7 +10421,7 @@
       "diameterMm": 28
     },
     "materialId": "S45C",
-    "weightKg": 1.777,
+    "weightKg": 1.426,
     "toleranceMm": 0.005,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -10483,7 +10483,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 1.182,
+    "weightKg": 0.991,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "hard_anodize",
     "heatTreatmentId": null,
@@ -10534,7 +10534,7 @@
       "diameterMm": null
     },
     "materialId": "A6061",
-    "weightKg": 2.484,
+    "weightKg": 2.014,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -10601,7 +10601,7 @@
       "diameterMm": 10
     },
     "materialId": "S45C",
-    "weightKg": 0.036,
+    "weightKg": 0.018,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": "induction_hardening",
@@ -10651,7 +10651,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 1.727,
+    "weightKg": 1.342,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": null,
@@ -10678,8 +10678,8 @@
       }
     ],
     "actualProcesses": null,
-    "unitPrice": 7610,
-    "amount": 152200,
+    "unitPrice": 6720,
+    "amount": 134400,
     "result": "lost",
     "lostReason": "価格(他社より高い)",
     "responseDays": 3,
@@ -10701,7 +10701,7 @@
       "diameterMm": 10
     },
     "materialId": "S45C",
-    "weightKg": 0.151,
+    "weightKg": 0.086,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -10751,7 +10751,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 0.361,
+    "weightKg": 0.247,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -10802,7 +10802,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.935,
+    "weightKg": 0.675,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -10853,7 +10853,7 @@
       "diameterMm": 32
     },
     "materialId": "A5052",
-    "weightKg": 0.077,
+    "weightKg": 0.054,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -10903,7 +10903,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.488,
+    "weightKg": 0.384,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -10959,7 +10959,7 @@
       "diameterMm": null
     },
     "materialId": "A6061",
-    "weightKg": 3.267,
+    "weightKg": 2.701,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": "black_anodize",
     "heatTreatmentId": null,
@@ -11027,7 +11027,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 1.308,
+    "weightKg": 0.949,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -11095,7 +11095,7 @@
       "diameterMm": 8
     },
     "materialId": "SUS304",
-    "weightKg": 0.109,
+    "weightKg": 0.056,
     "toleranceMm": 0.005,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -11156,7 +11156,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.381,
+    "weightKg": 0.221,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -11206,7 +11206,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 0.358,
+    "weightKg": 0.206,
     "toleranceMm": 0.1,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -11284,7 +11284,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 1.472,
+    "weightKg": 0.848,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -11364,7 +11364,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 1.454,
+    "weightKg": 1.194,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -11432,7 +11432,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.188,
+    "weightKg": 0.141,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -11487,7 +11487,7 @@
       "diameterMm": null
     },
     "materialId": "SPCC",
-    "weightKg": 0.188,
+    "weightKg": 0.141,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -11563,7 +11563,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 1.978,
+    "weightKg": 1.594,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -11608,8 +11608,8 @@
         "cycleHoursPerPiece": 0.05
       }
     ],
-    "unitPrice": 9060,
-    "amount": 453000,
+    "unitPrice": 8350,
+    "amount": 417500,
     "result": "won",
     "lostReason": null,
     "responseDays": 2,
@@ -11631,7 +11631,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 0.881,
+    "weightKg": 0.659,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -11660,8 +11660,8 @@
       }
     ],
     "actualProcesses": null,
-    "unitPrice": 9590,
-    "amount": 95900,
+    "unitPrice": 9550,
+    "amount": 95500,
     "result": "lost",
     "lostReason": "納期が合わない",
     "responseDays": 4,
@@ -11683,7 +11683,7 @@
       "diameterMm": 38
     },
     "materialId": "SUS304",
-    "weightKg": 2.67,
+    "weightKg": 2.248,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -11740,7 +11740,7 @@
       "diameterMm": 30
     },
     "materialId": "S45C",
-    "weightKg": 0.839,
+    "weightKg": 0.666,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": "trivalent_chromate",
     "heatTreatmentId": "induction_hardening",
@@ -11795,8 +11795,8 @@
         "cycleHoursPerPiece": 0.05
       }
     ],
-    "unitPrice": 6470,
-    "amount": 323500,
+    "unitPrice": 6040,
+    "amount": 302000,
     "result": "won",
     "lostReason": null,
     "responseDays": 2,
@@ -11818,7 +11818,7 @@
       "diameterMm": 145
     },
     "materialId": "SUS304",
-    "weightKg": 2.592,
+    "weightKg": 1.833,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -11896,7 +11896,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 1.766,
+    "weightKg": 1.298,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": "black_oxide",
     "heatTreatmentId": null,
@@ -11941,8 +11941,8 @@
         "cycleHoursPerPiece": 0.15
       }
     ],
-    "unitPrice": 13630,
-    "amount": 68150,
+    "unitPrice": 13550,
+    "amount": 67750,
     "result": "won",
     "lostReason": null,
     "responseDays": 3,
@@ -11964,7 +11964,7 @@
       "diameterMm": null
     },
     "materialId": "A5052",
-    "weightKg": 3.396,
+    "weightKg": 2.826,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -12031,7 +12031,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 0.2,
+    "weightKg": 0.151,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -12087,7 +12087,7 @@
       "diameterMm": null
     },
     "materialId": "S45C",
-    "weightKg": 2.817,
+    "weightKg": 2.327,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -12137,7 +12137,7 @@
       "diameterMm": 40
     },
     "materialId": "S45C",
-    "weightKg": 0.285,
+    "weightKg": 0.197,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -12187,7 +12187,7 @@
       "diameterMm": 40
     },
     "materialId": "S45C",
-    "weightKg": 0.285,
+    "weightKg": 0.197,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -12237,7 +12237,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.114,
+    "weightKg": 0.076,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -12292,7 +12292,7 @@
       "diameterMm": null
     },
     "materialId": "SUS304",
-    "weightKg": 0.114,
+    "weightKg": 0.076,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -12347,7 +12347,7 @@
       "diameterMm": null
     },
     "materialId": "SS400",
-    "weightKg": 0.242,
+    "weightKg": 0.204,
     "toleranceMm": 0.2,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -12402,7 +12402,7 @@
       "diameterMm": null
     },
     "materialId": "A6061",
-    "weightKg": 1.58,
+    "weightKg": 1.262,
     "toleranceMm": 0.02,
     "surfaceTreatmentId": "white_anodize",
     "heatTreatmentId": null,
@@ -12452,7 +12452,7 @@
       "diameterMm": 34
     },
     "materialId": "SUS303",
-    "weightKg": 1.279,
+    "weightKg": 1.044,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -12508,7 +12508,7 @@
       "diameterMm": 3
     },
     "materialId": "SUS304",
-    "weightKg": 0.009,
+    "weightKg": 0.002,
     "toleranceMm": 0.01,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,
@@ -12565,7 +12565,7 @@
       "diameterMm": 14
     },
     "materialId": "SUS304",
-    "weightKg": 0.081,
+    "weightKg": 0.049,
     "toleranceMm": 0.05,
     "surfaceTreatmentId": null,
     "heatTreatmentId": null,

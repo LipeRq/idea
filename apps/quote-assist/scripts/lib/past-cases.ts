@@ -8,7 +8,7 @@ import type {
   RateTable,
   Shape,
 } from "../../src/lib/domain/reference";
-import { blankWeightKg, calculateQuote } from "../../src/lib/quote/calculate";
+import { calculateQuote, partWeightKg } from "../../src/lib/quote/calculate";
 import type { QuoteInput } from "../../src/lib/quote/types";
 import { addDays } from "../../src/lib/dates";
 import { createRandom, roundTo, type Random } from "./random";
@@ -614,7 +614,7 @@ export function generatePastCases(rates: RateTable, total = 200, seed = 20261018
       processType: d.processType,
       dimensions: d.dimensions,
       materialId: d.materialId,
-      weightKg: Math.max(0.001, blankWeightKg(d.dimensions, material.densityGPerCm3, rates)),
+      weightKg: partWeightKg(d.dimensions, material.densityGPerCm3),
       toleranceMm: d.toleranceMm,
       surfaceTreatmentId: d.surfaceTreatmentId,
       heatTreatmentId: d.heatTreatmentId,

@@ -224,7 +224,7 @@
         "無電解ニッケルメッキ"
       ],
       "pricing": "per_kg",
-      "unitPrice": 3000,
+      "unitPrice": 1200,
       "minLotCharge": 12000,
       "leadDays": 5,
       "materialGroups": [
@@ -232,21 +232,6 @@
         "stainless",
         "aluminum",
         "copper"
-      ]
-    },
-    {
-      "id": "hard_anodize",
-      "name": "硬質アルマイト",
-      "kind": "surface",
-      "aliases": [
-        "硬質陽極酸化"
-      ],
-      "pricing": "per_piece",
-      "unitPrice": 350,
-      "minLotCharge": 12000,
-      "leadDays": 5,
-      "materialGroups": [
-        "aluminum"
       ]
     },
     {
@@ -281,6 +266,21 @@
       ]
     },
     {
+      "id": "hard_anodize",
+      "name": "硬質アルマイト",
+      "kind": "surface",
+      "aliases": [
+        "硬質陽極酸化"
+      ],
+      "pricing": "per_piece",
+      "unitPrice": 350,
+      "minLotCharge": 12000,
+      "leadDays": 5,
+      "materialGroups": [
+        "aluminum"
+      ]
+    },
+    {
       "id": "black_oxide",
       "name": "黒染め",
       "kind": "surface",
@@ -288,7 +288,7 @@
         "四三酸化鉄皮膜"
       ],
       "pricing": "per_kg",
-      "unitPrice": 600,
+      "unitPrice": 400,
       "minLotCharge": 5000,
       "leadDays": 3,
       "materialGroups": [
@@ -304,7 +304,7 @@
         "電気亜鉛めっき"
       ],
       "pricing": "per_kg",
-      "unitPrice": 800,
+      "unitPrice": 500,
       "minLotCharge": 6000,
       "leadDays": 4,
       "materialGroups": [
@@ -321,7 +321,7 @@
         "ズブ焼入れ"
       ],
       "pricing": "per_kg",
-      "unitPrice": 800,
+      "unitPrice": 600,
       "minLotCharge": 8000,
       "leadDays": 4,
       "materialGroups": [

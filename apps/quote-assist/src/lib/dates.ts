@@ -19,9 +19,10 @@ function isWeekend(iso: string): boolean {
   return day === 0 || day === 6;
 }
 
-/** from の翌日から to までの営業日数(to が from 以前なら0以下) */
+/** from の翌日から to までの営業日数(to が from より前なら負の数) */
 export function businessDaysBetween(from: string, to: string): number {
-  if (to <= from) return -daysBetween(to, from);
+  if (to === from) return 0;
+  if (to < from) return -businessDaysBetween(to, from);
   let count = 0;
   for (let d = addDays(from, 1); d <= to; d = addDays(d, 1)) {
     if (!isWeekend(d)) count++;
