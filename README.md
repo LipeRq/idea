@@ -5,8 +5,8 @@
 | ディレクトリ | 内容 | 状態 |
 |---|---|---|
 | `apps/diagnosis` | AI導入診断ツール(集客の入口)。業務時間とIT環境から、削減額・優先施策・3ヶ月ロードマップを出す | MVP実装済み |
-| `apps/inventory` | Excel/VBA・Accessの棚卸しツール。マクロや古いDBから仕様書・依存関係・移行提案を作る | 開発中 |
-| `docs/manufacturing` | 製造業向けAIエージェントパッケージの設計 | 設計中 |
+| `apps/inventory` | Excel/VBA・Accessの棚卸しツール。マクロや古いDBから仕様書・依存関係・移行提案を作る | 解析エンジン・CLI実装済み |
+| `docs/manufacturing` | 製造業向けAIエージェントパッケージ(見積アシスト)の設計 | 設計済み・実装中 |
 
 ## 技術スタック
 

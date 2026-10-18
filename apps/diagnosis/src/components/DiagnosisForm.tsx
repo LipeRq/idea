@@ -7,16 +7,33 @@ import {
   READINESS_QUESTIONS,
   TASKS,
 } from "@/lib/diagnosis/master";
-import { STEPS, type FormState } from "./form-state";
+import {
+  STEPS,
+  hoursFieldId,
+  readinessFieldId,
+  type FormState,
+} from "./form-state";
 
 type Props = {
   step: number;
   form: FormState;
   onChange: (update: (prev: FormState) => FormState) => void;
+  /** 入力エラーのある欄のID */
+  invalid: ReadonlySet<string>;
 };
 
-const inputClass =
-  "w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-base text-ink focus:outline-2 focus:outline-accent";
+/** フォーム下部に出すエラーメッセージのID。エラーのある欄から aria-describedby で参照する */
+export const FORM_ERROR_ID = "diagnosis-form-error";
+
+export const inputClass =
+  "w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-base text-ink focus:outline-2 focus:outline-accent aria-[invalid=true]:border-critical";
+
+/** エラーのある欄に付ける属性 */
+export function invalidProps(invalid: boolean, describedBy: string = FORM_ERROR_ID) {
+  return invalid
+    ? { "aria-invalid": true as const, "aria-describedby": describedBy }
+    : {};
+}
 
 export function StepIndicator({ step }: { step: number }) {
   return (
@@ -36,15 +53,15 @@ export function StepIndicator({ step }: { step: number }) {
   );
 }
 
-export function DiagnosisForm({ step, form, onChange }: Props) {
-  if (step === 0) return <CompanyStep form={form} onChange={onChange} />;
-  if (step === 1) return <HoursStep form={form} onChange={onChange} />;
-  return <ReadinessStep form={form} onChange={onChange} />;
+export function DiagnosisForm({ step, ...props }: Props) {
+  if (step === 0) return <CompanyStep {...props} />;
+  if (step === 1) return <HoursStep {...props} />;
+  return <ReadinessStep {...props} />;
 }
 
 type StepProps = Omit<Props, "step">;
 
-function CompanyStep({ form, onChange }: StepProps) {
+function CompanyStep({ form, onChange, invalid }: StepProps) {
   return (
     <div className="space-y-6">
       <label className="block space-y-1">
@@ -64,6 +81,7 @@ function CompanyStep({ form, onChange }: StepProps) {
           <span className="font-medium">業種</span>
           <select
             className={inputClass}
+            {...invalidProps(invalid.has("industry"))}
             value={form.industry}
             onChange={(e) =>
               onChange((p) => ({
@@ -83,6 +101,7 @@ function CompanyStep({ form, onChange }: StepProps) {
           <span className="font-medium">従業員規模</span>
           <select
             className={inputClass}
+            {...invalidProps(invalid.has("employees"))}
             value={form.employees}
             onChange={(e) =>
               onChange((p) => ({
@@ -150,7 +169,7 @@ function CompanyStep({ form, onChange }: StepProps) {
   );
 }
 
-function HoursStep({ form, onChange }: StepProps) {
+function HoursStep({ form, onChange, invalid }: StepProps) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-ink-2">
@@ -166,14 +185,15 @@ function HoursStep({ form, onChange }: StepProps) {
             key={task.id}
             className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between"
           >
-            <label htmlFor={`hours-${task.id}`} className="space-y-0.5">
+            <label htmlFor={hoursFieldId(task.id)} className="space-y-0.5">
               <span className="block font-medium">{task.name}</span>
               <span className="block text-sm text-muted">{task.examples}</span>
             </label>
             <div className="flex shrink-0 items-center gap-2">
               <span className="text-sm text-ink-2">月</span>
               <input
-                id={`hours-${task.id}`}
+                id={hoursFieldId(task.id)}
+                {...invalidProps(invalid.has(hoursFieldId(task.id)))}
                 type="number"
                 inputMode="numeric"
                 min={0}
@@ -205,6 +225,7 @@ function HoursStep({ form, onChange }: StepProps) {
             min={1000}
             max={20000}
             step={100}
+            {...invalidProps(invalid.has("hourlyCost"))}
             className={`${inputClass} w-36 text-right tabular-nums`}
             value={form.hourlyCost}
             onChange={(e) =>
@@ -218,7 +239,7 @@ function HoursStep({ form, onChange }: StepProps) {
   );
 }
 
-function ReadinessStep({ form, onChange }: StepProps) {
+function ReadinessStep({ form, onChange, invalid }: StepProps) {
   return (
     <div className="space-y-6">
       {READINESS_QUESTIONS.map((q) => (
@@ -239,6 +260,7 @@ function ReadinessStep({ form, onChange }: StepProps) {
                   <input
                     type="radio"
                     name={q.id}
+                    {...invalidProps(invalid.has(readinessFieldId(q.id)))}
                     className="accent-accent"
                     checked={checked}
                     onChange={() =>

@@ -1,0 +1,411 @@
+{
+  "id": "RT-2026-09",
+  "name": "しらかば精工 単価表 2026年9月版",
+  "updatedAt": "2026-09-01",
+  "processes": [
+    {
+      "id": "mc",
+      "name": "マシニング加工",
+      "chargePerHour": 8000,
+      "setupChargePerHour": 6000,
+      "types": [
+        "milling",
+        "turning"
+      ]
+    },
+    {
+      "id": "lathe",
+      "name": "NC旋盤加工",
+      "chargePerHour": 6500,
+      "setupChargePerHour": 5000,
+      "types": [
+        "turning"
+      ]
+    },
+    {
+      "id": "grinding",
+      "name": "平面研削",
+      "chargePerHour": 7000,
+      "setupChargePerHour": 5500,
+      "types": [
+        "milling"
+      ]
+    },
+    {
+      "id": "cyl_grinding",
+      "name": "円筒研削",
+      "chargePerHour": 7500,
+      "setupChargePerHour": 5500,
+      "types": [
+        "turning"
+      ]
+    },
+    {
+      "id": "wire",
+      "name": "ワイヤーカット",
+      "chargePerHour": 6000,
+      "setupChargePerHour": 4000,
+      "types": [
+        "milling"
+      ]
+    },
+    {
+      "id": "laser",
+      "name": "レーザー切断",
+      "chargePerHour": 9000,
+      "setupChargePerHour": 5000,
+      "types": [
+        "sheet"
+      ]
+    },
+    {
+      "id": "bending",
+      "name": "曲げ加工",
+      "chargePerHour": 6000,
+      "setupChargePerHour": 5000,
+      "types": [
+        "sheet"
+      ]
+    },
+    {
+      "id": "deburr",
+      "name": "バリ取り・仕上げ",
+      "chargePerHour": 4000,
+      "setupChargePerHour": 4000,
+      "types": [
+        "milling",
+        "turning",
+        "sheet"
+      ]
+    },
+    {
+      "id": "inspection",
+      "name": "検査",
+      "chargePerHour": 6000,
+      "setupChargePerHour": 5000,
+      "types": [
+        "milling",
+        "turning",
+        "sheet"
+      ],
+      "note": "±0.01以下の公差は三次元測定機で測定"
+    }
+  ],
+  "materials": [
+    {
+      "id": "SS400",
+      "name": "SS400",
+      "group": "steel",
+      "aliases": [
+        "SS41",
+        "一般構造用圧延鋼材"
+      ],
+      "densityGPerCm3": 7.85,
+      "pricePerKg": 180,
+      "minChargePerLot": 1500
+    },
+    {
+      "id": "S45C",
+      "name": "S45C",
+      "group": "steel",
+      "aliases": [
+        "S45C-D",
+        "機械構造用炭素鋼"
+      ],
+      "densityGPerCm3": 7.85,
+      "pricePerKg": 260,
+      "minChargePerLot": 1500
+    },
+    {
+      "id": "SCM435",
+      "name": "SCM435",
+      "group": "steel",
+      "aliases": [
+        "SCM435H",
+        "クロモリ"
+      ],
+      "densityGPerCm3": 7.85,
+      "pricePerKg": 380,
+      "minChargePerLot": 2000
+    },
+    {
+      "id": "SPCC",
+      "name": "SPCC",
+      "group": "steel",
+      "aliases": [
+        "SPCC-SD",
+        "冷間圧延鋼板"
+      ],
+      "densityGPerCm3": 7.85,
+      "pricePerKg": 200,
+      "minChargePerLot": 1000
+    },
+    {
+      "id": "SUS304",
+      "name": "SUS304",
+      "group": "stainless",
+      "aliases": [
+        "ステンレス304",
+        "SUS304-2B"
+      ],
+      "densityGPerCm3": 7.93,
+      "pricePerKg": 750,
+      "minChargePerLot": 2000
+    },
+    {
+      "id": "SUS303",
+      "name": "SUS303",
+      "group": "stainless",
+      "aliases": [
+        "ステンレス303"
+      ],
+      "densityGPerCm3": 7.93,
+      "pricePerKg": 800,
+      "minChargePerLot": 2000
+    },
+    {
+      "id": "A5052",
+      "name": "A5052",
+      "group": "aluminum",
+      "aliases": [
+        "A5052P",
+        "A5052-H34"
+      ],
+      "densityGPerCm3": 2.68,
+      "pricePerKg": 1100,
+      "minChargePerLot": 1500
+    },
+    {
+      "id": "A6061",
+      "name": "A6061",
+      "group": "aluminum",
+      "aliases": [
+        "A6061-T6"
+      ],
+      "densityGPerCm3": 2.7,
+      "pricePerKg": 1000,
+      "minChargePerLot": 1500
+    },
+    {
+      "id": "A7075",
+      "name": "A7075",
+      "group": "aluminum",
+      "aliases": [
+        "A7075-T6",
+        "超々ジュラルミン"
+      ],
+      "densityGPerCm3": 2.8,
+      "pricePerKg": 1800,
+      "minChargePerLot": 2000
+    },
+    {
+      "id": "C3604",
+      "name": "C3604",
+      "group": "copper",
+      "aliases": [
+        "C3604BD",
+        "快削黄銅",
+        "黄銅",
+        "真鍮"
+      ],
+      "densityGPerCm3": 8.5,
+      "pricePerKg": 1500,
+      "minChargePerLot": 1500
+    }
+  ],
+  "treatments": [
+    {
+      "id": "electroless_ni",
+      "name": "無電解ニッケルめっき",
+      "kind": "surface",
+      "aliases": [
+        "無電解ニッケル",
+        "無電解NI",
+        "無電解ニッケルメッキ"
+      ],
+      "pricing": "per_kg",
+      "unitPrice": 3000,
+      "minLotCharge": 12000,
+      "leadDays": 5,
+      "materialGroups": [
+        "steel",
+        "stainless",
+        "aluminum",
+        "copper"
+      ]
+    },
+    {
+      "id": "hard_anodize",
+      "name": "硬質アルマイト",
+      "kind": "surface",
+      "aliases": [
+        "硬質陽極酸化"
+      ],
+      "pricing": "per_piece",
+      "unitPrice": 350,
+      "minLotCharge": 12000,
+      "leadDays": 5,
+      "materialGroups": [
+        "aluminum"
+      ]
+    },
+    {
+      "id": "white_anodize",
+      "name": "白アルマイト",
+      "kind": "surface",
+      "aliases": [
+        "アルマイト(白)",
+        "クリアアルマイト"
+      ],
+      "pricing": "per_piece",
+      "unitPrice": 150,
+      "minLotCharge": 8000,
+      "leadDays": 4,
+      "materialGroups": [
+        "aluminum"
+      ]
+    },
+    {
+      "id": "black_anodize",
+      "name": "黒アルマイト",
+      "kind": "surface",
+      "aliases": [
+        "アルマイト(黒)"
+      ],
+      "pricing": "per_piece",
+      "unitPrice": 180,
+      "minLotCharge": 8000,
+      "leadDays": 4,
+      "materialGroups": [
+        "aluminum"
+      ]
+    },
+    {
+      "id": "black_oxide",
+      "name": "黒染め",
+      "kind": "surface",
+      "aliases": [
+        "四三酸化鉄皮膜"
+      ],
+      "pricing": "per_kg",
+      "unitPrice": 600,
+      "minLotCharge": 5000,
+      "leadDays": 3,
+      "materialGroups": [
+        "steel"
+      ]
+    },
+    {
+      "id": "trivalent_chromate",
+      "name": "三価クロメート",
+      "kind": "surface",
+      "aliases": [
+        "亜鉛めっき",
+        "電気亜鉛めっき"
+      ],
+      "pricing": "per_kg",
+      "unitPrice": 800,
+      "minLotCharge": 6000,
+      "leadDays": 4,
+      "materialGroups": [
+        "steel"
+      ]
+    },
+    {
+      "id": "quench_temper",
+      "name": "焼入れ焼戻し",
+      "kind": "heat",
+      "aliases": [
+        "焼入焼戻",
+        "調質",
+        "ズブ焼入れ"
+      ],
+      "pricing": "per_kg",
+      "unitPrice": 800,
+      "minLotCharge": 8000,
+      "leadDays": 4,
+      "materialGroups": [
+        "steel"
+      ]
+    },
+    {
+      "id": "induction_hardening",
+      "name": "高周波焼入れ",
+      "kind": "heat",
+      "aliases": [
+        "高周波焼入",
+        "高周波"
+      ],
+      "pricing": "per_piece",
+      "unitPrice": 500,
+      "minLotCharge": 15000,
+      "leadDays": 5,
+      "materialGroups": [
+        "steel"
+      ]
+    }
+  ],
+  "rules": {
+    "overheadRate": 0.12,
+    "defaultProfitRate": 0.15,
+    "blankAllowanceMm": {
+      "block": {
+        "lengthMm": 5,
+        "widthMm": 5,
+        "heightMm": 3,
+        "diameterMm": 0
+      },
+      "round": {
+        "lengthMm": 5,
+        "widthMm": 0,
+        "heightMm": 0,
+        "diameterMm": 3
+      },
+      "sheet": {
+        "lengthMm": 10,
+        "widthMm": 10,
+        "heightMm": 0,
+        "diameterMm": 0
+      }
+    },
+    "quantityBreaks": [
+      {
+        "minQty": 1,
+        "factor": 1
+      },
+      {
+        "minQty": 10,
+        "factor": 0.95
+      },
+      {
+        "minQty": 30,
+        "factor": 0.9
+      },
+      {
+        "minQty": 100,
+        "factor": 0.85
+      }
+    ],
+    "quantityTiers": [
+      1,
+      10,
+      30,
+      50,
+      100
+    ],
+    "leadTime": {
+      "baseDays": 5,
+      "extraDaysPer50Pieces": 1
+    },
+    "expedite": {
+      "surchargeRate": 0.25
+    },
+    "rounding": {
+      "unitStepYen": 10
+    },
+    "taxRate": 0.1,
+    "quoteValidityDays": 30,
+    "priceDeviationWarnRate": 0.4,
+    "staleAfterDays": 180
+  }
+}

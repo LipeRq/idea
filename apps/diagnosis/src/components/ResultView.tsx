@@ -3,19 +3,22 @@
 import { useEffect, useRef } from "react";
 import { READINESS_LEVEL_LABEL } from "@/lib/diagnosis/calculate";
 import { COST_BY_DIFFICULTY, DIFFICULTY_LABEL } from "@/lib/diagnosis/master";
+import type { DiagnosisInput } from "@/lib/diagnosis/schema";
 import type { DiagnosisResponse } from "@/lib/diagnosis/types";
 import { formatHours, formatYen } from "@/lib/format";
+import { LeadForm } from "./LeadForm";
+import { ReportActions } from "./ReportActions";
 import { SavingsChart } from "./SavingsChart";
 
 type Props = {
   data: DiagnosisResponse;
-  companyName?: string;
+  /** 診断に使った入力(PDFと申し込みで送る) */
+  input: DiagnosisInput;
   onRestart: () => void;
 };
 
-const CONTACT_URL = process.env.NEXT_PUBLIC_CONTACT_URL;
-
-export function ResultView({ data, companyName, onRestart }: Props) {
+export function ResultView({ data, input, onRestart }: Props) {
+  const companyName = input.companyName;
   const { result, report, aiGenerated } = data;
   const { readiness, totals } = result;
   const topIds = new Set(result.top.map((t) => t.taskId));
@@ -269,39 +272,24 @@ export function ResultView({ data, companyName, onRestart }: Props) {
         </p>
       </section>
 
-      <section className="space-y-4 rounded-xl border-2 border-accent bg-accent-soft p-6">
-        <h3 className="text-lg font-bold">専門家と一緒に深掘りしたいポイント</h3>
+      <ReportActions data={data} input={input} onRestart={onRestart} />
+
+      <section
+        aria-labelledby="discussion-heading"
+        className="space-y-4 rounded-xl border-2 border-accent bg-accent-soft p-6"
+      >
+        <h3 id="discussion-heading" className="text-lg font-bold">
+          専門家と一緒に深掘りしたいポイント
+        </h3>
         <ul className="list-disc space-y-1 pl-5 text-ink-2">
           {report.discussionPoints.map((p, i) => (
             <li key={i}>{p}</li>
           ))}
         </ul>
-        {CONTACT_URL && (
-          <a
-            href={CONTACT_URL}
-            className="no-print inline-block rounded-md bg-accent-strong px-5 py-2.5 font-semibold text-white hover:opacity-90"
-          >
-            無料相談を申し込む
-          </a>
-        )}
+        <div className="no-print rounded-lg border border-line bg-surface p-5 sm:p-6">
+          <LeadForm input={input} />
+        </div>
       </section>
-
-      <div className="no-print flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="rounded-md border border-line bg-surface px-4 py-2 font-medium hover:bg-surface-2"
-        >
-          印刷・PDFで保存
-        </button>
-        <button
-          type="button"
-          onClick={onRestart}
-          className="rounded-md border border-line bg-surface px-4 py-2 font-medium hover:bg-surface-2"
-        >
-          入力内容を修正して再診断
-        </button>
-      </div>
     </article>
   );
 }

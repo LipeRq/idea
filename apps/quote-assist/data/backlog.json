@@ -1,0 +1,110 @@
+[
+  {
+    "id": "B-01",
+    "receivedAt": "2026-10-09",
+    "customerName": "ミナモト装置工業",
+    "partName": "ストッパブロック",
+    "quantity": 20,
+    "status": "president_review",
+    "assignee": "代表取締役 白石"
+  },
+  {
+    "id": "B-02",
+    "receivedAt": "2026-10-09",
+    "customerName": "しののめ精機",
+    "partName": "位置決めピン",
+    "quantity": 100,
+    "status": "president_review",
+    "assignee": "代表取締役 白石"
+  },
+  {
+    "id": "B-03",
+    "receivedAt": "2026-10-13",
+    "customerName": "つゆくさロボティクス",
+    "partName": "アームブラケット",
+    "quantity": 5,
+    "status": "president_review",
+    "assignee": "代表取締役 白石"
+  },
+  {
+    "id": "B-04",
+    "receivedAt": "2026-10-13",
+    "customerName": "ゆきやなぎ製作所",
+    "partName": "ガイドブロック",
+    "quantity": 10,
+    "status": "president_review",
+    "assignee": "代表取締役 白石"
+  },
+  {
+    "id": "B-05",
+    "receivedAt": "2026-10-14",
+    "customerName": "くすのき食品機械",
+    "partName": "ローラシャフト",
+    "quantity": 8,
+    "status": "president_review",
+    "assignee": "工場長 森"
+  },
+  {
+    "id": "B-06",
+    "receivedAt": "2026-10-14",
+    "customerName": "ミナモト装置工業",
+    "partName": "取付プレート",
+    "quantity": 30,
+    "status": "president_review",
+    "assignee": "代表取締役 白石"
+  },
+  {
+    "id": "B-07",
+    "receivedAt": "2026-10-15",
+    "customerName": "ささなみオートメーション",
+    "partName": "安全カバー",
+    "quantity": 4,
+    "status": "president_review",
+    "assignee": "代表取締役 白石"
+  },
+  {
+    "id": "B-08",
+    "receivedAt": "2026-10-16",
+    "customerName": "すずかけ搬送システム",
+    "partName": "従動シャフト",
+    "quantity": 12,
+    "status": "president_review",
+    "assignee": "工場長 森"
+  },
+  {
+    "id": "B-09",
+    "receivedAt": "2026-10-08",
+    "customerName": "みずなら電装",
+    "partName": "配線カバー",
+    "quantity": 50,
+    "status": "waiting_customer",
+    "assignee": "営業部 青木"
+  },
+  {
+    "id": "B-10",
+    "receivedAt": "2026-10-12",
+    "customerName": "かえで計測",
+    "partName": "センサホルダ",
+    "quantity": 3,
+    "status": "waiting_customer",
+    "assignee": "営業部 青木"
+  },
+  {
+    "id": "B-11",
+    "receivedAt": "2026-10-07",
+    "customerName": "こはく産機",
+    "partName": "フランジ",
+    "quantity": 15,
+    "status": "answered",
+    "assignee": "工場長 森"
+  },
+  {
+    "id": "B-12",
+    "receivedAt": "2026-10-10",
+    "customerName": "もえぎ光学",
+    "partName": "レンズホルダ",
+    "quantity": 6,
+    "status": "answered",
+    "assignee": "代表取締役 白石"
+  }
+]

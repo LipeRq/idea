@@ -1,0 +1,114 @@
+{
+  "name": "株式会社しらかば精工",
+  "description": "マシニングセンタとNC旋盤による金属部品加工(小物の板金を含む)。表面処理と熱処理は外注。見積は社長と工場長の2名が担当。",
+  "employees": 45,
+  "quoteStaff": [
+    "代表取締役 白石",
+    "工場長 森"
+  ],
+  "salesContact": "営業部 青木",
+  "address": "〒000-0000 架空県しらかば市工業団地1-2-3",
+  "phone": "000-000-0000",
+  "equipment": [
+    {
+      "id": "vmc",
+      "name": "立形マシニングセンタ",
+      "processId": "mc",
+      "count": 3,
+      "maxLengthMm": 600,
+      "maxWidthMm": 400,
+      "maxHeightMm": 450,
+      "maxDiameterMm": null
+    },
+    {
+      "id": "hmc",
+      "name": "横形マシニングセンタ",
+      "processId": "mc",
+      "count": 1,
+      "maxLengthMm": 800,
+      "maxWidthMm": 700,
+      "maxHeightMm": 700,
+      "maxDiameterMm": null
+    },
+    {
+      "id": "nc_lathe",
+      "name": "NC旋盤",
+      "processId": "lathe",
+      "count": 3,
+      "maxLengthMm": 500,
+      "maxWidthMm": null,
+      "maxHeightMm": null,
+      "maxDiameterMm": 300
+    },
+    {
+      "id": "multitask",
+      "name": "複合加工機",
+      "processId": "lathe",
+      "count": 1,
+      "maxLengthMm": 600,
+      "maxWidthMm": null,
+      "maxHeightMm": null,
+      "maxDiameterMm": 250
+    },
+    {
+      "id": "surface_grinder",
+      "name": "平面研削盤",
+      "processId": "grinding",
+      "count": 1,
+      "maxLengthMm": 600,
+      "maxWidthMm": 300,
+      "maxHeightMm": 300,
+      "maxDiameterMm": null
+    },
+    {
+      "id": "cyl_grinder",
+      "name": "円筒研削盤",
+      "processId": "cyl_grinding",
+      "count": 1,
+      "maxLengthMm": 500,
+      "maxWidthMm": null,
+      "maxHeightMm": null,
+      "maxDiameterMm": 200
+    },
+    {
+      "id": "wire_edm",
+      "name": "ワイヤー放電加工機",
+      "processId": "wire",
+      "count": 1,
+      "maxLengthMm": 400,
+      "maxWidthMm": 300,
+      "maxHeightMm": 200,
+      "maxDiameterMm": null
+    },
+    {
+      "id": "fiber_laser",
+      "name": "ファイバーレーザー加工機",
+      "processId": "laser",
+      "count": 1,
+      "maxLengthMm": 3000,
+      "maxWidthMm": 1500,
+      "maxHeightMm": 12,
+      "maxDiameterMm": null
+    },
+    {
+      "id": "press_brake",
+      "name": "ベンディングマシン",
+      "processId": "bending",
+      "count": 1,
+      "maxLengthMm": 2500,
+      "maxWidthMm": 1000,
+      "maxHeightMm": 6,
+      "maxDiameterMm": null
+    },
+    {
+      "id": "cmm",
+      "name": "三次元測定機",
+      "processId": "inspection",
+      "count": 1,
+      "maxLengthMm": 700,
+      "maxWidthMm": 700,
+      "maxHeightMm": 600,
+      "maxDiameterMm": null
+    }
+  ]
+}

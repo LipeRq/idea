@@ -1,0 +1,92 @@
+[
+  {
+    "id": "D-001",
+    "caseId": "Q-2025-0185",
+    "drawingNumber": "MS-24017",
+    "date": "2025-07-18",
+    "category": "寸法不良(めっき後)",
+    "description": "めっき後にφ8H7穴が公差下限を外れた(膜厚の見込み不足)。30個中6個を手直し",
+    "countermeasure": "めっき前の穴径を膜厚分大きく仕上げるよう工程表に明記"
+  },
+  {
+    "id": "D-002",
+    "caseId": "Q-2026-0153",
+    "drawingNumber": "HR-26003",
+    "date": "2026-04-11",
+    "category": "寸法不良",
+    "description": "リーマ穴が公差上限を超えた(工具摩耗)",
+    "countermeasure": "工具交換の基準を加工個数で管理"
+  },
+  {
+    "id": "D-003",
+    "caseId": "Q-2025-0197",
+    "drawingNumber": "MS-25404",
+    "date": "2025-08-06",
+    "category": "めっき不良",
+    "description": "めっきのムラ・密着不良が発生",
+    "countermeasure": "前処理(脱脂)の条件を外注先と再確認"
+  },
+  {
+    "id": "D-004",
+    "caseId": "Q-2026-0169",
+    "drawingNumber": "MS-26575",
+    "date": "2026-04-19",
+    "category": "キズ・打痕",
+    "description": "搬送時に打痕が発生",
+    "countermeasure": "仕切り付きの通い箱に変更"
+  },
+  {
+    "id": "D-005",
+    "caseId": "Q-2026-0216",
+    "drawingNumber": "MS-25404",
+    "date": "2026-06-22",
+    "category": "熱処理変形",
+    "description": "焼入れ後に曲がりが0.1mm発生",
+    "countermeasure": "焼入れ後に矯正工程を追加"
+  },
+  {
+    "id": "D-006",
+    "caseId": "Q-2024-0135",
+    "drawingNumber": "KD-24903",
+    "date": "2024-07-11",
+    "category": "ねじ不良",
+    "description": "タップ穴のねじゲージ不合格",
+    "countermeasure": "タップの下穴径を見直し"
+  },
+  {
+    "id": "D-007",
+    "caseId": "Q-2026-0219",
+    "drawingNumber": "MS-26410",
+    "date": "2026-06-25",
+    "category": "寸法不良",
+    "description": "段付き部の長さが公差外れ",
+    "countermeasure": "測定頻度を初品+10個ごとに変更"
+  },
+  {
+    "id": "D-008",
+    "caseId": "Q-2026-0232",
+    "drawingNumber": "SG-26241",
+    "date": "2026-07-09",
+    "category": "外観不良",
+    "description": "アルマイトの色ムラ",
+    "countermeasure": "同一ロットでの処理を外注先に指示"
+  },
+  {
+    "id": "D-009",
+    "caseId": "Q-2026-0165",
+    "drawingNumber": "YK-26085",
+    "date": "2026-04-15",
+    "category": "寸法不良",
+    "description": "平面度が規格外(クランプひずみ)",
+    "countermeasure": "クランプ位置と締め付けトルクを標準化"
+  },
+  {
+    "id": "D-010",
+    "caseId": "Q-2025-0257",
+    "drawingNumber": "KD-25380",
+    "date": "2025-11-06",
+    "category": "キズ・打痕",
+    "description": "バリ取り時の線キズ",
+    "countermeasure": "仕上げ用の治具を作成"
+  }
+]

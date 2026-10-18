@@ -37,28 +37,48 @@ export const initialFormState: FormState = {
 
 export const STEPS = ["会社情報", "業務にかかる時間", "IT環境"] as const;
 
-/** ステップごとの入力チェック。問題があればメッセージを返す */
-export function validateStep(step: number, form: FormState): string | null {
+/** 入力エラー。fields は問題のある入力欄のID(aria-invalid と aria-describedby を付ける) */
+export type StepError = { message: string; fields: string[] };
+
+export const hoursFieldId = (taskId: TaskId) => `hours-${taskId}`;
+export const readinessFieldId = (id: ReadinessId) => `readiness-${id}`;
+
+/** ステップごとの入力チェック。問題があればメッセージと該当する欄を返す */
+export function validateStep(step: number, form: FormState): StepError | null {
   if (step === 0) {
-    if (!form.industry) return "業種を選んでください";
-    if (!form.employees) return "従業員規模を選んでください";
+    if (!form.industry) return { message: "業種を選んでください", fields: ["industry"] };
+    if (!form.employees) return { message: "従業員規模を選んでください", fields: ["employees"] };
   }
   if (step === 1) {
     const cost = Number(form.hourlyCost);
     if (!Number.isInteger(cost) || cost < 1_000 || cost > 20_000) {
-      return "平均人件費は1,000〜20,000円の整数で入力してください";
+      return {
+        message: "平均人件費は1,000〜20,000円の整数で入力してください",
+        fields: ["hourlyCost"],
+      };
     }
-    const hours = Object.values(form.taskHours).map(Number);
-    if (hours.some((h) => Number.isNaN(h) || h < 0 || h > 10_000)) {
-      return "時間は0〜10,000の数字で入力してください";
+    const hours = TASK_IDS.map((id) => [id, Number(form.taskHours[id])] as const);
+    const outOfRange = hours.filter(([, h]) => Number.isNaN(h) || h < 0 || h > 10_000);
+    if (outOfRange.length > 0) {
+      return {
+        message: "時間は0〜10,000の数字で入力してください",
+        fields: outOfRange.map(([id]) => hoursFieldId(id)),
+      };
     }
-    if (!hours.some((h) => h > 0)) {
-      return "少なくとも1つの業務に時間を入力してください";
+    if (!hours.some(([, h]) => h > 0)) {
+      return {
+        message: "少なくとも1つの業務に時間を入力してください",
+        fields: TASK_IDS.map(hoursFieldId),
+      };
     }
   }
   if (step === 2) {
-    if (READINESS_IDS.some((id) => form.readiness[id] === undefined)) {
-      return "すべての項目に回答してください";
+    const unanswered = READINESS_IDS.filter((id) => form.readiness[id] === undefined);
+    if (unanswered.length > 0) {
+      return {
+        message: "すべての項目に回答してください",
+        fields: unanswered.map(readinessFieldId),
+      };
     }
   }
   return null;

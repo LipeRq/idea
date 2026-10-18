@@ -1,26 +1,29 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { DiagnosisInput } from "@/lib/diagnosis/schema";
 import type { DiagnosisResponse } from "@/lib/diagnosis/types";
-import { DiagnosisForm, StepIndicator } from "./DiagnosisForm";
+import { DiagnosisForm, FORM_ERROR_ID, StepIndicator } from "./DiagnosisForm";
 import {
   STEPS,
   initialFormState,
   toDiagnosisInput,
   validateStep,
   type FormState,
+  type StepError,
 } from "./form-state";
 import { ResultView } from "./ResultView";
 
 type Phase =
   | { kind: "form"; step: number }
   | { kind: "loading" }
-  | { kind: "result"; data: DiagnosisResponse };
+  // PDFや申し込みでは、画面の結果ではなく診断に使った入力を送ってサーバーで計算し直す
+  | { kind: "result"; data: DiagnosisResponse; input: DiagnosisInput };
 
 export function DiagnosisApp() {
   const [form, setForm] = useState<FormState>(initialFormState);
   const [phase, setPhase] = useState<Phase>({ kind: "form", step: 0 });
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<StepError | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   // ステップを移動したら、新しいステップの最初の入力欄にフォーカスを移す
@@ -49,31 +52,32 @@ export function DiagnosisApp() {
     setPhase({ kind: "loading" });
     scrollToTop();
     let message = "通信エラーが発生しました。もう一度お試しください。";
+    const input = toDiagnosisInput(form);
     try {
       const res = await fetch("/api/diagnose", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(toDiagnosisInput(form)),
+        body: JSON.stringify(input),
       });
       // タイムアウト時などはJSONでないエラーページが返るので、解析エラーをそのまま見せない
       const body = await res.json().catch(() => null);
       if (res.ok && body) {
-        setPhase({ kind: "result", data: body as DiagnosisResponse });
+        setPhase({ kind: "result", data: body as DiagnosisResponse, input });
         return;
       }
       message = body?.error ?? "診断に失敗しました。時間をおいてもう一度お試しください。";
     } catch {
       // fetch自体の失敗(オフラインなど)は上の通信エラーの文言を出す
     }
-    setError(message);
+    setError({ message, fields: [] });
     focusFirstField.current = true;
     setPhase({ kind: "form", step: STEPS.length - 1 });
   };
 
   const next = (step: number) => {
-    const message = validateStep(step, form);
-    if (message) {
-      setError(message);
+    const stepError = validateStep(step, form);
+    if (stepError) {
+      setError(stepError);
       return;
     }
     if (step < STEPS.length - 1) goToStep(step + 1);
@@ -85,7 +89,7 @@ export function DiagnosisApp() {
       {phase.kind === "result" && (
         <ResultView
           data={phase.data}
-          companyName={form.companyName.trim() || undefined}
+          input={phase.input}
           onRestart={() => goToStep(0)}
         />
       )}
@@ -114,11 +118,16 @@ export function DiagnosisApp() {
           noValidate
         >
           <StepIndicator step={phase.step} />
-          <DiagnosisForm step={phase.step} form={form} onChange={setForm} />
+          <DiagnosisForm
+            step={phase.step}
+            form={form}
+            onChange={setForm}
+            invalid={new Set(error?.fields)}
+          />
 
           {error && (
-            <p role="alert" className="text-sm font-medium text-critical">
-              {error}
+            <p id={FORM_ERROR_ID} role="alert" className="text-sm font-medium text-critical">
+              {error.message}
             </p>
           )}
 

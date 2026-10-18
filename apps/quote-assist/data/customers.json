@@ -1,0 +1,262 @@
+[
+  {
+    "id": "C01",
+    "name": "ミナモト装置工業株式会社",
+    "shortName": "ミナモト装置工業",
+    "industry": "省力化装置",
+    "yearsOfBusiness": 12,
+    "paymentTerms": "月末締め翌月末払い",
+    "emailDomains": [
+      "minamoto-sochi.example"
+    ],
+    "drawingPrefix": "MS",
+    "salesforceAccountId": "001MK00000000000C01"
+  },
+  {
+    "id": "C02",
+    "name": "みずなら電装株式会社",
+    "shortName": "みずなら電装",
+    "industry": "制御盤・電装",
+    "yearsOfBusiness": 8,
+    "paymentTerms": "月末締め翌々月10日払い",
+    "emailDomains": [
+      "mizunara-denso.example"
+    ],
+    "drawingPrefix": "MZ",
+    "salesforceAccountId": "001MK00000000000C02"
+  },
+  {
+    "id": "C03",
+    "name": "株式会社せせらぎ化工機",
+    "shortName": "せせらぎ化工機",
+    "industry": "化学プラント機器",
+    "yearsOfBusiness": 15,
+    "paymentTerms": "月末締め翌月末払い",
+    "emailDomains": [
+      "seseragi-kakoki.example"
+    ],
+    "drawingPrefix": "SG",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C04",
+    "name": "株式会社ゆきやなぎ製作所",
+    "shortName": "ゆきやなぎ製作所",
+    "industry": "半導体製造装置部品",
+    "yearsOfBusiness": 6,
+    "paymentTerms": "20日締め翌月末払い",
+    "emailDomains": [
+      "yukiyanagi-ss.example"
+    ],
+    "drawingPrefix": "YK",
+    "salesforceAccountId": "001MK00000000000C04"
+  },
+  {
+    "id": "C05",
+    "name": "すずかけ搬送システム株式会社",
+    "shortName": "すずかけ搬送システム",
+    "industry": "搬送装置",
+    "yearsOfBusiness": 9,
+    "paymentTerms": "月末締め翌月末払い",
+    "emailDomains": [
+      "suzukake-hanso.example"
+    ],
+    "drawingPrefix": "SK",
+    "salesforceAccountId": "001MK00000000000C05"
+  },
+  {
+    "id": "C06",
+    "name": "はなみずき医療機器株式会社",
+    "shortName": "はなみずき医療機器",
+    "industry": "医療機器",
+    "yearsOfBusiness": 4,
+    "paymentTerms": "月末締め翌々月10日払い",
+    "emailDomains": [
+      "hanamizuki-med.example"
+    ],
+    "drawingPrefix": "HM",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C07",
+    "name": "株式会社つゆくさロボティクス",
+    "shortName": "つゆくさロボティクス",
+    "industry": "産業用ロボット",
+    "yearsOfBusiness": 3,
+    "paymentTerms": "月末締め翌月末払い",
+    "emailDomains": [
+      "tsuyukusa-robotics.example"
+    ],
+    "drawingPrefix": "TR",
+    "salesforceAccountId": "001MK00000000000C07"
+  },
+  {
+    "id": "C08",
+    "name": "くすのき食品機械株式会社",
+    "shortName": "くすのき食品機械",
+    "industry": "食品機械",
+    "yearsOfBusiness": 20,
+    "paymentTerms": "月末締め翌々月10日払い",
+    "emailDomains": [
+      "kusunoki-foodmc.example"
+    ],
+    "drawingPrefix": "KS",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C09",
+    "name": "株式会社かえで計測",
+    "shortName": "かえで計測",
+    "industry": "計測機器",
+    "yearsOfBusiness": 7,
+    "paymentTerms": "月末締め翌月末払い",
+    "emailDomains": [
+      "kaede-keisoku.example"
+    ],
+    "drawingPrefix": "KD",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C10",
+    "name": "しののめ精機株式会社",
+    "shortName": "しののめ精機",
+    "industry": "精密機器",
+    "yearsOfBusiness": 11,
+    "paymentTerms": "20日締め翌月末払い",
+    "emailDomains": [
+      "shinonome-seiki.example"
+    ],
+    "drawingPrefix": "SN",
+    "salesforceAccountId": "001MK00000000000C10"
+  },
+  {
+    "id": "C11",
+    "name": "株式会社あさぎり工機",
+    "shortName": "あさぎり工機",
+    "industry": "工作機械周辺機器",
+    "yearsOfBusiness": 5,
+    "paymentTerms": "月末締め翌月末払い",
+    "emailDomains": [
+      "asagiri-koki.example"
+    ],
+    "drawingPrefix": "AG",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C12",
+    "name": "ひいらぎ環境設備株式会社",
+    "shortName": "ひいらぎ環境設備",
+    "industry": "環境設備",
+    "yearsOfBusiness": 2,
+    "paymentTerms": "月末締め翌々月10日払い",
+    "emailDomains": [
+      "hiiragi-env.example"
+    ],
+    "drawingPrefix": "HR",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C13",
+    "name": "株式会社もえぎ光学",
+    "shortName": "もえぎ光学",
+    "industry": "光学機器",
+    "yearsOfBusiness": 6,
+    "paymentTerms": "月末締め翌月末払い",
+    "emailDomains": [
+      "moegi-kogaku.example"
+    ],
+    "drawingPrefix": "MG",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C14",
+    "name": "ささなみオートメーション株式会社",
+    "shortName": "ささなみオートメーション",
+    "industry": "自動化設備",
+    "yearsOfBusiness": 4,
+    "paymentTerms": "月末締め翌月末払い",
+    "emailDomains": [
+      "sasanami-auto.example"
+    ],
+    "drawingPrefix": "SZ",
+    "salesforceAccountId": "001MK00000000000C14"
+  },
+  {
+    "id": "C15",
+    "name": "株式会社なないろ試験機",
+    "shortName": "なないろ試験機",
+    "industry": "試験機",
+    "yearsOfBusiness": 10,
+    "paymentTerms": "20日締め翌月末払い",
+    "emailDomains": [
+      "nanairo-shikenki.example"
+    ],
+    "drawingPrefix": "NN",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C16",
+    "name": "こはく産機株式会社",
+    "shortName": "こはく産機",
+    "industry": "産業機械",
+    "yearsOfBusiness": 14,
+    "paymentTerms": "月末締め翌月末払い",
+    "emailDomains": [
+      "kohaku-sanki.example"
+    ],
+    "drawingPrefix": "KH",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C17",
+    "name": "株式会社うすずみ印刷機械",
+    "shortName": "うすずみ印刷機械",
+    "industry": "印刷機械",
+    "yearsOfBusiness": 18,
+    "paymentTerms": "月末締め翌々月10日払い",
+    "emailDomains": [
+      "usuzumi-print.example"
+    ],
+    "drawingPrefix": "US",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C18",
+    "name": "たまゆら電子工業株式会社",
+    "shortName": "たまゆら電子工業",
+    "industry": "電子機器",
+    "yearsOfBusiness": 3,
+    "paymentTerms": "月末締め翌月末払い",
+    "emailDomains": [
+      "tamayura-denshi.example"
+    ],
+    "drawingPrefix": "TY",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C19",
+    "name": "株式会社ほたるび農機",
+    "shortName": "ほたるび農機",
+    "industry": "農業機械",
+    "yearsOfBusiness": 9,
+    "paymentTerms": "20日締め翌月末払い",
+    "emailDomains": [
+      "hotarubi-noki.example"
+    ],
+    "drawingPrefix": "HT",
+    "salesforceAccountId": null
+  },
+  {
+    "id": "C20",
+    "name": "みなづき包装機株式会社",
+    "shortName": "みなづき包装機",
+    "industry": "包装機械",
+    "yearsOfBusiness": 5,
+    "paymentTerms": "月末締め翌月末払い",
+    "emailDomains": [
+      "minazuki-hoso.example"
+    ],
+    "drawingPrefix": "MN",
+    "salesforceAccountId": null
+  }
+]

@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev:diagnosis": "npm run dev --prefix apps/diagnosis",
-    "test:diagnosis": "npm test --prefix apps/diagnosis"
+    "test:diagnosis": "npm test --prefix apps/diagnosis",
+    "test:inventory": "npm test --prefix apps/inventory"
   }
 }

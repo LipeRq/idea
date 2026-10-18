@@ -1,16 +1,26 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
+import type { BetaContentBlock } from "@anthropic-ai/sdk/resources/beta/messages/messages";
 import { DIFFICULTY_LABEL, READINESS_QUESTIONS, TASKS } from "./master";
 import type { DiagnosisResult } from "./calculate";
 import { READINESS_LEVEL_LABEL } from "./calculate";
 import { AiReportSchema, type AiReport, type DiagnosisInput } from "./schema";
 import { fallbackRecommendation } from "./fallback";
 import { formatYen } from "../format";
+import { parseJson } from "../http";
 
 const MODEL = "claude-opus-5-5";
 
 // route.ts の maxDuration(120秒)より前に打ち切り、標準レポートで返せるようにする
 const AI_TIMEOUT_MS = 100_000;
+
+// スキーマだけを渡し、解析はこちらで行う(extractReport)。parse 付きの形式を渡すとSDKが
+// テキストブロックを1つずつ解析するため、フォールバックの前に途中まで書かれた文で例外になり、
+// 切り替え後のモデルが書いた正しいレポートまで失われる。
+const REPORT_FORMAT = {
+  type: "json_schema",
+  schema: betaZodOutputFormat(AiReportSchema).schema,
+} as const;
 
 const SYSTEM_PROMPT = `あなたは中小企業のAI導入を支援する経験豊富なITコンサルタントです。
 診断フォームの回答と、こちらで計算済みの試算結果をもとに、経営者が読む診断レポートの文章を作成します。
@@ -34,8 +44,8 @@ export function hasAnthropicCredentials(): boolean {
 export async function generateAiReport(
   input: DiagnosisInput,
   result: DiagnosisResult,
+  client: Anthropic = new Anthropic(),
 ): Promise<AiReport> {
-  const client = new Anthropic();
   const stream = client.beta.messages.stream(
     {
       model: MODEL,
@@ -44,7 +54,7 @@ export async function generateAiReport(
       fallbacks: "default",
       output_config: {
         effort: "medium",
-        format: betaZodOutputFormat(AiReportSchema),
+        format: REPORT_FORMAT,
       },
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: buildUserPrompt(input, result) }],
@@ -60,14 +70,38 @@ export async function generateAiReport(
   if (message.stop_reason === "max_tokens") {
     throw new Error("AIの出力が上限に達しました");
   }
-  if (!message.parsed_output) {
+  const report = extractReport(message.content);
+  if (!report) {
     throw new Error("AIの出力を解析できませんでした");
   }
-  return alignRecommendations(message.parsed_output, result);
+  return alignRecommendations(report, result);
+}
+
+/**
+ * 応答の本文からレポートを取り出して検証する。取り出せなければ null。
+ *
+ * 生成の途中でサーバー側フォールバックが起きると、content は
+ * [途中までの text, fallback, 切り替え後の text] になる(ストリーミングでは途中までの文も残る)。
+ * 切り替え後のモデルは途中までの文を続きの文脈として受け取るので、
+ * 切り替え後の text だけで完結している場合と、全体をつなげて完結する場合の両方を試す。
+ */
+export function extractReport(content: BetaContentBlock[]): AiReport | null {
+  const lastFallback = content.findLastIndex((b) => b.type === "fallback");
+  const joinText = (blocks: BetaContentBlock[]) =>
+    blocks.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
+
+  const candidates = [joinText(content.slice(lastFallback + 1))];
+  if (lastFallback >= 0) candidates.push(joinText(content));
+
+  for (const text of candidates) {
+    const parsed = AiReportSchema.safeParse(parseJson(text));
+    if (parsed.success) return parsed.data;
+  }
+  return null;
 }
 
 // 施策は計算上の上位業務と同じ順番・同じ業務にそろえる。抜けがあれば標準文面で補う。
-function alignRecommendations(
+export function alignRecommendations(
   report: AiReport,
   result: DiagnosisResult,
 ): AiReport {
