@@ -83,7 +83,7 @@ describe("見積書と回答メール", () => {
     const draft = buildQuoteDocument(inquiry, ref.rates)!;
     expect(draft.approved).toBe(false);
     expect(draft.subtotal).toBe(calculateQuote(inquiry.quote!.input, ref.rates).total);
-    const approved = await approveQuote(deps, inquiry.id);
+    const approved = await approveQuote(deps, inquiry.id, "代表取締役 白石", { acknowledgeUnconfirmed: true });
     const doc = buildQuoteDocument(approved, ref.rates)!;
     expect(doc).toMatchObject({ approved: true, subtotal: approved.approved!.total, issuedOn: TEST_TODAY, validUntil: "2026-11-18" });
     expect(doc.tax).toBe(Math.floor(doc.subtotal * 0.1));
@@ -94,7 +94,8 @@ describe("見積書と回答メール", () => {
     const mail = buildReplyEmail({ inquiry: revision, doc, company: ref.company, customer: ref.customers[0] });
     expect(mail).toContain("ミナモト装置工業株式会社 購買部 北川様");
     expect(mail).toContain(`・合計:${doc.subtotal.toLocaleString("ja-JP")}円(税抜`);
-    expect(mail).toContain("に納入可能です");
+    expect(mail).toContain("に納入できる見込みです(確定納期は受注時にご連絡いたします)");
+    expect(mail).not.toContain("納入可能です");
     expect(mail).toContain("1. 図面注記4に「熱処理:要否は別途指示」");
   });
 
@@ -103,6 +104,8 @@ describe("見積書と回答メール", () => {
     expect(doc.expedite).toBe(true);
     expect(doc.meetsDueDate).toBe(true);
     const mail = buildReplyEmail({ inquiry: shortLead, doc, company: ref.company, customer: null });
-    expect(mail).toContain("(特急対応となります)");
+    // 生産負荷を踏まえた納期確約はしないので、特急でも「可能です」と断定しない
+    expect(mail).toContain("に向けて特急対応で調整いたします(確定納期は受注時にご連絡いたします)");
+    expect(mail).not.toContain("納入可能です");
   });
 });

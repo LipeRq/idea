@@ -32,14 +32,17 @@ export const SHAPE_LABEL: Record<Shape, string> = {
 export const NO_TREATMENT = "none";
 
 const positive = z.number().positive();
+// 寸法は10m未満(AIの読み取り結果も同じ範囲だけを採用する。normalize.ts の cleanDimensions)
+export const MAX_DIMENSION_MM = 10_000;
+const mm = z.number().positive().lt(MAX_DIMENSION_MM);
 
 export const DimensionsSchema = z
   .object({
     shape: z.enum(SHAPES),
-    lengthMm: positive,
-    widthMm: positive.nullable(),
-    heightMm: positive.nullable(),
-    diameterMm: positive.nullable(),
+    lengthMm: mm,
+    widthMm: mm.nullable(),
+    heightMm: mm.nullable(),
+    diameterMm: mm.nullable(),
   })
   .refine(
     (d) => (d.shape === "round" ? d.diameterMm !== null : d.widthMm !== null && d.heightMm !== null),

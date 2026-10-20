@@ -1,5 +1,6 @@
 import { MATERIAL_GROUP_LABEL, type Company, type RateTable } from "../domain/reference";
 import {
+  CONFIDENCE_LABEL,
   FIELD_KEYS,
   FIELD_LABEL,
   type ExtractedField,
@@ -81,6 +82,11 @@ function ruleIssues(spec: Spec, rates: RateTable, today: string): Partial<Record
   return issues;
 }
 
+/** 値として中身があるか(公差の「普通公差のみ」は値なしとして扱う) */
+function hasRealValue(key: FieldKey, spec: Spec): boolean {
+  return key === "tolerance" ? spec.toleranceMm !== null : hasValue(key, spec);
+}
+
 type FieldInput = Omit<ExtractedField, "status" | "required" | "editedByHuman"> & {
   editedByHuman?: boolean;
 };
@@ -98,9 +104,16 @@ export function applyRules(
     // 人が修正した項目は、正規化のときの問題(あいまいな材質名など)を引き継がない
     const issue = extra[d.key] ?? (edited ? null : d.issue);
     const present = hasValue(d.key, spec);
+    // AIが値を返したのに根拠(図面・メールの記載箇所)を示していない項目は、確信度が高くても人が確かめる。
+    // 顧客マスタとメールのドメインで照合できた顧客名は、プログラムの照合が根拠になる
+    const unsourced =
+      !edited &&
+      d.sources.length === 0 &&
+      hasRealValue(d.key, spec) &&
+      !(d.key === "customerName" && spec.customerId !== null);
     let status: ExtractedField["status"] = "ok";
     if (!present && required) status = "missing";
-    else if (issue || (!edited && d.confidence === "low")) status = "review";
+    else if (issue || unsourced || (!edited && d.confidence === "low")) status = "review";
     return { ...d, issue, required, editedByHuman: edited, status };
   });
 
@@ -127,6 +140,27 @@ export function applyRules(
     if (q.field === "other") questions.push(q);
   }
   return { fields, questions };
+}
+
+export type UnconfirmedField = { key: FieldKey; label: string; status: "review" | "missing"; reason: string };
+
+/**
+ * 人がまだ確かめていない抽出項目(要確認・不足)。見積の画面で示し、承認するときに確認を求める。
+ * 確信度が低い・根拠がない・単価表と合わない値が、確認されないまま見積に流れないようにする。
+ */
+export function unconfirmedFields(fields: ExtractedField[]): UnconfirmedField[] {
+  return fields.flatMap((f) => {
+    if (f.status === "ok") return [];
+    const reasons =
+      f.status === "missing"
+        ? ["不足(図面・メールに記載なし)"]
+        : [
+            f.issue,
+            !f.editedByHuman && f.confidence === "low" ? `確信度 ${CONFIDENCE_LABEL.low}` : null,
+            !f.editedByHuman && f.sources.length === 0 ? "根拠の記載なし" : null,
+          ].filter((r): r is string => Boolean(r));
+    return [{ key: f.key, label: FIELD_LABEL[f.key], status: f.status, reason: reasons.join("・") || "要確認" }];
+  });
 }
 
 /** 顧客への確認メールの案(送信は人が行う) */

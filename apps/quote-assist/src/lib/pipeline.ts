@@ -18,8 +18,9 @@ import { extractWithClaude } from "./extraction/claude";
 import { demoExtraction, emptyExtraction } from "./extraction/demo";
 import { applyExtractionEdits, EditError, type ExtractionEdits } from "./extraction/edit";
 import { normalizeExtraction } from "./extraction/normalize";
-import { applyRules } from "./extraction/rules";
+import { applyRules, unconfirmedFields } from "./extraction/rules";
 import type { ExtractionOutput } from "./extraction/schema";
+import { formatYen } from "./format";
 import { logError, logEvent } from "./log";
 import { buildQuoteInput } from "./quote/build";
 import { calculateQuote, QuoteInputError } from "./quote/calculate";
@@ -45,6 +46,40 @@ export const LIMITS = {
 };
 
 export type UploadedFile = { name: string; data: Uint8Array };
+
+/**
+ * 引き合い1件ごとに、変更する処理を順番に実行する(同じ引き合いへの同時の要求で、
+ * 承認前のCRM登録の判定をすり抜けたり、二重登録・更新の取りこぼしが起きたりしないように)。
+ * 1台のサーバー(1プロセス)で動かす前提。複数台にするときはDBの行ロックか条件付き更新に置き換える。
+ */
+const locks = new Map<string, Promise<unknown>>();
+
+export async function withInquiryLock<T>(id: string, fn: () => Promise<T>): Promise<T> {
+  const previous = locks.get(id) ?? Promise.resolve();
+  const run = previous.catch(() => undefined).then(fn);
+  const tail = run.catch(() => undefined);
+  locks.set(id, tail);
+  try {
+    return await run;
+  } finally {
+    if (locks.get(id) === tail) locks.delete(id);
+  }
+}
+
+/**
+ * 図面のファイル名を画面とAIへの入力に使える形にする。制御文字・書式文字(右から左への上書きなど)と
+ * パス区切りを除き、120文字までにする。保存先のパスにはファイル名を使わない(引き合いidと連番)。
+ */
+export function sanitizeFileName(name: string): string {
+  const cleaned = name
+    .normalize("NFC")
+    .replace(/\s+/g, " ")
+    .replace(/[\p{Cc}\p{Cf}]/gu, "")
+    .replace(/[\\/]/g, "_")
+    .trim()
+    .slice(0, 120);
+  return cleaned === "" || /^\.+$/.test(cleaned) ? "drawing.pdf" : cleaned;
+}
 
 function metric(
   step: StepName,
@@ -80,7 +115,7 @@ export function validateUpload(files: UploadedFile[], body: string) {
     total += f.data.byteLength;
     if (f.data.byteLength > LIMITS.maxFileBytes) throw new PipelineError("図面は1ファイル10MBまでです", 413);
     const head = new TextDecoder().decode(f.data.subarray(0, 5));
-    if (head !== "%PDF-") throw new PipelineError(`PDFではないファイルがあります(${f.name.slice(0, 60)})`, 400);
+    if (head !== "%PDF-") throw new PipelineError(`PDFではないファイルがあります(${sanitizeFileName(f.name).slice(0, 60)})`, 400);
   }
   if (total > LIMITS.maxTotalBytes) throw new PipelineError("図面は合計20MBまでです", 413);
   if (files.length === 0 && body.trim() === "") throw new PipelineError("メール本文か図面のどちらかを入力してください", 400);
@@ -107,7 +142,7 @@ export async function registerInquiry(
       await deps.storage.blobs.put(blobKey, f.data);
       return {
         id: String(i + 1),
-        fileName: f.name.replace(/[\\/]/g, "_").slice(0, 120),
+        fileName: sanitizeFileName(f.name),
         sizeBytes: f.data.byteLength,
         sha256: createHash("sha256").update(f.data).digest("hex"),
         blobKey,
@@ -202,7 +237,11 @@ function ensureEditable(inquiry: Inquiry) {
   }
 }
 
-export async function updateExtraction(deps: Deps, id: string, edits: ExtractionEdits): Promise<Inquiry> {
+export function updateExtraction(deps: Deps, id: string, edits: ExtractionEdits): Promise<Inquiry> {
+  return withInquiryLock(id, () => updateExtractionNow(deps, id, edits));
+}
+
+async function updateExtractionNow(deps: Deps, id: string, edits: ExtractionEdits): Promise<Inquiry> {
   const inquiry = await load(deps, id);
   ensureEditable(inquiry);
   const ref = await deps.reference();
@@ -233,7 +272,19 @@ export async function updateExtraction(deps: Deps, id: string, edits: Extraction
 }
 
 /** 類似案件の検索、工数案(AIまたは類似実績からの計算)、見積計算 */
-export async function runEstimate(deps: Deps, id: string): Promise<Inquiry> {
+export function runEstimate(deps: Deps, id: string): Promise<Inquiry> {
+  return withInquiryLock(id, () => runEstimateNow(deps, id));
+}
+
+/** 単価表から材質・工程・処理が消えたなど、今の単価表では計算できないとき */
+function quoteInputConflict(e: unknown): never {
+  if (e instanceof QuoteInputError) {
+    throw new PipelineError(`今の単価表では計算できません(${e.message})。単価表か見積の内容を確認してください`, 409);
+  }
+  throw e;
+}
+
+async function runEstimateNow(deps: Deps, id: string): Promise<Inquiry> {
   const inquiry = await load(deps, id);
   ensureEditable(inquiry);
   const ref = await deps.reference();
@@ -281,12 +332,14 @@ export async function runEstimate(deps: Deps, id: string): Promise<Inquiry> {
     .map((s) => ({ ...s, aiReason: ranking.find((r) => r.caseId === s.caseId)?.reason ?? null }));
 
   start = performance.now();
-  const { input, assumptions } = buildQuoteInput(
-    spec,
-    proposals.map((p) => p.input),
-    { rates: ref.rates, similar, cases: ref.cases, today },
-  );
-  calculateQuote(input, ref.rates);
+  let built: ReturnType<typeof buildQuoteInput>;
+  try {
+    built = buildQuoteInput(spec, proposals.map((p) => p.input), { rates: ref.rates, similar, cases: ref.cases, today });
+    calculateQuote(built.input, ref.rates);
+  } catch (e) {
+    quoteInputConflict(e);
+  }
+  const { input, assumptions } = built;
   const calcMetric = metric("calculate", "rule", elapsed(start), now);
 
   const updated: Inquiry = {
@@ -352,7 +405,11 @@ export function diffQuote(before: QuoteInput, after: QuoteInput, names: Map<stri
 }
 
 /** 人の修正を保存する。AI案から値を変えた工程は出典を「人」にする */
-export async function saveQuote(deps: Deps, id: string, input: QuoteInput): Promise<Inquiry> {
+export function saveQuote(deps: Deps, id: string, input: QuoteInput): Promise<Inquiry> {
+  return withInquiryLock(id, () => saveQuoteNow(deps, id, input));
+}
+
+async function saveQuoteNow(deps: Deps, id: string, input: QuoteInput): Promise<Inquiry> {
   const inquiry = await load(deps, id);
   ensureEditable(inquiry);
   if (!inquiry.quote || !inquiry.estimate) throw new PipelineError("先に類似案件の検索と工数案の作成を行ってください", 409);
@@ -393,13 +450,43 @@ export async function saveQuote(deps: Deps, id: string, input: QuoteInput): Prom
   return updated;
 }
 
-export async function approveQuote(deps: Deps, id: string, approver = "見積担当者"): Promise<Inquiry> {
+export type ApproveOptions = {
+  /** 承認者が画面で見た合計金額(税抜)。計算結果と違えば承認しない(単価表の差し替えなどで金額が変わったとき) */
+  expectedTotal?: number;
+  /** 抽出結果の要確認・不足の項目を承認者が確認したか */
+  acknowledgeUnconfirmed?: boolean;
+};
+
+export function approveQuote(deps: Deps, id: string, approver = "見積担当者", options: ApproveOptions = {}): Promise<Inquiry> {
+  return withInquiryLock(id, () => approveQuoteNow(deps, id, approver, options));
+}
+
+async function approveQuoteNow(deps: Deps, id: string, approver: string, options: ApproveOptions): Promise<Inquiry> {
   const inquiry = await load(deps, id);
   ensureEditable(inquiry);
   if (!inquiry.quote) throw new PipelineError("見積がまだありません", 409);
+  // 確信度が低い・根拠がない・不足している抽出項目を、確認しないまま承認しない
+  const unconfirmed = unconfirmedFields(inquiry.extraction.fields);
+  if (unconfirmed.length > 0 && !options.acknowledgeUnconfirmed) {
+    throw new PipelineError(
+      `抽出結果に未確認の項目があります(${unconfirmed.map((f) => f.label).join("・")})。内容を確認したうえで承認してください`,
+      409,
+    );
+  }
   const ref = await deps.reference();
   const now = deps.now();
-  const result = calculateQuote(inquiry.quote.input, ref.rates);
+  let result: ReturnType<typeof calculateQuote>;
+  try {
+    result = calculateQuote(inquiry.quote.input, ref.rates);
+  } catch (e) {
+    quoteInputConflict(e);
+  }
+  if (options.expectedTotal !== undefined && options.expectedTotal !== result.total) {
+    throw new PipelineError(
+      `画面の金額(${formatYen(options.expectedTotal)})と今の単価表での計算結果(${formatYen(result.total)})が違います。単価表が更新された可能性があるため、画面を読み込み直して確認してください`,
+      409,
+    );
+  }
   const date = todayJst(now).replaceAll("-", "");
   const updated: Inquiry = {
     ...inquiry,
@@ -419,15 +506,31 @@ export async function approveQuote(deps: Deps, id: string, approver = "見積担
     },
     reviewLog: [
       ...inquiry.reviewLog,
+      ...(unconfirmed.length > 0
+        ? [
+            {
+              at: now.toISOString(),
+              kind: "field" as const,
+              key: "unconfirmed",
+              label: "未確認のまま進めた抽出項目",
+              before: "",
+              after: unconfirmed.map((f) => `${f.label}(${f.reason})`).join("、"),
+            },
+          ]
+        : []),
       { at: now.toISOString(), kind: "quote", key: "approve", label: "承認", before: "未承認", after: approver },
     ],
   };
   await deps.storage.inquiries.save(updated);
-  logEvent("quote.approved", { inquiryId: id });
+  logEvent("quote.approved", { inquiryId: id, unconfirmed: unconfirmed.length });
   return updated;
 }
 
-export async function unapproveQuote(deps: Deps, id: string): Promise<Inquiry> {
+export function unapproveQuote(deps: Deps, id: string): Promise<Inquiry> {
+  return withInquiryLock(id, () => unapproveQuoteNow(deps, id));
+}
+
+async function unapproveQuoteNow(deps: Deps, id: string): Promise<Inquiry> {
   const inquiry = await load(deps, id);
   if (inquiry.status === "registered") throw new PipelineError("CRMに登録済みのため取り消せません", 409);
   if (inquiry.status !== "approved") return inquiry;
@@ -447,7 +550,12 @@ export async function unapproveQuote(deps: Deps, id: string): Promise<Inquiry> {
 }
 
 /** 承認済みの見積だけを、Salesforceの商談+見積として登録する(一方向) */
-export async function registerToCrm(deps: Deps, id: string): Promise<Inquiry> {
+export function registerToCrm(deps: Deps, id: string): Promise<Inquiry> {
+  // 同時に2回押されても、2回目は1回目の保存を待ってから「登録済み」で断る
+  return withInquiryLock(id, () => registerToCrmNow(deps, id));
+}
+
+async function registerToCrmNow(deps: Deps, id: string): Promise<Inquiry> {
   const inquiry = await load(deps, id);
   if (inquiry.crm) throw new PipelineError("すでにCRMに登録済みです", 409);
   if (inquiry.status !== "approved" || !inquiry.approved) {
@@ -467,7 +575,9 @@ export async function registerToCrm(deps: Deps, id: string): Promise<Inquiry> {
   try {
     result = await deps.crm.register(payload, { inquiryId: id, now });
   } catch (e) {
-    logError("crm.failed", e, { inquiryId: id, provider: deps.crm.provider });
+    // Salesforce のエラーコード(INVALID_FIELD など。項目の値は含まない)だけを残す
+    const codes = e instanceof CrmError ? e.codes.join(",").slice(0, 64) : null;
+    logError("crm.failed", e, { inquiryId: id, provider: deps.crm.provider, codes });
     if (e instanceof CrmError) throw new PipelineError(e.message, 502);
     throw new PipelineError("CRMへの登録に失敗しました。時間をおいてもう一度お試しください", 502);
   }
@@ -482,7 +592,11 @@ export async function registerToCrm(deps: Deps, id: string): Promise<Inquiry> {
   return updated;
 }
 
-export async function deleteInquiry(deps: Deps, id: string): Promise<void> {
+export function deleteInquiry(deps: Deps, id: string): Promise<void> {
+  return withInquiryLock(id, () => deleteInquiryNow(deps, id));
+}
+
+async function deleteInquiryNow(deps: Deps, id: string): Promise<void> {
   const inquiry = await load(deps, id);
   await Promise.all(inquiry.drawings.map((d) => deps.storage.blobs.delete(d.blobKey)));
   await deps.storage.inquiries.delete(id);

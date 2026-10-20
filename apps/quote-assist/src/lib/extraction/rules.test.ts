@@ -4,7 +4,7 @@ import { loadReferenceData, type ReferenceData } from "../reference/load";
 import { DATA_DIR, TEST_TODAY } from "../test-helpers";
 import { emptyExtraction } from "./demo";
 import { normalizeExtraction } from "./normalize";
-import { applyRules, buildQuestionEmail, REQUIRED_FIELDS } from "./rules";
+import { applyRules, buildQuestionEmail, REQUIRED_FIELDS, unconfirmedFields } from "./rules";
 
 let ref: ReferenceData;
 beforeAll(async () => {
@@ -34,9 +34,12 @@ const baseSpec: Spec = {
   notes: [],
 };
 
+const source = { document: "MS-24017_C_1.pdf", page: 1, location: "表題欄", quote: "SUS304" };
+
+// 既定は「確信度 高・根拠あり」の読み取り結果
 function drafts(over: Partial<Record<ExtractedField["key"], Partial<ExtractedField>>> = {}) {
   const n = normalizeExtraction(emptyExtraction(""), { rates: ref.rates, customers: ref.customers, from: "" });
-  return n.fields.map((f) => ({ ...f, confidence: "high" as const, ...over[f.key] }));
+  return n.fields.map((f) => ({ ...f, confidence: "high" as const, sources: [source], ...over[f.key] }));
 }
 
 describe("applyRules", () => {
@@ -67,6 +70,40 @@ describe("applyRules", () => {
     const r = applyRules(baseSpec, drafts({ partName: { confidence: "low" } }), [], { rates: ref.rates, today: TEST_TODAY });
     expect(r.fields.find((f) => f.key === "partName")!.status).toBe("review");
     expect(r.questions).toEqual([]);
+  });
+
+  it("確信度が高くても、根拠(記載箇所)のない値は要確認にする。顧客には聞かない", () => {
+    const r = applyRules(baseSpec, drafts({ quantity: { sources: [] }, tolerance: { sources: [] } }), [], { rates: ref.rates, today: TEST_TODAY });
+    expect(r.fields.find((f) => f.key === "quantity")!.status).toBe("review");
+    // 公差は値(±0.01)があるので根拠が要る
+    expect(r.fields.find((f) => f.key === "tolerance")!.status).toBe("review");
+    expect(r.questions).toEqual([]);
+    // 普通公差のみ(値なし)なら根拠がなくてよい
+    const plain = applyRules({ ...baseSpec, toleranceMm: null }, drafts({ tolerance: { sources: [] } }), [], { rates: ref.rates, today: TEST_TODAY });
+    expect(plain.fields.find((f) => f.key === "tolerance")!.status).toBe("ok");
+  });
+
+  it("顧客マスタとメールのドメインで照合できた顧客名は、記載箇所がなくてもよい", () => {
+    const r = applyRules(baseSpec, drafts({ customerName: { sources: [] } }), [], { rates: ref.rates, today: TEST_TODAY });
+    expect(r.fields.find((f) => f.key === "customerName")!.status).toBe("ok");
+    const unknown = applyRules({ ...baseSpec, customerId: null }, drafts({ customerName: { sources: [] } }), [], { rates: ref.rates, today: TEST_TODAY });
+    expect(unknown.fields.find((f) => f.key === "customerName")!.status).toBe("review");
+  });
+
+  it("unconfirmedFields:要確認・不足の項目と理由を返す(見積の画面と承認で使う)", () => {
+    const r = applyRules(
+      { ...baseSpec, inspection: null, dueDate: "2026-10-01" },
+      drafts({ quantity: { sources: [], confidence: "low" }, partName: { confidence: "low" } }),
+      [],
+      { rates: ref.rates, today: TEST_TODAY },
+    );
+    expect(unconfirmedFields(r.fields)).toEqual([
+      { key: "partName", label: "品名", status: "review", reason: "確信度 低" },
+      { key: "quantity", label: "数量", status: "review", reason: "確信度 低・根拠の記載なし" },
+      { key: "dueDate", label: "希望納期", status: "review", reason: "希望納期(2026年10月1日)が受付日より前です" },
+      { key: "inspection", label: "検査書類", status: "missing", reason: "不足(図面・メールに記載なし)" },
+    ]);
+    expect(unconfirmedFields(applyRules(baseSpec, drafts(), [], { rates: ref.rates, today: TEST_TODAY }).fields)).toEqual([]);
   });
 
   it("人が修正した項目は確信度や正規化の問題を引き継がない", () => {

@@ -139,7 +139,7 @@ describe("estimateWithClaude", () => {
       finalMessage: () =>
         Promise.resolve({
           stop_reason: "end_turn",
-          parsed_output: output(),
+          content: [{ type: "text", text: JSON.stringify(output()) }],
           model: "claude-opus-5-5",
           usage: { input_tokens: 5000, output_tokens: 1500, cache_creation_input_tokens: 0, cache_read_input_tokens: 400 },
         }),
@@ -152,6 +152,7 @@ describe("estimateWithClaude", () => {
     expect(params.model).toBe("claude-opus-5-5");
     expect(params.fallbacks).toBe("default");
     expect(params.output_config.effort).toBe("medium");
+    expect(params.output_config.format).not.toHaveProperty("parse");
     const schema = JSON.stringify(params.output_config.format.schema);
     expect(schema).toContain(candidates[0].caseId);
     expect(schema).toContain("cyl_grinding");
@@ -160,11 +161,41 @@ describe("estimateWithClaude", () => {
 
   it("refusal なら例外(呼び出し元で類似実績の工数案に切り替える)", async () => {
     streamMock.mockReturnValue({
-      finalMessage: () => Promise.resolve({ stop_reason: "refusal", parsed_output: null, model: "x", usage: null }),
+      finalMessage: () => Promise.resolve({ stop_reason: "refusal", content: [], model: "x", usage: null }),
     });
     await expect(
       estimateWithClaude({ spec, candidates, cases: ref.cases, defects: ref.defects, rates: ref.rates, fallback }),
     ).rejects.toThrow("辞退");
+  });
+
+  it("途中でフォールバックしても、切り替え後のモデルの出力を検証して使う", async () => {
+    const json = JSON.stringify(output());
+    streamMock.mockReturnValue({
+      finalMessage: () =>
+        Promise.resolve({
+          stop_reason: "end_turn",
+          content: [
+            { type: "text", text: json.slice(0, 30) },
+            { type: "fallback", from: { model: "claude-opus-5-5" }, to: { model: "claude-opus-5" }, trigger: { type: "refusal", category: null } },
+            { type: "text", text: json },
+          ],
+          model: "claude-opus-5",
+          usage: { input_tokens: 5000, output_tokens: 1500 },
+        }),
+    });
+    const r = await estimateWithClaude({ spec, candidates, cases: ref.cases, defects: ref.defects, rates: ref.rates, fallback });
+    expect(r.model).toBe("claude-opus-5");
+    expect(r.result.processes[0].input.source.kind).toBe("ai");
+  });
+
+  it("出力が検証を通らなければ例外(呼び出し元で類似実績の工数案に切り替える)", async () => {
+    streamMock.mockReturnValue({
+      finalMessage: () =>
+        Promise.resolve({ stop_reason: "end_turn", content: [{ type: "text", text: '{"ranking":[]}' }], model: "x", usage: null }),
+    });
+    await expect(
+      estimateWithClaude({ spec, candidates, cases: ref.cases, defects: ref.defects, rates: ref.rates, fallback }),
+    ).rejects.toThrow("解析");
   });
 
   it("プロンプトに実績工数を含め、仕様の文字列からタグを閉じられない", () => {

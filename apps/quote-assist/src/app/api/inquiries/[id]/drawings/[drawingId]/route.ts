@@ -13,7 +13,8 @@ export async function GET(_request: Request, ctx: { params: Promise<{ id: string
     return new Response(Buffer.from(data), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(drawing.fileName)}`,
+        // RFC 5987 の形式。encodeURIComponent が残す ' ( ) * も符号化する
+        "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(drawing.fileName).replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}`,
         "Cache-Control": "private, no-store",
         "X-Content-Type-Options": "nosniff",
       },

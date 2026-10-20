@@ -1,4 +1,4 @@
-import { handle } from "@/lib/http";
+import { handle, readBodyLimited } from "@/lib/http";
 import { LIMITS, PipelineError, registerInquiry, type UploadedFile } from "@/lib/pipeline";
 
 // 図面の読み取り(AI)に時間がかかるため長めにする
@@ -9,12 +9,11 @@ const MAX_BODY_BYTES = LIMITS.maxTotalBytes + 512 * 1024;
 
 export async function POST(request: Request) {
   return handle("inquiries.create", async (deps) => {
-    if (Number(request.headers.get("content-length")) > MAX_BODY_BYTES) {
-      throw new PipelineError("図面は合計20MBまでです", 413);
-    }
+    // 上限を超えた時点で読むのをやめる(Content-Length のない要求も含む)
+    const body = await readBodyLimited(request, MAX_BODY_BYTES, "図面は合計20MBまでです");
     let form: FormData;
     try {
-      form = await request.formData();
+      form = await new Response(body, { headers: { "content-type": request.headers.get("content-type") ?? "" } }).formData();
     } catch {
       throw new PipelineError("入力内容に誤りがあります", 400);
     }

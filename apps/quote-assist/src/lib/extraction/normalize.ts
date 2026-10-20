@@ -1,5 +1,6 @@
 import {
   MATERIAL_GROUP_LABEL,
+  MAX_DIMENSION_MM,
   NO_TREATMENT,
   PROCESS_TYPE_LABEL,
   PROCESS_TYPES,
@@ -144,7 +145,7 @@ const asConfidence = (v: string): Confidence =>
 
 function cleanDimensions(v: ExtractionOutput["dimensions"]["value"]): Dimensions | null {
   if (!v || !(SHAPES as readonly string[]).includes(v.shape)) return null;
-  const pos = (x: number | null) => (x !== null && Number.isFinite(x) && x > 0 && x < 10_000 ? x : null);
+  const pos = (x: number | null) => (x !== null && Number.isFinite(x) && x > 0 && x < MAX_DIMENSION_MM ? x : null);
   const d: Dimensions = {
     shape: v.shape as Dimensions["shape"],
     lengthMm: pos(v.lengthMm) ?? 0,

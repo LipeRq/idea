@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { Company, PastCase, RateTable } from "@/lib/domain/reference";
 import type { SimilarCase, Spec } from "@/lib/domain/inquiry";
-import { formatHours, formatNumber, formatYen } from "@/lib/format";
+import type { UnconfirmedField } from "@/lib/extraction/rules";
+import { formatHours, formatNumber, formatRate, formatYen } from "@/lib/format";
 import { calculateQuote } from "@/lib/quote/calculate";
 import type { QuoteInput, QuoteProcessInput, QuoteRef, QuoteResult } from "@/lib/quote/types";
 import { quoteWarnings } from "@/lib/quote/warnings";
@@ -29,7 +30,14 @@ type Props = {
   memo: string;
   today: string;
   status: "estimated" | "approved" | "registered" | "extracted";
+  /** 抽出結果の要確認・不足の項目(承認するときに確認を求める) */
+  unconfirmed: UnconfirmedField[];
 };
+
+// 入力欄の上限(APIの検証 QuoteInputSchema と同じ)
+const MAX_QUANTITY = 100_000;
+const MAX_PRICE_PER_KG = 1_000_000;
+const MAX_CHARGE = 100_000;
 
 const SOURCE_LABEL: Record<QuoteProcessInput["source"]["kind"], string> = {
   ai: "AI案",
@@ -67,6 +75,19 @@ export function QuoteEditor(props: Props) {
   const [approver, setApprover] = useState(props.company.quoteStaff[0] ?? "見積担当者");
   const [busy, setBusy] = useState<null | "save" | "approve" | "unapprove">(null);
   const [message, setMessage] = useState<{ level: "error" | "ok"; text: string } | null>(null);
+  // 正しくない値が入っている入力欄(その間、金額は最後に正しく入力された値で計算している)
+  const [invalidFields, setInvalidFields] = useState<ReadonlySet<string>>(new Set());
+  const [acknowledged, setAcknowledged] = useState(false);
+  const validity = (label: string) => (invalid: boolean) =>
+    setInvalidFields((cur) => {
+      if (cur.has(label) === invalid) return cur;
+      const next = new Set(cur);
+      if (invalid) next.add(label);
+      else next.delete(label);
+      return next;
+    });
+  const hasInvalid = invalidFields.size > 0;
+  const needsAcknowledge = props.unconfirmed.length > 0;
 
   const { result, error } = useMemo((): { result: QuoteResult | null; error: string | null } => {
     try {
@@ -99,6 +120,12 @@ export function QuoteEditor(props: Props) {
   const proposalOf = (id: string) => props.proposal.processes.find((p) => p.processId === id);
   const rationaleOf = (id: string) => props.rationales.find((r) => r.processId === id)?.rationale;
 
+  const removeProcess = (index: number, name: string) => {
+    setInput((c) => ({ ...c, processes: c.processes.filter((_, j) => j !== index) }));
+    // 外した工程の入力欄の誤りは数えない
+    setInvalidFields((cur) => new Set([...cur].filter((label) => !label.startsWith(`${name}の`))));
+  };
+
   const updateProcess = (index: number, patch: Partial<QuoteProcessInput>) =>
     setInput((cur) => ({
       ...cur,
@@ -108,6 +135,10 @@ export function QuoteEditor(props: Props) {
     }));
 
   const save = async (): Promise<boolean> => {
+    if (hasInvalid) {
+      setMessage({ level: "error", text: "入力に誤りがある欄があります。直してから保存してください" });
+      return false;
+    }
     const res = await fetch(`/api/inquiries/${props.inquiryId}/quote`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -132,6 +163,7 @@ export function QuoteEditor(props: Props) {
   };
 
   const onApprove = async () => {
+    if (!result) return;
     setBusy("approve");
     setMessage(null);
     if (!(await save())) {
@@ -141,7 +173,8 @@ export function QuoteEditor(props: Props) {
     const res = await fetch(`/api/inquiries/${props.inquiryId}/approve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ approver }),
+      // 画面に出ている金額を送り、サーバーの計算結果と違えば承認しない(単価表が差し替わったときなど)
+      body: JSON.stringify({ approver, expectedTotal: result.total, acknowledgeUnconfirmed: acknowledged }),
     }).catch(() => null);
     if (!res?.ok) {
       setMessage({ level: "error", text: (await res?.json().catch(() => null))?.error ?? "承認に失敗しました" });
@@ -180,7 +213,7 @@ export function QuoteEditor(props: Props) {
       {result && (
         <section aria-label="見積の合計" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatTile label="見積金額(税抜)" value={formatYen(result.total)} note={`${input.quantity}個`} />
-          <StatTile label="単価" value={formatYen(result.unitPrice)} note={`利益率 ${formatNumber(input.profitRate * 100)}%`} />
+          <StatTile label="単価" value={formatYen(result.unitPrice)} note={`利益率 ${formatRate(input.profitRate)}`} />
           <StatTile
             label="1個あたり加工時間"
             value={formatHours(result.hoursPerPiece)}
@@ -194,6 +227,36 @@ export function QuoteEditor(props: Props) {
         </section>
       )}
       {error && <Notice level="critical">{error}</Notice>}
+      {hasInvalid && (
+        <div role="alert">
+          <Notice level="critical">
+            入力に誤りがある欄があります({[...invalidFields].join("、")})。金額は最後に正しく入力された値で計算しています。直すまで保存・承認はできません。
+          </Notice>
+        </div>
+      )}
+      {!approved && needsAcknowledge && (
+        <section aria-labelledby="unconfirmed-heading">
+          <Notice level="warning">
+            <h2 id="unconfirmed-heading" className="font-semibold">
+              抽出結果に未確認の項目が{props.unconfirmed.length}件あります
+            </h2>
+            <p className="mt-1">見積はこの値(不足の項目は仮の条件)で計算しています。値を確かめてから承認してください。</p>
+            <ul className="mt-1 list-disc pl-5" aria-label="未確認の項目">
+              {props.unconfirmed.map((f) => (
+                <li key={f.key}>
+                  {f.label}:{f.reason}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-1">
+              <Link href={`/inquiries/${props.inquiryId}`} className="underline">
+                抽出結果の画面
+              </Link>
+              で値を修正するか、顧客への確認事項として回答メールで確認します。
+            </p>
+          </Notice>
+        </section>
+      )}
 
       <section className="space-y-4 rounded-xl border border-line bg-surface p-5 sm:p-6">
         <h2 className="text-lg font-bold">見積条件</h2>
@@ -204,9 +267,12 @@ export function QuoteEditor(props: Props) {
               label="数量(個)"
               value={input.quantity}
               min={1}
+              max={MAX_QUANTITY}
               step="1"
+              integer
               disabled={readOnly}
-              onChange={(v) => v !== null && Number.isInteger(v) && setInput((c) => ({ ...c, quantity: v }))}
+              onValidityChange={validity("数量")}
+              onChange={(v) => v !== null && setInput((c) => ({ ...c, quantity: v }))}
             />
           </label>
           <label className="space-y-1">
@@ -230,8 +296,10 @@ export function QuoteEditor(props: Props) {
               label="材料単価(円/kg)"
               value={input.material.pricePerKgOverride}
               allowEmpty
+              max={MAX_PRICE_PER_KG}
               placeholder={material ? String(material.pricePerKg) : ""}
               disabled={readOnly}
+              onValidityChange={validity("材料単価")}
               onChange={(v) => setInput((c) => ({ ...c, material: { ...c.material, pricePerKgOverride: v && v > 0 ? v : null } }))}
             />
           </label>
@@ -239,10 +307,12 @@ export function QuoteEditor(props: Props) {
             <span className="text-sm font-medium">利益率(%)</span>
             <NumberField
               label="利益率(%)"
-              value={Math.round(input.profitRate * 1000) / 10}
+              value={Math.round(input.profitRate * 10_000) / 100}
               max={100}
               disabled={readOnly}
-              onChange={(v) => v !== null && setInput((c) => ({ ...c, profitRate: Math.round(v * 10) / 1000 }))}
+              onValidityChange={validity("利益率")}
+              // 0.01%単位(入力した値と計算に使う値がずれないように)
+              onChange={(v) => v !== null && setInput((c) => ({ ...c, profitRate: Math.round(v * 100) / 10_000 }))}
             />
           </label>
         </div>
@@ -254,7 +324,7 @@ export function QuoteEditor(props: Props) {
               disabled={readOnly}
               onChange={(e) => setInput((c) => ({ ...c, expedite: e.target.checked }))}
             />
-            特急料金を計上する(加工費+段取り費の{formatNumber(rates.rules.expedite.surchargeRate * 100)}%)
+            特急料金を計上する(加工費+段取り費の{formatRate(rates.rules.expedite.surchargeRate)})
           </label>
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-medium">表面処理・熱処理:</span>
@@ -333,6 +403,7 @@ export function QuoteEditor(props: Props) {
                         value={p.setupHours}
                         max={100}
                         disabled={readOnly}
+                        onValidityChange={validity(`${name}の段取り時間`)}
                         onChange={(v) => v !== null && updateProcess(i, { setupHours: v })}
                       />
                     </td>
@@ -342,6 +413,7 @@ export function QuoteEditor(props: Props) {
                         value={p.cycleHoursPerPiece}
                         max={100}
                         disabled={readOnly}
+                        onValidityChange={validity(`${name}の1個あたり加工時間`)}
                         onChange={(v) => v !== null && updateProcess(i, { cycleHoursPerPiece: v })}
                       />
                     </td>
@@ -350,8 +422,10 @@ export function QuoteEditor(props: Props) {
                         label={`${name}のチャージ(円/時間)`}
                         value={p.chargeOverride}
                         allowEmpty
+                        max={MAX_CHARGE}
                         placeholder={rate ? String(rate.chargePerHour) : ""}
                         disabled={readOnly}
+                        onValidityChange={validity(`${name}のチャージ`)}
                         onChange={(v) => updateProcess(i, { chargeOverride: v && v > 0 ? v : null })}
                       />
                     </td>
@@ -381,7 +455,7 @@ export function QuoteEditor(props: Props) {
                           type="button"
                           className="text-xs text-accent-ink hover:underline"
                           aria-label={`${name}を外す`}
-                          onClick={() => setInput((c) => ({ ...c, processes: c.processes.filter((_, j) => j !== i) }))}
+                          onClick={() => removeProcess(i, name)}
                         >
                           外す
                         </button>
@@ -429,7 +503,9 @@ export function QuoteEditor(props: Props) {
               type="button"
               className={buttonSecondary}
               onClick={() => {
-                setInput(props.proposal);
+                // 工数だけを案に戻す(数量・材質・利益率などの修正は残す)
+                setInput((c) => ({ ...c, processes: props.proposal.processes }));
+                setInvalidFields((cur) => new Set([...cur].filter((label) => ["数量", "材料単価", "利益率"].includes(label))));
                 setVersion((v) => v + 1);
               }}
             >
@@ -540,7 +616,7 @@ export function QuoteEditor(props: Props) {
       <div className="no-print flex flex-wrap items-center gap-3">
         {!approved ? (
           <>
-            <button type="button" className={buttonSecondary} onClick={onSave} disabled={busy !== null || !dirty || !result}>
+            <button type="button" className={buttonSecondary} onClick={onSave} disabled={busy !== null || !dirty || !result || hasInvalid}>
               {busy === "save" ? "保存中…" : "修正を保存"}
             </button>
             <label className="flex items-center gap-2 text-sm">
@@ -553,7 +629,18 @@ export function QuoteEditor(props: Props) {
                 ))}
               </select>
             </label>
-            <button type="button" className={buttonPrimary} onClick={onApprove} disabled={busy !== null || !result || !hydrated}>
+            {needsAcknowledge && (
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input type="checkbox" checked={acknowledged} disabled={!hydrated} onChange={(e) => setAcknowledged(e.target.checked)} />
+                未確認の項目({props.unconfirmed.length}件)を確認したうえで承認する
+              </label>
+            )}
+            <button
+              type="button"
+              className={buttonPrimary}
+              onClick={onApprove}
+              disabled={busy !== null || !result || !hydrated || hasInvalid || (needsAcknowledge && !acknowledged)}
+            >
               {busy === "approve" ? "承認しています…" : "この内容で承認して見積書へ"}
             </button>
             {dirty && <span className="text-sm text-warning">未保存の修正があります</span>}

@@ -1,5 +1,4 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import {
   PROCESS_TYPE_LABEL,
@@ -9,7 +8,7 @@ import {
   type RateTable,
 } from "../domain/reference";
 import type { SimilarCase, Spec, Usage } from "../domain/inquiry";
-import { AiOutputError, MODEL, escapeTags, usageOf } from "../ai/client";
+import { AiOutputError, MODEL, escapeTags, jsonSchemaFormat, parseStructuredOutput, usageOf } from "../ai/client";
 import { formatDimensions, treatmentLabel } from "../extraction/normalize";
 import { formatNumber } from "../format";
 import type { QuoteProcessInput } from "../quote/types";
@@ -197,20 +196,21 @@ ${fallbackLines.join("\n") || "なし"}
 }
 
 export async function estimateWithClaude(
-  args: Parameters<typeof buildEstimatePrompt>[0],
+  args: Parameters<typeof buildEstimatePrompt>[0] & { client?: Anthropic },
 ): Promise<{ result: EstimateResult; usage: Usage; model: string }> {
   const schema = estimateSchema(
     args.rates.processes.map((p) => p.id),
     args.candidates.map((c) => c.caseId),
   );
-  const client = new Anthropic();
+  const client = args.client ?? new Anthropic();
   const stream = client.beta.messages.stream(
     {
       model: MODEL,
       max_tokens: 16000,
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
-      output_config: { effort: "medium", format: betaZodOutputFormat(schema) },
+      // スキーマだけを渡し、解析はこちらで行う(extraction/claude.ts と同じ理由)
+      output_config: { effort: "medium", format: jsonSchemaFormat(schema) },
       system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
       messages: [{ role: "user", content: buildEstimatePrompt(args) }],
     },
@@ -219,9 +219,10 @@ export async function estimateWithClaude(
   const message = await stream.finalMessage();
   if (message.stop_reason === "refusal") throw new AiOutputError("AIが工数案の作成を辞退しました");
   if (message.stop_reason === "max_tokens") throw new AiOutputError("AIの出力が上限に達しました");
-  if (!message.parsed_output) throw new AiOutputError("AIの出力を解析できませんでした");
+  const output = parseStructuredOutput(message.content, schema);
+  if (!output) throw new AiOutputError("AIの出力を解析できませんでした");
   return {
-    result: applyEstimateOutput(message.parsed_output, args.candidates, args.fallback, args.rates),
+    result: applyEstimateOutput(output, args.candidates, args.fallback, args.rates),
     usage: usageOf(message.usage),
     model: message.model,
   };

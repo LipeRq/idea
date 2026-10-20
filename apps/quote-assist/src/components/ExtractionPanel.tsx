@@ -12,7 +12,7 @@ import {
 import { PROCESS_TYPE_LABEL, PROCESS_TYPES, SHAPE_LABEL, SHAPES, type Dimensions } from "@/lib/domain/reference";
 import type { ExtractionEdits } from "@/lib/extraction/edit";
 import { CopyButton } from "./CopyButton";
-import { ConfidenceBadge, FieldStatusBadge, buttonPrimary, buttonSecondary, inputClass } from "./ui";
+import { ConfidenceBadge, FieldStatusBadge, Notice, buttonPrimary, buttonSecondary, inputClass } from "./ui";
 import { useHydrated } from "./useHydrated";
 
 type Option = { id: string; name: string };
@@ -136,6 +136,8 @@ export function ExtractionPanel(props: Props) {
   const [error, setError] = useState<string | null>(null);
   const hydrated = useHydrated();
   const drawingByName = new Map(props.drawings.map((d) => [d.fileName, d.id]));
+  const reviewFields = props.fields.filter((f) => f.status === "review");
+  const missingFields = props.fields.filter((f) => f.status === "missing");
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setForm((f) => ({ ...f, [k]: v }));
 
   const save = async () => {
@@ -213,6 +215,18 @@ export function ExtractionPanel(props: Props) {
           )}
         </div>
 
+        {!editing && (reviewFields.length > 0 || missingFields.length > 0) && (
+          <Notice level="warning">
+            <span className="font-semibold">
+              要確認 {reviewFields.length}件・不足 {missingFields.length}件
+            </span>
+            (
+            {[...reviewFields, ...missingFields]
+              .map((f) => FIELD_LABEL[f.key])
+              .join("、")}
+            )。確信度が低い・根拠の記載がない・単価表と合わない値は、図面で確かめて修正してください。見積の承認時にも確認を求めます。
+          </Notice>
+        )}
         {!editing ? (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm" aria-label="抽出結果">
@@ -249,6 +263,9 @@ export function ExtractionPanel(props: Props) {
                           <li key={i}>{sourceLabel(s)}</li>
                         ))}
                       </ul>
+                      {f.sources.length === 0 && f.display !== "" && !f.editedByHuman && f.status === "review" && (
+                        <p className="text-xs text-warning">根拠の記載なし(図面・メールで確かめてください)</p>
+                      )}
                       {(f.issue || f.note) && (
                         <p className={`mt-1 text-xs ${f.issue ? "text-warning" : "text-muted"}`}>{f.issue ?? f.note}</p>
                       )}

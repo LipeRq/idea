@@ -6,7 +6,8 @@ import { PrintButton } from "@/components/PrintButton";
 import { Card, Loading, Notice, buttonPrimary, inputClass } from "@/components/ui";
 import { formatJpDate } from "@/lib/dates";
 import { buildQuoteDocument, buildReplyEmail } from "@/lib/documents";
-import { formatYen } from "@/lib/format";
+import { formatRate, formatYen } from "@/lib/format";
+import { QuoteInputError } from "@/lib/quote/calculate";
 import { loadInquiryView } from "@/lib/views";
 
 export default function DocumentPage({ params }: { params: Promise<{ id: string }> }) {
@@ -20,7 +21,21 @@ export default function DocumentPage({ params }: { params: Promise<{ id: string 
 async function Content({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { inquiry, ref } = await loadInquiryView(id);
-  const doc = buildQuoteDocument(inquiry, ref.rates);
+  let doc: ReturnType<typeof buildQuoteDocument>;
+  try {
+    doc = buildQuoteDocument(inquiry, ref.rates);
+  } catch (e) {
+    // 単価表から材質・工程・処理が消えたなど、未承認の見積が今の単価表で計算できないとき
+    if (!(e instanceof QuoteInputError)) throw e;
+    return (
+      <InquiryFrame inquiry={inquiry} step="document">
+        <Notice level="critical">
+          今の単価表では見積を計算できません({e.message})。<Link href={`/inquiries/${id}/quote`} className="underline">見積根拠</Link>
+          の画面で内容を確認してください。
+        </Notice>
+      </InquiryFrame>
+    );
+  }
   if (!doc) {
     return (
       <InquiryFrame inquiry={inquiry} step="document">
@@ -126,7 +141,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
               </tr>
               <tr>
                 <td colSpan={4} className="pr-3 text-right text-ink-2">
-                  消費税({ref.rates.rules.taxRate * 100}%)
+                  消費税({formatRate(ref.rates.rules.taxRate)})
                 </td>
                 <td className="text-right tabular-nums">{formatYen(doc.tax)}</td>
               </tr>

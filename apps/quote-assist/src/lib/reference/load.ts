@@ -67,8 +67,22 @@ export async function loadReferenceData(dir = referenceDir()): Promise<Reference
   return data;
 }
 
-/** 過去案件が単価表にない材質・工程を参照していないか(差し替え時の取り違えを早めに見つける) */
+/**
+ * 単価表のidの重複と、過去案件が単価表にない材質・工程を参照していないか(差し替え時の取り違えを早めに見つける)。
+ * 重複があると、計算は先に書かれた行だけを使うため、画面の単価表と金額が食い違う。
+ */
 export function checkReferences(data: ReferenceData): void {
+  const { rates } = data;
+  const duplicate = (ids: (string | number)[]) => ids.find((id, i) => ids.indexOf(id) !== i);
+  for (const [label, ids] of [
+    ["材料", rates.materials.map((m) => m.id)],
+    ["工程", rates.processes.map((p) => p.id)],
+    ["表面処理・熱処理", rates.treatments.map((t) => t.id)],
+    ["数量係数の下限数量", rates.rules.quantityBreaks.map((b) => b.minQty)],
+  ] as const) {
+    const dup = duplicate([...ids]);
+    if (dup !== undefined) throw new Error(`単価表(${label})のid「${dup}」が重複しています`);
+  }
   const materials = new Set(data.rates.materials.map((m) => m.id));
   const processes = new Set(data.rates.processes.map((p) => p.id));
   const treatments = new Set(data.rates.treatments.map((t) => t.id));

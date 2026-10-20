@@ -41,6 +41,8 @@ test("引き合い登録 → 抽出結果 → 類似案件 → 見積修正 → 
   await expect(fieldRow(page, "熱処理")).toContainText("注記4「熱処理:要否は別途指示」");
   await expect(fieldRow(page, "検査書類")).toContainText("不足");
   await expect(page.getByRole("heading", { name: "顧客への確認事項(2件)" })).toBeVisible();
+  // 要確認・不足の件数を表の上にまとめて出す(見落とし防止)
+  await expect(page.getByText("要確認 0件・不足 2件").filter({ visible: true })).toBeVisible();
   await expect(page.getByLabel("確認メールの案(送信は担当者が行います)")).toHaveValue(/熱処理は必要でしょうか/);
 
   // 根拠のリンクから、登録した図面PDFを開ける
@@ -86,7 +88,21 @@ test("引き合い登録 → 抽出結果 → 類似案件 → 見積修正 → 
   const quotedTotal = (await total.textContent())!;
   expect(await findLowContrastText(page)).toEqual([]);
 
-  await page.getByRole("button", { name: "この内容で承認して見積書へ" }).click();
+  // 数量を消すと誤りを知らせ、金額は前の値のまま、保存も承認もできない
+  const approveButton = page.getByRole("button", { name: "この内容で承認して見積書へ" });
+  const quantity = page.getByRole("spinbutton", { name: "数量(個)" });
+  await quantity.fill("");
+  await expect(page.getByRole("alert").filter({ hasText: "入力に誤りがある欄があります(数量)" })).toBeVisible();
+  await expect(total).toHaveText(quotedTotal);
+  await expect(page.getByRole("button", { name: "修正を保存" })).toBeDisabled();
+  await quantity.fill("50");
+  await expect(page.getByRole("alert").filter({ hasText: "入力に誤りがある欄があります" })).toHaveCount(0);
+
+  // 抽出結果の未確認の項目(熱処理・検査書類が不足)を確認するまで承認できない
+  await expect(page.getByRole("list", { name: "未確認の項目" }).filter({ visible: true })).toContainText("熱処理:不足");
+  await expect(approveButton).toBeDisabled();
+  await page.getByRole("checkbox", { name: "未確認の項目(2件)を確認したうえで承認する" }).check();
+  await approveButton.click();
 
   // 5. 見積書:承認した金額(税抜)と、回答メール案
   await expect(page).toHaveURL(/\/document$/);
@@ -111,6 +127,7 @@ test("引き合い登録 → 抽出結果 → 類似案件 → 見積修正 → 
   const log = page.getByRole("table", { name: "修正の記録" });
   await expect(log.getByRole("row", { name: /マシニング加工の1個あたり時間/ })).toContainText("1.2");
   await expect(log.getByRole("row", { name: /承認/ })).toContainText("代表取締役 白石");
+  await expect(log.getByRole("row", { name: /未確認のまま進めた抽出項目/ })).toContainText("熱処理");
 
   // 二重登録はできない
   const id = inquiryUrl.split("/").pop();
@@ -209,5 +226,32 @@ test.describe("スマホ幅(390px)とダークモード", () => {
     await expect(page.getByRole("table", { name: "工程別の工数" }).getByRole("row", { name: /^円筒研削/ })).toBeVisible();
     await expectNoHorizontalScroll(page);
     expect(await findLowContrastText(page)).toEqual([]);
+  });
+
+  test("未確認の項目の一覧と承認の確認も、スマホ幅で読めてキーボードで操作できる", async ({ page }) => {
+    await page.goto("/inquiries/new");
+    await page.getByRole("button", { name: /サンプル1/ }).click();
+    await expect(page.getByRole("list", { name: "追加した図面" }).getByRole("listitem")).toHaveCount(2);
+    await page.getByRole("button", { name: "登録して読み取る" }).click();
+    await expect(page).toHaveURL(/\/inquiries\/[0-9a-f-]{36}$/);
+    await expect(page.getByText("要確認 0件・不足 2件").filter({ visible: true })).toBeVisible();
+    await expectNoHorizontalScroll(page);
+    expect(await findLowContrastText(page)).toEqual([]);
+
+    await page.getByRole("button", { name: "類似案件を検索して工数案を作る" }).click();
+    await expect(page).toHaveURL(/\/similar$/);
+    await page.getByRole("link", { name: "見積根拠へ進む" }).click();
+    await expect(page.getByRole("list", { name: "未確認の項目" }).filter({ visible: true })).toContainText("検査書類:不足");
+    await expectNoHorizontalScroll(page);
+    expect(await findLowContrastText(page)).toEqual([]);
+
+    // チェックボックスはキーボード(スペース)で入れられ、入れると承認ボタンが押せる
+    const approve = page.getByRole("button", { name: "この内容で承認して見積書へ" });
+    await expect(approve).toBeDisabled();
+    const ack = page.getByRole("checkbox", { name: /未確認の項目.*を確認したうえで承認する/ });
+    await ack.focus();
+    await page.keyboard.press("Space");
+    await expect(ack).toBeChecked();
+    await expect(approve).toBeEnabled();
   });
 });

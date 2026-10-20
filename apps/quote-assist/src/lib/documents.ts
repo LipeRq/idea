@@ -3,6 +3,7 @@ import type { Inquiry } from "./domain/inquiry";
 import { addBusinessDays, addDays, businessDaysBetween, formatJpDate, todayJst } from "./dates";
 import { formatYen } from "./format";
 import { calculateQuote } from "./quote/calculate";
+import { roundProduct } from "./quote/decimal";
 
 // 見積書・回答メールの内容。金額は承認時のスナップショット(未承認なら現在の入力からの計算)を使う。
 
@@ -35,7 +36,8 @@ export function buildQuoteDocument(inquiry: Inquiry, rates: RateTable, now = new
   const lead = inquiry.approved?.standardLeadDays ?? calc!.standardLeadDays;
   const issuedOn = todayJst(inquiry.approved ? new Date(inquiry.approved.at) : now);
   const received = todayJst(new Date(inquiry.createdAt));
-  const tax = Math.floor(subtotal * rates.rules.taxRate);
+  // 消費税は円未満切り捨て。掛け算は10進で行う(見積明細と同じ)
+  const tax = Math.floor(roundProduct([subtotal, rates.rules.taxRate], 6));
   const dueDate = inquiry.extraction.spec.dueDate;
   const earliestDelivery = addBusinessDays(received, lead);
   const treatmentNames = input.treatments
@@ -78,7 +80,9 @@ export function buildReplyEmail(args: {
   const part = `${spec.partName ?? "ご依頼の部品"}${spec.drawingNumber ? `(${spec.drawingNumber}${spec.revision ? ` Rev.${spec.revision}` : ""})` : ""}`;
   const delivery = doc.dueDate
     ? doc.meetsDueDate
-      ? `ご希望の${formatJpDate(doc.dueDate)}に納入可能です${doc.expedite ? "(特急対応となります)" : ""}`
+      ? doc.expedite
+        ? `ご希望の${formatJpDate(doc.dueDate)}に向けて特急対応で調整いたします(確定納期は受注時にご連絡いたします)`
+        : `ご希望の${formatJpDate(doc.dueDate)}に納入できる見込みです(確定納期は受注時にご連絡いたします)`
       : `ご希望の${formatJpDate(doc.dueDate)}は難しく、最短で${formatJpDate(doc.earliestDelivery)}頃となります`
     : `受注後 約${doc.standardLeadDays}営業日`;
   const questions = inquiry.extraction.questions;

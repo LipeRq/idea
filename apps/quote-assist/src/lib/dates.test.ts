@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addBusinessDays, businessDaysBetween, findDateInText, formatJpDate, todayJst } from "./dates";
+import { addBusinessDays, addDays, businessDaysBetween, findDateInText, formatJpDate, todayJst } from "./dates";
 
 describe("dates", () => {
   it("日本時間の日付", () => {
@@ -28,5 +28,33 @@ describe("dates", () => {
 
   it("和暦表記", () => {
     expect(formatJpDate("2026-11-27", true)).toBe("2026年11月27日(金)");
+  });
+});
+
+describe("businessDaysBetween(週単位で数える)", () => {
+  it("1日ずつ数えた結果と一致する", () => {
+    const slow = (from: string, to: string) => {
+      let n = 0;
+      for (let d = addDays(from, 1); d <= to; d = addDays(d, 1)) {
+        const w = new Date(`${d}T00:00:00Z`).getUTCDay();
+        if (w !== 0 && w !== 6) n++;
+      }
+      return n;
+    };
+    for (const from of ["2026-10-17", "2026-10-18", "2026-10-19", "2026-10-23"]) {
+      for (let span = 0; span <= 40; span++) {
+        const to = addDays(from, span);
+        expect(businessDaysBetween(from, to)).toBe(slow(from, to));
+        expect(businessDaysBetween(to, from)).toBe(span === 0 ? 0 : -slow(from, to));
+      }
+    }
+  });
+
+  it("読み違いの遠い日付(9999年)でもすぐ返る(以前は年末をまたぐと終わらなかった)", () => {
+    const start = performance.now();
+    expect(businessDaysBetween("2026-10-19", "9999-12-31")).toBeGreaterThan(2_000_000);
+    // 7日間には必ず営業日が5日ある
+    expect(businessDaysBetween("9999-12-24", "9999-12-31")).toBe(5);
+    expect(performance.now() - start).toBeLessThan(50);
   });
 });

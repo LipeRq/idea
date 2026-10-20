@@ -37,6 +37,13 @@ export const QuoteInputSchema = z.object({
     .max(5),
   profitRate: z.number().min(0).max(1),
   expedite: z.boolean(),
+}).superRefine((input, ctx) => {
+  // 同じ工程・処理が2回あると二重に計上されるため受け付けない(画面でも重複して追加できない)
+  const dup = (ids: string[]) => ids.find((id, i) => ids.indexOf(id) !== i);
+  const process = dup(input.processes.map((p) => p.processId));
+  if (process) ctx.addIssue({ code: "custom", path: ["processes"], message: `工程が重複しています: ${process}` });
+  const treatment = dup(input.treatments.map((t) => t.treatmentId));
+  if (treatment) ctx.addIssue({ code: "custom", path: ["treatments"], message: `表面処理・熱処理が重複しています: ${treatment}` });
 });
 export type QuoteInput = z.infer<typeof QuoteInputSchema>;
 

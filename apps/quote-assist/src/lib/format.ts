@@ -1,3 +1,5 @@
+import { roundProduct } from "./quote/decimal";
+
 export function formatYen(amount: number): string {
   return `${Math.round(amount).toLocaleString("ja-JP")}円`;
 }
@@ -8,6 +10,11 @@ export function formatNumber(value: number, maxDigits = 1): string {
 
 export function formatHours(hours: number): string {
   return `${formatNumber(hours, 2)}時間`;
+}
+
+/** 単価表の率(0.15 など)を%で。0.29 × 100 = 28.999… のような浮動小数点の表示崩れを出さない */
+export function formatRate(rate: number): string {
+  return `${formatNumber(roundProduct([rate, 100], 4), 4)}%`;
 }
 
 export function formatPercent(rate: number, digits = 0): string {

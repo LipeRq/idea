@@ -4,6 +4,7 @@ import { InquiryFrame } from "@/components/InquiryFrame";
 import { QuoteEditor } from "@/components/QuoteEditor";
 import { Loading, Notice } from "@/components/ui";
 import { todayJst } from "@/lib/dates";
+import { unconfirmedFields } from "@/lib/extraction/rules";
 import { loadInquiryView } from "@/lib/views";
 
 export default function QuotePage({ params }: { params: Promise<{ id: string }> }) {
@@ -49,6 +50,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
         memo={estimate.memo}
         today={todayJst(new Date(inquiry.createdAt))}
         status={inquiry.status}
+        unconfirmed={unconfirmedFields(inquiry.extraction.fields)}
       />
     </InquiryFrame>
   );

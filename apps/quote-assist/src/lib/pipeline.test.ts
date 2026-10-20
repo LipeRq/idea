@@ -24,6 +24,8 @@ vi.mock("@anthropic-ai/sdk", () => ({
 }));
 
 const [revision, missingInfo] = DEMO_SCENARIOS;
+// サンプル1は熱処理・検査書類が「不足」のまま(顧客への確認事項)なので、確認したうえで承認する
+const ack = { acknowledgeUnconfirmed: true };
 
 async function register(deps: Deps, s = revision) {
   return registerInquiry(deps, { email: s.buildEmail(TEST_TODAY), files: s.drawings.map((d) => sampleFile(d.fileName)) });
@@ -83,7 +85,7 @@ describe("registerInquiry(AIモード、SDKはモック)", () => {
       finalMessage: () =>
         Promise.resolve({
           stop_reason: "end_turn",
-          parsed_output: revision.buildExtraction({ emailBody: email.body, today: TEST_TODAY }),
+          content: [{ type: "text", text: JSON.stringify(revision.buildExtraction({ emailBody: email.body, today: TEST_TODAY })) }],
           model: "claude-opus-5-5",
           usage: { input_tokens: 10_000, output_tokens: 2_000, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 },
         }),
@@ -137,12 +139,17 @@ describe("見積の流れ(検索→修正→承認→CRM登録)", () => {
       finalMessage: () =>
         Promise.resolve({
           stop_reason: "end_turn",
-          parsed_output: {
-            ranking: [{ caseId: second.caseId, reason: "AIの理由" }],
-            processes: [{ processId: "mc", setupHours: 1, cycleHoursPerPiece: 1.3, basisCaseIds: [first.caseId], rationale: "旧版の実績" }],
-            risks: ["リスク"],
-            internalMemo: "メモ",
-          },
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                ranking: [{ caseId: second.caseId, reason: "AIの理由" }],
+                processes: [{ processId: "mc", setupHours: 1, cycleHoursPerPiece: 1.3, basisCaseIds: [first.caseId], rationale: "旧版の実績" }],
+                risks: ["リスク"],
+                internalMemo: "メモ",
+              }),
+            },
+          ],
           model: "claude-opus-5-5",
           usage: { input_tokens: 1000, output_tokens: 500, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 },
         }),
@@ -194,7 +201,7 @@ describe("見積の流れ(検索→修正→承認→CRM登録)", () => {
   it("承認すると金額を確定し、承認後は修正できない。取り消せば戻る", async () => {
     const { id } = await register(deps);
     const estimated = await runEstimate(deps, id);
-    const approved = await approveQuote(deps, id, "代表取締役 白石");
+    const approved = await approveQuote(deps, id, "代表取締役 白石", { acknowledgeUnconfirmed: true });
     const ref = await deps.reference();
     const expected = calculateQuote(estimated.quote!.input, ref.rates);
     expect(approved.status).toBe("approved");
@@ -211,7 +218,7 @@ describe("見積の流れ(検索→修正→承認→CRM登録)", () => {
     const { id } = await register(deps);
     await runEstimate(deps, id);
     await expect(registerToCrm(deps, id)).rejects.toMatchObject({ status: 409 });
-    await approveQuote(deps, id);
+    await approveQuote(deps, id, "代表取締役 白石", ack);
     const registered = await registerToCrm(deps, id);
     expect(registered.status).toBe("registered");
     expect(registered.crm).toMatchObject({ provider: "mock", opportunityId: "006MK0000000001AAA", quoteId: "0Q0MK0000000001AAA" });
@@ -225,11 +232,85 @@ describe("見積の流れ(検索→修正→承認→CRM登録)", () => {
   it("CRMのエラーは定型文で返す", async () => {
     const { id } = await register(deps);
     await runEstimate(deps, id);
-    await approveQuote(deps, id);
+    await approveQuote(deps, id, "代表取締役 白石", ack);
     const failing = { ...deps, crm: { provider: "salesforce" as const, label: "x", register: () => Promise.reject(new Error("token=abc")) } };
     const error = await registerToCrm(failing, id).catch((e) => e);
     expect(error).toMatchObject({ status: 502 });
     expect(error.message).not.toContain("token=abc");
+  });
+});
+
+describe("承認とCRM登録の安全策", () => {
+  const shortLead = DEMO_SCENARIOS[2];
+
+  it("抽出結果に要確認・不足の項目があれば、確認したと明示しない限り承認しない", async () => {
+    const { id } = await register(deps);
+    await runEstimate(deps, id);
+    const error = await approveQuote(deps, id, "代表取締役 白石").catch((e) => e);
+    expect(error).toMatchObject({ status: 409 });
+    expect(error.message).toContain("未確認の項目があります(熱処理・検査書類)");
+    const approved = await approveQuote(deps, id, "代表取締役 白石", ack);
+    // 確認したうえで進めた項目を記録に残す
+    expect(approved.reviewLog.at(-2)).toMatchObject({
+      key: "unconfirmed",
+      after: "熱処理(不足(図面・メールに記載なし))、検査書類(不足(図面・メールに記載なし))",
+    });
+    expect(approved.reviewLog.at(-1)).toMatchObject({ key: "approve", after: "代表取締役 白石" });
+  });
+
+  it("すべて確認済みの引き合いは、そのまま承認できる", async () => {
+    const { id } = await register(deps, shortLead);
+    await runEstimate(deps, id);
+    const approved = await approveQuote(deps, id, "工場長 森");
+    expect(approved.status).toBe("approved");
+    expect(approved.reviewLog.some((l) => l.key === "unconfirmed")).toBe(false);
+  });
+
+  it("画面で見た金額と計算結果が違えば承認しない(単価表の差し替えなど)", async () => {
+    const { id } = await register(deps, shortLead);
+    const estimated = await runEstimate(deps, id);
+    const total = calculateQuote(estimated.quote!.input, (await deps.reference()).rates).total;
+    await expect(approveQuote(deps, id, "工場長 森", { expectedTotal: total - 10 })).rejects.toMatchObject({ status: 409 });
+    expect((await approveQuote(deps, id, "工場長 森", { expectedTotal: total })).approved!.total).toBe(total);
+  });
+
+  it("単価表から材質が消えていたら、500ではなく409で理由を返す", async () => {
+    const { id } = await register(deps);
+    await runEstimate(deps, id);
+    const ref = await deps.reference();
+    const without = { ...deps, reference: async () => ({ ...ref, rates: { ...ref.rates, materials: ref.rates.materials.filter((m) => m.id !== "SUS304") } }) };
+    const error = await approveQuote(without, id, "x", ack).catch((e) => e);
+    expect(error).toBeInstanceOf(PipelineError);
+    expect(error).toMatchObject({ status: 409 });
+    expect(error.message).toContain("単価表にない材質です: SUS304");
+    await expect(runEstimate(without, id)).rejects.toMatchObject({ status: 409 });
+  });
+
+  it("同時に2回登録しても、CRMには1回だけ送る(2回目は登録済みで断る)", async () => {
+    const { id } = await register(deps);
+    await runEstimate(deps, id);
+    await approveQuote(deps, id, "x", ack);
+    let calls = 0;
+    const slowCrm = {
+      provider: "mock" as const,
+      label: "x",
+      register: async () => {
+        calls += 1;
+        await new Promise((r) => setTimeout(r, 20));
+        return { opportunityId: "006X", quoteId: "0Q0X", opportunityUrl: null };
+      },
+    };
+    const results = await Promise.allSettled([registerToCrm({ ...deps, crm: slowCrm }, id), registerToCrm({ ...deps, crm: slowCrm }, id)]);
+    expect(calls).toBe(1);
+    expect(results.map((r) => r.status).sort()).toEqual(["fulfilled", "rejected"]);
+    expect(results.find((r) => r.status === "rejected")).toMatchObject({ reason: { status: 409 } });
+  });
+
+  it("前の処理が失敗しても、次の処理は待たされずに進む", async () => {
+    const { id } = await register(deps);
+    const failing = { ...deps, reference: () => Promise.reject(new Error("broken")) };
+    await expect(runEstimate(failing, id)).rejects.toThrow("broken");
+    expect((await runEstimate(deps, id)).status).toBe("estimated");
   });
 });
 

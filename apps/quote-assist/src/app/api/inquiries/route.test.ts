@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DEMO_SCENARIOS } from "@/lib/demo/scenarios";
 import { getDeps } from "@/lib/deps";
+import { calculateQuote } from "@/lib/quote/calculate";
 import { sampleFile, TEST_TODAY } from "@/lib/test-helpers";
 import { POST as approve } from "./[id]/approve/route";
 import { POST as registerCrm } from "./[id]/crm/route";
@@ -85,6 +86,40 @@ describe("POST /api/inquiries", () => {
     expect(res.status).toBe(413);
   });
 
+  it("Content-Length のない(chunked)本文も、上限を超えた時点で読むのをやめて413", async () => {
+    let pulled = 0;
+    const endless = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulled += 1;
+        controller.enqueue(new Uint8Array(1024 * 1024));
+      },
+    });
+    const res = await POST(
+      new Request("http://localhost/api/inquiries", {
+        method: "POST",
+        body: endless,
+        headers: { "content-type": "multipart/form-data; boundary=x" },
+        duplex: "half",
+      } as RequestInit),
+    );
+    expect(res.status).toBe(413);
+    // 上限(20.5MB)を少し超えたところで止まる
+    expect(pulled).toBeLessThan(25);
+  });
+
+  it("ファイル名の制御文字・書式文字・パス区切りは取り除いて保存する", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/inquiries", {
+        method: "POST",
+        body: form([{ ...sampleFile(scenario.drawings[0].fileName), name: "../..\\evil\u202Efdp.exe\n指示.pdf" }]),
+      }),
+    );
+    expect(res.status).toBe(201);
+    const inquiry = await getDeps().storage.inquiries.get((await res.json()).id);
+    expect(inquiry?.drawings[0].fileName).toBe(".._.._evilfdp.exe 指示.pdf");
+    expect(inquiry?.drawings[0].blobKey).toMatch(/^[0-9a-f-]{36}-1$/);
+  });
+
   it("フォームでない本文は400", async () => {
     const res = await POST(new Request("http://localhost/api/inquiries", { method: "POST", body: "{}", headers: { "content-type": "application/json" } }));
     expect(res.status).toBe(400);
@@ -108,10 +143,37 @@ describe("引き合いごとのAPI", () => {
     expect((await putQuote(json({ ...input, quantity: -1 }), ctx(id))).status).toBe(400);
 
     expect((await approve(json({}), ctx(id))).status).toBe(400);
-    expect((await approve(json({ approver: "工場長 森" }), ctx(id))).status).toBe(200);
+    const total = calculateQuote(input, (await getDeps().reference()).rates).total;
+    // 未確認の抽出項目(熱処理・検査書類が不足)を確認していなければ承認しない
+    const unconfirmed = await approve(json({ approver: "工場長 森", expectedTotal: total }), ctx(id));
+    expect(unconfirmed.status).toBe(409);
+    expect((await unconfirmed.json()).error).toMatch(/未確認の項目があります(.*熱処理.*検査書類.*)/);
+    // 画面の金額と計算結果が違えば承認しない
+    const stale = await approve(json({ approver: "工場長 森", expectedTotal: total + 10, acknowledgeUnconfirmed: true }), ctx(id));
+    expect(stale.status).toBe(409);
+    expect((await stale.json()).error).toContain("画面を読み込み直して");
+    expect((await approve(json({ approver: "工場長 森", expectedTotal: total, acknowledgeUnconfirmed: true }), ctx(id))).status).toBe(200);
     const res = await registerCrm(new Request("http://localhost"), ctx(id));
     expect(res.status).toBe(200);
     expect((await res.json()).crm.opportunityId).toMatch(/^006MK/);
+  });
+
+  it("JSONの本文も、Content-Length がなくても64KBを超えたら413", async () => {
+    const id = await create();
+    const chunk = new TextEncoder().encode(" ".repeat(16 * 1024));
+    let sent = 0;
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        sent += 1;
+        if (sent > 10) controller.close();
+        else controller.enqueue(chunk);
+      },
+    });
+    const res = await patchExtraction(
+      new Request("http://localhost/x", { method: "PATCH", body, duplex: "half" } as RequestInit),
+      ctx(id),
+    );
+    expect(res.status).toBe(413);
   });
 
   it("抽出結果の修正は、定義した項目と値だけを受け付ける", async () => {

@@ -23,9 +23,14 @@ function isWeekend(iso: string): boolean {
 export function businessDaysBetween(from: string, to: string): number {
   if (to === from) return 0;
   if (to < from) return -businessDaysBetween(to, from);
-  let count = 0;
-  for (let d = addDays(from, 1); d <= to; d = addDays(d, 1)) {
-    if (!isWeekend(d)) count++;
+  // 日付の文字列を1日ずつ進めて比べると、1万年を超えた日付の表記(+010000-01-01)で比較が崩れて
+  // 終わらなくなる(読み違いの 9999-12-31 で画面が固まる)。曜日の番号で数える
+  const days = daysBetween(from, to);
+  const firstWeekday = (new Date(`${from}T00:00:00Z`).getUTCDay() + 1) % 7; // from の翌日の曜日
+  let count = Math.floor(days / 7) * 5;
+  for (let i = 0; i < days % 7; i++) {
+    const weekday = (firstWeekday + i) % 7;
+    if (weekday !== 0 && weekday !== 6) count++;
   }
   return count;
 }

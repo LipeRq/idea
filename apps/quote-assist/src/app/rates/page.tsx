@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { Card, Loading } from "@/components/ui";
 import { MATERIAL_GROUP_LABEL } from "@/lib/domain/reference";
 import { getDeps } from "@/lib/deps";
-import { formatDate, formatYen } from "@/lib/format";
+import { formatDate, formatRate, formatYen } from "@/lib/format";
 
 export default function RatesPage() {
   return (
@@ -130,9 +130,9 @@ async function Content() {
         </h2>
         <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
           <dt className="font-semibold">管理費率</dt>
-          <dd>直接原価の{r.overheadRate * 100}%</dd>
+          <dd>直接原価の{formatRate(r.overheadRate)}</dd>
           <dt className="font-semibold">利益率(初期値)</dt>
-          <dd>(直接原価+管理費)の{r.defaultProfitRate * 100}%。見積ごとに人が変更できます(AIは変更しません)</dd>
+          <dd>(直接原価+管理費)の{formatRate(r.defaultProfitRate)}。見積ごとに人が変更できます(AIは変更しません)</dd>
           <dt className="font-semibold">数量による量産効果</dt>
           <dd>{r.quantityBreaks.map((b) => `${b.minQty}個以上 ×${b.factor}`).join(" / ")}(1個あたり加工時間に掛ける)</dd>
           <dt className="font-semibold">取り代</dt>
@@ -145,12 +145,12 @@ async function Content() {
             {r.leadTime.baseDays}営業日+50個ごとに{r.leadTime.extraDaysPer50Pieces}日+外注の標準日数
           </dd>
           <dt className="font-semibold">特急料金</dt>
-          <dd>希望納期が標準リードタイムより短いとき、(加工費+段取り費)×{r.expedite.surchargeRate * 100}%</dd>
+          <dd>希望納期が標準リードタイムより短いとき、(加工費+段取り費)×{formatRate(r.expedite.surchargeRate)}</dd>
           <dt className="font-semibold">端数処理</dt>
           <dd>単価を{r.rounding.unitStepYen}円単位に切り上げ</dd>
           <dt className="font-semibold">警告</dt>
           <dd>
-            類似案件の単価から{r.priceDeviationWarnRate * 100}%以上離れたとき、単価表の更新から{r.staleAfterDays}日を過ぎたとき
+            類似案件の単価から{formatRate(r.priceDeviationWarnRate)}以上離れたとき、単価表の更新から{r.staleAfterDays}日を過ぎたとき
           </dd>
         </dl>
       </Card>

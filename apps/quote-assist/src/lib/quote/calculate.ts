@@ -1,9 +1,12 @@
 import type { Dimensions, RateTable } from "../domain/reference";
-import { formatNumber, formatYen } from "../format";
-import type { QuoteInput, QuoteLine, QuoteResult, QuoteTier } from "./types";
+import { formatNumber, formatRate as percent, formatYen } from "../format";
+import { addDecimal, roundProduct } from "./decimal";
+import { QuoteInputSchema, type QuoteInput, type QuoteLine, type QuoteResult, type QuoteTier } from "./types";
 
 // 見積金額の計算。AIは使わない。同じ入力と単価表なら必ず同じ結果になる。
 // 計算式は docs/manufacturing/quote-assist-design.md の「4. 見積計算式」を参照。
+// 掛け算は10進で正確に行い、円未満は明細ごとに1回だけ四捨五入する(decimal.ts)。
+// 明細の計算式(basis)には計算に使った値をそのまま出し、手計算で同じ金額になるようにする。
 
 export class QuoteInputError extends Error {}
 
@@ -13,29 +16,47 @@ export function volumeCm3(d: Dimensions): number {
   return (d.lengthMm * (d.widthMm ?? 0) * (d.heightMm ?? 0)) / 1000;
 }
 
-/** 仕上がり重量[kg](外形の体積から。穴・ポケットは差し引かない)。重量単価の外注費に使う */
-export function partWeightKg(dimensions: Dimensions, densityGPerCm3: number): number {
-  return Math.max(0.001, round((volumeCm3(dimensions) * densityGPerCm3) / 1000, 3));
+/**
+ * 重量[kg] = 体積[mm³] × 比重[g/cm³] ÷ 1,000,000 を小数3桁に四捨五入する。
+ * 角物・板物は10進で正確に計算し、丸物は π を含むので浮動小数点の体積から計算する。
+ */
+function weightKg(
+  shape: Dimensions["shape"],
+  mm: { length: number; width: number; height: number; diameter: number },
+  densityGPerCm3: number,
+): number {
+  if (shape === "round") {
+    const volumeMm3 = Math.PI * (mm.diameter / 2) ** 2 * mm.length;
+    return roundProduct([volumeMm3, densityGPerCm3, 1e-6], 3);
+  }
+  return roundProduct([mm.length, mm.width, mm.height, densityGPerCm3, 1e-6], 3);
 }
 
-/** 素材(取り代を含む)の重量[kg]。小数3桁に丸める */
+/** 仕上がり重量[kg](外形の体積から。穴・ポケットは差し引かない)。重量単価の外注費に使う。最小1g */
+export function partWeightKg(dimensions: Dimensions, densityGPerCm3: number): number {
+  const mm = {
+    length: dimensions.lengthMm,
+    width: dimensions.widthMm ?? 0,
+    height: dimensions.heightMm ?? 0,
+    diameter: dimensions.diameterMm ?? 0,
+  };
+  return Math.max(0.001, weightKg(dimensions.shape, mm, densityGPerCm3));
+}
+
+/** 素材(取り代を含む)の重量[kg]。小数3桁に四捨五入する */
 export function blankWeightKg(
   dimensions: Dimensions,
   densityGPerCm3: number,
   rates: RateTable,
 ): number {
   const a = rates.rules.blankAllowanceMm[dimensions.shape];
-  const length = dimensions.lengthMm + a.lengthMm;
-  let volumeMm3: number;
-  if (dimensions.shape === "round") {
-    const d = (dimensions.diameterMm ?? 0) + a.diameterMm;
-    volumeMm3 = Math.PI * (d / 2) ** 2 * length;
-  } else {
-    const width = (dimensions.widthMm ?? 0) + a.widthMm;
-    const height = (dimensions.heightMm ?? 0) + a.heightMm;
-    volumeMm3 = length * width * height;
-  }
-  return round((volumeMm3 / 1000) * densityGPerCm3 / 1000, 3);
+  const mm = {
+    length: addDecimal(dimensions.lengthMm, a.lengthMm),
+    width: addDecimal(dimensions.widthMm ?? 0, a.widthMm),
+    height: addDecimal(dimensions.heightMm ?? 0, a.heightMm),
+    diameter: addDecimal(dimensions.diameterMm ?? 0, a.diameterMm),
+  };
+  return weightKg(dimensions.shape, mm, densityGPerCm3);
 }
 
 /** 数量に応じた加工時間の係数(量産効果) */
@@ -58,6 +79,14 @@ export function standardLeadDays(input: QuoteInput, rates: RateTable): number {
 }
 
 export function calculateQuote(input: QuoteInput, rates: RateTable): QuoteResult {
+  // 画面の途中の入力やAPIからの値でも、範囲外・重複があれば計算しない(負の数量や二重計上を防ぐ)
+  const parsed = QuoteInputSchema.safeParse(input);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    throw new QuoteInputError(
+      issue?.code === "custom" ? issue.message : `見積の入力に誤りがあります(${issue?.path.join(".") || "全体"})`,
+    );
+  }
   const main = calculateCore(input, rates);
   const quantities = [...new Set([...rates.rules.quantityTiers, input.quantity])].sort(
     (a, b) => a - b,
@@ -80,18 +109,19 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
   // 材料費
   const material = rates.materials.find((m) => m.id === input.material.materialId);
   if (!material) throw new QuoteInputError(`単価表にない材質です: ${input.material.materialId}`);
-  const weightKg = blankWeightKg(input.material.dimensions, material.densityGPerCm3, rates);
+  const weightKgPerPiece = blankWeightKg(input.material.dimensions, material.densityGPerCm3, rates);
   const partKg = partWeightKg(input.material.dimensions, material.densityGPerCm3);
   const pricePerKg = input.material.pricePerKgOverride ?? material.pricePerKg;
-  const materialByWeight = Math.round(weightKg * quantity * pricePerKg);
+  const materialByWeight = roundProduct([weightKgPerPiece, quantity, pricePerKg]);
   const materialAmount = Math.max(materialByWeight, material.minChargePerLot);
+  const weightBasis = `${formatNumber(weightKgPerPiece, 3)}kg × ${pieces(quantity)} × ${unitYen(pricePerKg)}/kg`;
   lines.push({
     kind: "material",
     label: `材料費(${material.name})`,
     basis:
       materialByWeight >= material.minChargePerLot
-        ? `${formatNumber(weightKg, 3)}kg × ${quantity}個 × ${formatYen(pricePerKg)}/kg`
-        : `最低材料費 ${formatYen(material.minChargePerLot)}(重量計算 ${formatYen(materialByWeight)})`,
+        ? weightBasis
+        : `最低材料費 ${formatYen(material.minChargePerLot)}(${weightBasis} = ${formatYen(materialByWeight)})`,
     amount: materialAmount,
     ref: { type: "material", id: material.id },
     overridden: input.material.pricePerKgOverride !== null,
@@ -115,29 +145,29 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
     const overridden = p.chargeOverride !== null || p.source.kind === "human";
 
     if (p.cycleHoursPerPiece > 0) {
-      const amount = Math.round(p.cycleHoursPerPiece * factor * quantity * charge);
+      const amount = roundProduct([p.cycleHoursPerPiece, factor, quantity, charge]);
       processingTotal += amount;
-      hoursPerPiece += p.cycleHoursPerPiece * factor;
+      hoursPerPiece += roundProduct([p.cycleHoursPerPiece, factor], 6);
       lines.push({
         kind: "process",
         label: `加工費(${rate.name})`,
         basis:
-          `${formatNumber(p.cycleHoursPerPiece, 2)}h` +
+          `${hours(p.cycleHoursPerPiece)}h` +
           (factor !== 1 ? ` × 数量係数${factor}` : "") +
-          ` × ${quantity}個 × ${formatYen(charge)}/h`,
+          ` × ${pieces(quantity)} × ${unitYen(charge)}/h`,
         amount,
         ref,
         overridden,
       });
     }
     if (p.setupHours > 0) {
-      const amount = Math.round(p.setupHours * rate.setupChargePerHour);
+      const amount = roundProduct([p.setupHours, rate.setupChargePerHour]);
       processingTotal += amount;
       setupHours += p.setupHours;
       lines.push({
         kind: "setup",
         label: `段取り費(${rate.name})`,
-        basis: `${formatNumber(p.setupHours, 2)}h × ${formatYen(rate.setupChargePerHour)}/h(ロットに1回)`,
+        basis: `${hours(p.setupHours)}h × ${unitYen(rate.setupChargePerHour)}/h(ロットに1回)`,
         amount,
         ref,
         overridden,
@@ -152,14 +182,14 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
     const unitPrice = t.unitPriceOverride ?? rate.unitPrice;
     const byUnit =
       rate.pricing === "per_kg"
-        ? Math.round(unitPrice * partKg * quantity)
-        : Math.round(unitPrice * quantity);
+        ? roundProduct([unitPrice, partKg, quantity])
+        : roundProduct([unitPrice, quantity]);
     const amount = Math.max(byUnit, rate.minLotCharge);
     outsourcingTotal += amount;
     const unitBasis =
       rate.pricing === "per_kg"
-        ? `${formatYen(unitPrice)}/kg × 仕上がり${formatNumber(partKg, 3)}kg × ${quantity}個`
-        : `${formatYen(unitPrice)}/個 × ${quantity}個`;
+        ? `${unitYen(unitPrice)}/kg × 仕上がり${formatNumber(partKg, 3)}kg × ${pieces(quantity)}`
+        : `${unitYen(unitPrice)}/個 × ${pieces(quantity)}`;
     lines.push({
       kind: "treatment",
       label: `${rate.kind === "heat" ? "熱処理" : "表面処理"}(${rate.name}・外注)`,
@@ -176,7 +206,7 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
   // 特急料金
   let expediteAmount = 0;
   if (input.expedite) {
-    expediteAmount = Math.round(processingTotal * rules.expedite.surchargeRate);
+    expediteAmount = roundProduct([processingTotal, rules.expedite.surchargeRate]);
     lines.push({
       kind: "expedite",
       label: "特急料金",
@@ -188,7 +218,7 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
   }
 
   const directCost = materialAmount + processingTotal + outsourcingTotal + expediteAmount;
-  const overhead = Math.round(directCost * rules.overheadRate);
+  const overhead = roundProduct([directCost, rules.overheadRate]);
   lines.push({
     kind: "overhead",
     label: "管理費",
@@ -197,7 +227,7 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
     ref: { type: "rule", key: "overheadRate" },
     overridden: false,
   });
-  const profit = Math.round((directCost + overhead) * input.profitRate);
+  const profit = roundProduct([directCost + overhead, input.profitRate]);
   lines.push({
     kind: "profit",
     label: "利益",
@@ -209,13 +239,15 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
 
   const rawTotal = directCost + overhead + profit;
   const step = rules.rounding.unitStepYen;
-  const unitPrice = Math.ceil(rawTotal / quantity / step) * step;
+  // 単価 = 切り上げ(合計 ÷ 数量, step円単位)。整数のまま割り算する
+  const lot = BigInt(quantity) * BigInt(step);
+  const unitPrice = Number(((BigInt(rawTotal) + lot - BigInt(1)) / lot) * BigInt(step));
   const total = unitPrice * quantity;
   if (total !== rawTotal) {
     lines.push({
       kind: "rounding",
       label: "端数調整",
-      basis: `単価を${step}円単位に切り上げ(${formatYen(unitPrice)} × ${quantity}個)`,
+      basis: `単価を${step}円単位に切り上げ(${formatYen(unitPrice)} × ${pieces(quantity)})`,
       amount: total - rawTotal,
       ref: { type: "rule", key: "rounding" },
       overridden: false,
@@ -224,7 +256,7 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
 
   return {
     quantity,
-    weightKgPerPiece: weightKg,
+    weightKgPerPiece,
     partWeightKgPerPiece: partKg,
     lines,
     directCost,
@@ -233,8 +265,8 @@ function calculateCore(input: QuoteInput, rates: RateTable): Omit<QuoteResult, "
     rawTotal,
     unitPrice,
     total,
-    hoursPerPiece: round(hoursPerPiece, 3),
-    setupHours: round(setupHours, 3),
+    hoursPerPiece: roundProduct([hoursPerPiece], 3),
+    setupHours: roundProduct([setupHours], 3),
     quantityFactor: factor,
     standardLeadDays: standardLeadDays(input, rates),
   };
@@ -246,11 +278,16 @@ function findTreatment(rates: RateTable, id: string) {
   return t;
 }
 
-function percent(rate: number): string {
-  return `${formatNumber(rate * 100, 1)}%`;
+// 計算式の表示。計算に使った値を丸めずに出す(小数4桁まで)
+
+function hours(value: number): string {
+  return formatNumber(value, 4);
 }
 
-function round(value: number, digits: number): number {
-  const p = 10 ** digits;
-  return Math.round(value * p) / p;
+function unitYen(value: number): string {
+  return `${formatNumber(value, 4)}円`;
+}
+
+function pieces(quantity: number): string {
+  return `${formatNumber(quantity, 0)}個`;
 }

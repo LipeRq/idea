@@ -21,7 +21,7 @@ async function approvedInquiry(index: number): Promise<Inquiry> {
     files: s.drawings.map((d) => sampleFile(d.fileName)),
   });
   await runEstimate(deps, inquiry.id);
-  return approveQuote(deps, inquiry.id);
+  return approveQuote(deps, inquiry.id, "代表取締役 白石", { acknowledgeUnconfirmed: true });
 }
 
 beforeAll(async () => {
@@ -166,6 +166,41 @@ describe("createSalesforceRest(fetch をモック)", () => {
     expect(error).toBeInstanceOf(CrmError);
     expect(error.codes).toEqual(["INVALID_OR_NULL_FOR_RESTRICTED_PICKLIST", "PROCESSING_HALTED"]);
     expect(error.message).not.toContain("StageName");
+  });
+
+  it("送信後に応答がなければ、作成済みかもしれないことを伝える(再送で二重登録しないように)", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(json({ access_token: "tok", instance_url: "https://inst.my.salesforce.com" }))
+      .mockRejectedValueOnce(new DOMException("The operation was aborted due to timeout", "TimeoutError"));
+    const error = await createSalesforceRest(config, fetchMock).register(payload(), ctx).catch((e) => e);
+    expect(error).toBeInstanceOf(CrmError);
+    expect(error.message).toContain("Salesforceで商談が作成されていないか確認");
+    expect(error.codes).toEqual(["composite_no_response"]);
+  });
+
+  it("トークン応答の instance_url が https でなければ、設定した My Domain に送る(トークンを外に出さない)", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(json({ access_token: "tok", instance_url: "http://attacker.example.com" }))
+      .mockResolvedValueOnce(
+        json({
+          compositeResponse: [
+            { referenceId: "opportunity", httpStatusCode: 201, body: { id: "006XX", success: true } },
+            { referenceId: "quote", httpStatusCode: 201, body: { id: "0Q0XX", success: true } },
+          ],
+        }),
+      );
+    await createSalesforceRest(config, fetchMock).register(payload(), ctx);
+    expect(fetchMock.mock.calls[1][0]).toBe("https://example.my.salesforce.com/services/data/v62.0/composite");
+  });
+
+  it("JSONでない応答は定型文のエラーにする", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(json({ access_token: "tok" }))
+      .mockResolvedValueOnce(new Response("<html>maintenance</html>", { status: 200 }));
+    await expect(createSalesforceRest(config, fetchMock).register(payload(), ctx)).rejects.toThrow("解析できませんでした");
   });
 
   it("認証に失敗したら登録しない", async () => {
