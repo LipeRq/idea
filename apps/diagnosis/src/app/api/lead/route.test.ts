@@ -38,6 +38,10 @@ beforeEach(() => {
   vi.stubEnv("SALESFORCE_ORG_ID", "");
   vi.stubEnv("LEAD_WEBHOOK_URL", WEBHOOK_URL);
   vi.stubEnv("LEAD_WEBHOOK_FORMAT", "json");
+  vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+  vi.stubEnv("KV_REST_API_URL", "");
+  vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "");
+  vi.stubEnv("TURNSTILE_SECRET_KEY", "");
   vi.spyOn(console, "info").mockImplementation(() => {});
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -145,5 +149,44 @@ describe("POST /api/lead", () => {
     vi.stubEnv("LEAD_WEBHOOK_URL", "");
     const res = await post({ contact, input: diagnosisInput });
     expect(res.status).toBe(503);
+  });
+
+  describe("ボット対策(Turnstile)が有効なとき", () => {
+    beforeEach(() => {
+      vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "site-key");
+      vi.stubEnv("TURNSTILE_SECRET_KEY", "secret-key");
+    });
+
+    it("トークンがなければ403で、申し込みは送らない", async () => {
+      const fetchMock = vi.spyOn(globalThis, "fetch");
+      const res = await post({ contact, input: diagnosisInput });
+      expect(res.status).toBe(403);
+      expect((await res.json()).error).toContain("セキュリティ確認");
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("確認できたトークンなら申し込みを送る", async () => {
+      const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (url) =>
+        String(url).includes("challenges.cloudflare.com")
+          ? Response.json({ success: true, action: "lead" })
+          : new Response("ok", { status: 200 }),
+      );
+
+      const res = await post({ contact, input: diagnosisInput }, { "x-turnstile-token": "good" });
+      expect(res.status).toBe(200);
+      expect(fetchMock.mock.calls.map((c) => String(c[0]))).toEqual([
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        WEBHOOK_URL,
+      ]);
+    });
+
+    it("診断の画面で取ったトークンは使えない", async () => {
+      const fetchMock = vi
+        .spyOn(globalThis, "fetch")
+        .mockResolvedValue(Response.json({ success: true, action: "diagnose" }));
+      const res = await post({ contact, input: diagnosisInput }, { "x-turnstile-token": "reused" });
+      expect(res.status).toBe(403);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
   });
 });

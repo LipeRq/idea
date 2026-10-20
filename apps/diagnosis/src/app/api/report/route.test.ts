@@ -46,6 +46,8 @@ async function pdfOf(res: Response) {
 
 beforeEach(() => {
   vi.stubEnv("REPORT_SIGNING_SECRET", "test-secret");
+  vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+  vi.stubEnv("KV_REST_API_URL", "");
 });
 
 afterEach(() => {

@@ -4,6 +4,7 @@ import { deliverLead } from "@/lib/lead/deliver";
 import { LeadRequestSchema, leadFieldErrors } from "@/lib/lead/schema";
 import { summarizeDiagnosis } from "@/lib/lead/summary";
 import { isLeadRateLimited } from "@/lib/rate-limit";
+import { TURNSTILE_ERROR_MESSAGE, isHumanRequest } from "@/lib/turnstile";
 
 export const maxDuration = 30;
 
@@ -11,7 +12,7 @@ export const maxDuration = 30;
 const MAX_BODY_BYTES = 32 * 1024;
 
 export async function POST(request: Request) {
-  if (isLeadRateLimited(clientKey(request))) {
+  if (await isLeadRateLimited(clientKey(request))) {
     return errorResponse(
       429,
       "送信の回数が上限に達しました。しばらく時間をおいてお試しください。",
@@ -36,6 +37,10 @@ export async function POST(request: Request) {
     return Object.keys(fieldErrors).length > 0
       ? errorResponse(400, "入力内容をご確認ください", { fieldErrors })
       : errorResponse(400, "送信内容を読み取れませんでした。ページを読み込み直してお試しください。");
+  }
+
+  if (!(await isHumanRequest(request, "lead"))) {
+    return errorResponse(403, TURNSTILE_ERROR_MESSAGE);
   }
 
   const { contact, input } = parsed.data;

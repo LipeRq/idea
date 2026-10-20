@@ -40,6 +40,11 @@ export function ResultView({ data, input, onRestart }: Props) {
             ? "AIが回答内容をもとに個別に分析したレポートです"
             : "標準レポートです(AIによる個別分析は行っていません)"}
         </p>
+        {data.fallbackReason === "daily_limit" && (
+          <p className="text-sm text-muted">
+            本日はAIによる分析の受付数が上限に達したため、標準レポートを表示しています。数値はAIの有無にかかわらず同じ計算式で出しています。
+          </p>
+        )}
         <h2
           ref={headingRef}
           tabIndex={-1}

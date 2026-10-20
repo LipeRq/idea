@@ -1,4 +1,5 @@
 import { z } from "zod";
+import "../zod-setup";
 import { DiagnosisInputSchema } from "../diagnosis/schema";
 
 // 無料相談の申し込みフォーム。画面(送信前の確認)とサーバー(受け付け時の検証)で同じスキーマを使う。

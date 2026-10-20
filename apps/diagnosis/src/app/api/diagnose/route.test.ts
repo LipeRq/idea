@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { resetAiQuotaForTest } from "@/lib/ai-quota";
 import { calculateDiagnosis } from "@/lib/diagnosis/calculate";
 import { buildFallbackReport } from "@/lib/diagnosis/fallback";
 import type { DiagnosisInput } from "@/lib/diagnosis/schema";
@@ -58,8 +59,26 @@ const postJson = (value: unknown, headers?: Record<string, string>) =>
 beforeEach(() => {
   vi.stubEnv("ANTHROPIC_API_KEY", "");
   vi.stubEnv("ANTHROPIC_AUTH_TOKEN", "");
+  // 手元の設定に左右されないよう、共有ストア・ボット対策・AIの上限は無効から始める
+  vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+  vi.stubEnv("KV_REST_API_URL", "");
+  vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "");
+  vi.stubEnv("TURNSTILE_SECRET_KEY", "");
+  vi.stubEnv("AI_DAILY_LIMIT", "");
+  resetAiQuotaForTest();
   streamMock.mockReset();
 });
+
+const aiSuccess = () => {
+  const report = { ...buildFallbackReport(calculateDiagnosis(validInput)), summary: "AIの総評" };
+  return {
+    finalMessage: () =>
+      Promise.resolve({
+        stop_reason: "end_turn",
+        content: [{ type: "text", text: JSON.stringify(report) }],
+      }),
+  };
+};
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -238,5 +257,114 @@ describe("POST /api/diagnose", () => {
     expect(limited.status).toBe(429);
     // 別の送信元は影響を受けない
     expect((await postJson(validInput)).status).toBe(200);
+  });
+
+  describe("AIの1日の呼び出し上限(AI_DAILY_LIMIT)", () => {
+    beforeEach(() => {
+      vi.stubEnv("ANTHROPIC_API_KEY", "sk-ant-test");
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+    });
+
+    it("上限までAIを呼び、超えたら呼ばずに標準レポートを返す(画面で案内する理由を付ける)", async () => {
+      vi.stubEnv("AI_DAILY_LIMIT", "2");
+      streamMock.mockImplementation(aiSuccess);
+
+      const bodies = [];
+      for (let i = 0; i < 3; i++) bodies.push(await (await postJson(validInput)).json());
+
+      expect(bodies.map((b) => b.aiGenerated)).toEqual([true, true, false]);
+      expect(streamMock).toHaveBeenCalledTimes(2);
+      const limited = bodies[2];
+      expect(limited.fallbackReason).toBe("daily_limit");
+      expect(limited.report).toEqual(buildFallbackReport(calculateDiagnosis(validInput)));
+      expect(limited.result).toEqual(calculateDiagnosis(validInput));
+      expect(limited).not.toHaveProperty("reportToken");
+    });
+
+    it("失敗した呼び出しも数える(費用はかかりうるため)", async () => {
+      vi.stubEnv("AI_DAILY_LIMIT", "1");
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      streamMock.mockReturnValue({ finalMessage: () => Promise.reject(new Error("overloaded")) });
+
+      const first = await (await postJson(validInput)).json();
+      const second = await (await postJson(validInput)).json();
+      expect(first.fallbackReason).toBeUndefined();
+      expect(second.fallbackReason).toBe("daily_limit");
+      expect(streamMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("0ならAIを呼ばない", async () => {
+      vi.stubEnv("AI_DAILY_LIMIT", "0");
+      const body = await (await postJson(validInput)).json();
+      expect(body.aiGenerated).toBe(false);
+      expect(body.fallbackReason).toBe("daily_limit");
+      expect(streamMock).not.toHaveBeenCalled();
+    });
+
+    it("APIキーがなければ、上限に関係なく標準レポートで理由は付けない", async () => {
+      vi.stubEnv("ANTHROPIC_API_KEY", "");
+      vi.stubEnv("AI_DAILY_LIMIT", "0");
+      const body = await (await postJson(validInput)).json();
+      expect(body.aiGenerated).toBe(false);
+      expect(body).not.toHaveProperty("fallbackReason");
+    });
+  });
+
+  describe("ボット対策(Turnstile)が有効なとき", () => {
+    beforeEach(() => {
+      vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "site-key");
+      vi.stubEnv("TURNSTILE_SECRET_KEY", "secret-key");
+      vi.stubEnv("ANTHROPIC_API_KEY", "sk-ant-test");
+      vi.spyOn(console, "info").mockImplementation(() => {});
+    });
+
+    it("トークンがなければ403で、AIも検証サーバーも呼ばない", async () => {
+      const fetchMock = vi.spyOn(globalThis, "fetch");
+      const res = await postJson(validInput);
+      expect(res.status).toBe(403);
+      expect((await res.json()).error).toContain("セキュリティ確認");
+      expect(streamMock).not.toHaveBeenCalled();
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("確認に失敗したトークンなら403", async () => {
+      vi.spyOn(globalThis, "fetch").mockResolvedValue(
+        Response.json({ success: false, "error-codes": ["invalid-input-response"] }),
+      );
+      const res = await postJson(validInput, { "x-turnstile-token": "bad" });
+      expect(res.status).toBe(403);
+      expect(streamMock).not.toHaveBeenCalled();
+    });
+
+    it("確認できたトークンなら診断する", async () => {
+      const fetchMock = vi
+        .spyOn(globalThis, "fetch")
+        .mockResolvedValue(Response.json({ success: true, action: "diagnose" }));
+      streamMock.mockImplementation(aiSuccess);
+
+      const res = await postJson(validInput, { "x-turnstile-token": "good" });
+      expect(res.status).toBe(200);
+      expect((await res.json()).aiGenerated).toBe(true);
+      expect(String(fetchMock.mock.calls[0][0])).toContain("challenges.cloudflare.com");
+    });
+
+    it("入力に誤りがあれば、トークンを検証せず400(トークンを使い切らない)", async () => {
+      const fetchMock = vi.spyOn(globalThis, "fetch");
+      const res = await postJson({ ...validInput, industry: "宇宙業" }, { "x-turnstile-token": "good" });
+      expect(res.status).toBe(400);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+  });
+
+  it("Upstash が設定されていれば、インスタンスをまたいだ回数で429を返す", async () => {
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://example.upstash.io");
+    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "token");
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(Response.json([{ result: null }, { result: 6 }]));
+
+    const res = await postJson(validInput);
+    expect(res.status).toBe(429);
+    expect(String(fetchMock.mock.calls[0][0])).toBe("https://example.upstash.io/multi-exec");
   });
 });

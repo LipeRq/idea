@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@/lib/analytics";
 import type { DiagnosisInput } from "@/lib/diagnosis/schema";
 import type { DiagnosisResponse } from "@/lib/diagnosis/types";
 import { fileNameFromDisposition } from "@/lib/report/file-name";
@@ -57,6 +58,10 @@ export function ReportActions({ data, input, onRestart }: Props) {
       // すぐに解放するとダウンロードが始まらないブラウザがある
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
       setStatus({ kind: "done" });
+      track({
+        name: "report_download",
+        reportSource: res.headers.get("x-report-source") === "ai" ? "ai" : "standard",
+      });
     } catch {
       setStatus({ kind: "error", message: "通信エラーが発生しました。もう一度お試しください。" });
     }

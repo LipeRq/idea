@@ -2,6 +2,9 @@
   "name": "diagnosis",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -14,6 +17,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",
     "@react-pdf/renderer": "4.9.0",
+    "@vercel/analytics": "2.0.1",
     "next": "16.4.2",
     "react": "19.3.0",
     "react-dom": "19.3.0",

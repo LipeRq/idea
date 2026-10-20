@@ -1,0 +1,93 @@
+# AI導入診断(apps/diagnosis)の型チェック・リント・単体テスト・ビルド・E2E。
+# apps/diagnosis 配下(とこのファイル)が変わったときだけ動く。外部サービスには接続しない(テストはすべてモック)。
+name: diagnosis
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/diagnosis/**"
+      - ".github/workflows/diagnosis.yml"
+  pull_request:
+    paths:
+      - "apps/diagnosis/**"
+      - ".github/workflows/diagnosis.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 同じブランチに続けて push したら、古い実行は止める
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: 型チェック・テスト・ビルド・E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/diagnosis
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Node のバージョンは package.json の engines.node(Vercel と同じ)
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: apps/diagnosis/package.json
+          cache: npm
+          cache-dependency-path: apps/diagnosis/package-lock.json
+
+      - name: 依存関係のインストール
+        run: npm ci
+
+      - name: 型チェック
+        run: npx tsc --noEmit
+
+      - name: リント
+        run: npx eslint src e2e
+
+      - name: 単体テスト
+        run: npm test
+
+      # 本番と同じ設定(環境変数なし)でビルドできること。E2E は検証用の設定でビルドし直す
+      - name: ビルド
+        run: npm run build
+
+      - name: Playwright のバージョンを調べる
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Playwright のブラウザのキャッシュ
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - name: Playwright のブラウザをインストール
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      # ブラウザ本体がキャッシュから戻っても、OSのライブラリ(日本語フォントを含む)は毎回入れる
+      - name: Playwright のブラウザが使うライブラリをインストール
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: E2Eテスト
+        run: npm run test:e2e
+
+      - name: 失敗したE2Eのトレースをアップロード
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-test-results
+          path: apps/diagnosis/test-results/
+          retention-days: 7
+          if-no-files-found: ignore

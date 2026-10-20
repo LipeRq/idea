@@ -1,11 +1,12 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { createRateLimiter, limitFromEnv } from "./rate-limit";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createRateLimiter, createSharedRateLimiter, limitFromEnv } from "./rate-limit";
 
 const HOUR = 60 * 60 * 1000;
 const ENV = "RATE_LIMIT_TEST_PER_HOUR";
 
 afterEach(() => {
   vi.unstubAllEnvs();
+  vi.restoreAllMocks();
 });
 
 describe("createRateLimiter", () => {
@@ -71,5 +72,81 @@ describe("limitFromEnv", () => {
   ])("%s → 既定値か設定値", (_, value, expected) => {
     if (value !== undefined) vi.stubEnv(ENV, value);
     expect(limitFromEnv(ENV, 5)).toBe(expected);
+  });
+});
+
+describe("createSharedRateLimiter", () => {
+  const SHARED_ENV = "RATE_LIMIT_SHARED_TEST_PER_HOUR";
+
+  function upstashCount(count: number) {
+    return new Response(JSON.stringify([{ result: null }, { result: count }]), { status: 200 });
+  }
+
+  it("Upstash が未設定なら外部に接続せず、メモリで数える", async () => {
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+    vi.stubEnv("KV_REST_API_URL", "");
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    const isLimited = createSharedRateLimiter("test", SHARED_ENV, 2);
+
+    expect(await isLimited("192.0.2.1")).toBe(false);
+    expect(await isLimited("192.0.2.1")).toBe(false);
+    expect(await isLimited("192.0.2.1")).toBe(true);
+    expect(await isLimited("192.0.2.2")).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  describe("Upstash が設定されているとき", () => {
+    beforeEach(() => {
+      vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://example.upstash.io");
+      vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "token");
+    });
+
+    it("共有ストアの回数で判断し、上限(環境変数で変更可)を超えたら止める", async () => {
+      vi.stubEnv(SHARED_ENV, "3");
+      const fetchMock = vi
+        .spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(upstashCount(3))
+        .mockResolvedValueOnce(upstashCount(4));
+      const isLimited = createSharedRateLimiter("test", SHARED_ENV, 5);
+
+      expect(await isLimited("192.0.2.10")).toBe(false);
+      expect(await isLimited("192.0.2.10")).toBe(true);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it("キーは名前ごとに分け、IPアドレスはそのまま置かない(1時間で消える)", async () => {
+      const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(upstashCount(1));
+      await createSharedRateLimiter("diagnose", SHARED_ENV, 5)("192.0.2.10");
+      await createSharedRateLimiter("lead", SHARED_ENV, 5)("192.0.2.10");
+
+      const [first, second] = fetchMock.mock.calls.map(
+        (call) => JSON.parse(String(call[1]?.body)) as string[][],
+      );
+      expect(first[0][1]).toMatch(/^ai-diagnosis:rl:diagnose:[\w-]{22}$/);
+      expect(second[0][1]).toMatch(/^ai-diagnosis:rl:lead:[\w-]{22}$/);
+      expect(first[0][1].split(":").at(-1)).toBe(second[0][1].split(":").at(-1));
+      expect(JSON.stringify([first, second])).not.toContain("192.0.2.10");
+      expect(first[0]).toEqual(["SET", first[0][1], "0", "PX", String(HOUR), "NX"]);
+    });
+
+    it("共有ストアに接続できなければ、ログを出してメモリで数える", async () => {
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+      vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("fetch failed"));
+      const isLimited = createSharedRateLimiter("test", SHARED_ENV, 1);
+
+      expect(await isLimited("192.0.2.20")).toBe(false);
+      expect(await isLimited("192.0.2.20")).toBe(true);
+      expect(consoleError).toHaveBeenCalledWith(expect.stringContaining("fetch failed"));
+    });
+
+    it("URLの設定に誤りがあれば、ログを出してメモリで数える", async () => {
+      vi.stubEnv("UPSTASH_REDIS_REST_URL", "redis://example.upstash.io");
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+      const fetchMock = vi.spyOn(globalThis, "fetch");
+
+      expect(await createSharedRateLimiter("test", SHARED_ENV, 1)("192.0.2.30")).toBe(false);
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(consoleError).toHaveBeenCalledWith(expect.stringContaining("設定に誤り"));
+    });
   });
 });

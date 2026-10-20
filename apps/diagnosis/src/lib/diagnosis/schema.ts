@@ -1,4 +1,5 @@
 import { z } from "zod";
+import "../zod-setup";
 import {
   EMPLOYEE_BANDS,
   GOALS,

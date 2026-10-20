@@ -1,4 +1,5 @@
 import { DiagnosisApp } from "@/components/DiagnosisApp";
+import { CONTACT_URL, PRIVACY_POLICY_URL, operatorName } from "@/lib/site";
 
 const POINTS = [
   {
@@ -16,6 +17,7 @@ const POINTS = [
 ];
 
 export default function Home() {
+  const operator = operatorName();
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 space-y-10 px-4 py-10 sm:py-16">
       <section className="space-y-4">
@@ -38,8 +40,25 @@ export default function Home() {
 
       <DiagnosisApp />
 
-      <footer className="no-print border-t border-line pt-6 text-xs text-muted">
-        入力内容は診断レポートの作成に使用します。無料相談をお申し込みいただいた場合に限り、診断結果の要約を担当者にお送りします。会社名や課題の記入は任意です。
+      <footer className="no-print space-y-3 border-t border-line pt-6 text-xs text-muted">
+        <p>
+          入力内容は診断レポートの作成に使用します。無料相談をお申し込みいただいた場合に限り、診断結果の要約を担当者にお送りします。会社名や課題の記入は任意です。
+        </p>
+        {(operator || PRIVACY_POLICY_URL || CONTACT_URL) && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            {operator && <p>運営:{operator}</p>}
+            {PRIVACY_POLICY_URL && (
+              <a href={PRIVACY_POLICY_URL} className="underline hover:text-ink">
+                プライバシーポリシー
+              </a>
+            )}
+            {CONTACT_URL && (
+              <a href={CONTACT_URL} className="underline hover:text-ink">
+                お問い合わせ
+              </a>
+            )}
+          </div>
+        )}
       </footer>
     </main>
   );

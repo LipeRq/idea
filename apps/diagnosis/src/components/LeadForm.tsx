@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { track } from "@/lib/analytics";
 import type { DiagnosisInput } from "@/lib/diagnosis/schema";
 import {
   LEAD_LIMITS,
@@ -10,6 +11,12 @@ import {
 } from "@/lib/lead/schema";
 import { CONTACT_URL, PRIVACY_POLICY_URL } from "@/lib/site";
 import { inputClass } from "./DiagnosisForm";
+import {
+  TURNSTILE_PENDING_MESSAGE,
+  TURNSTILE_SITE_KEY,
+  TurnstileWidget,
+  type TurnstileHandle,
+} from "./TurnstileWidget";
 
 type Props = {
   /** 診断に使った入力。結果の要約はサーバーがこれから計算し直して添える */
@@ -56,6 +63,9 @@ export function LeadForm({ input }: Props) {
   const [website, setWebsite] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  // ボット対策(Turnstile)のトークン。無効なときは使わない
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const doneRef = useRef<HTMLHeadingElement>(null);
 
@@ -85,18 +95,29 @@ export function LeadForm({ input }: Props) {
       return;
     }
 
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setStatus({ kind: "error", message: TURNSTILE_PENDING_MESSAGE });
+      return;
+    }
+
     setStatus({ kind: "submitting" });
     try {
       const res = await fetch("/api/lead", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(turnstileToken ? { "X-Turnstile-Token": turnstileToken } : {}),
+        },
         body: JSON.stringify({ contact: values, website, input }),
       });
       const body = await res.json().catch(() => null);
       if (res.ok) {
         setStatus({ kind: "done" });
+        track({ name: "lead_submit" });
         return;
       }
+      // トークンは1回しか使えないので、送り直せるよう取り直す
+      turnstileRef.current?.reset();
       const fieldErrors: Errors = body?.fieldErrors ?? {};
       if (Object.keys(fieldErrors).length > 0) {
         setErrors(fieldErrors);
@@ -109,6 +130,7 @@ export function LeadForm({ input }: Props) {
         message: body?.error ?? "送信に失敗しました。時間をおいてもう一度お試しください。",
       });
     } catch {
+      turnstileRef.current?.reset();
       setStatus({ kind: "error", message: "通信エラーが発生しました。もう一度お試しください。" });
     }
   };
@@ -263,6 +285,8 @@ export function LeadForm({ input }: Props) {
         </p>
         <FieldError field="consent" error={errors.consent} />
       </div>
+
+      <TurnstileWidget action="lead" onTokenChange={setTurnstileToken} ref={turnstileRef} />
 
       {status.kind === "error" && (
         <p role="alert" className="text-sm font-medium text-critical">

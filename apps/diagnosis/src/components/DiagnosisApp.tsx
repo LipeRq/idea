@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { track } from "@/lib/analytics";
 import type { DiagnosisInput } from "@/lib/diagnosis/schema";
 import type { DiagnosisResponse } from "@/lib/diagnosis/types";
 import { DiagnosisForm, FORM_ERROR_ID, StepIndicator } from "./DiagnosisForm";
@@ -13,6 +14,11 @@ import {
   type StepError,
 } from "./form-state";
 import { ResultView } from "./ResultView";
+import {
+  TURNSTILE_PENDING_MESSAGE,
+  TURNSTILE_SITE_KEY,
+  TurnstileWidget,
+} from "./TurnstileWidget";
 
 type Phase =
   | { kind: "form"; step: number }
@@ -24,11 +30,16 @@ export function DiagnosisApp() {
   const [form, setForm] = useState<FormState>(initialFormState);
   const [phase, setPhase] = useState<Phase>({ kind: "form", step: 0 });
   const [error, setError] = useState<StepError | null>(null);
+  // ボット対策(Turnstile)のトークン。無効なときは使わない
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   // ステップを移動したら、新しいステップの最初の入力欄にフォーカスを移す
   // (押したボタンが消えるとフォーカスが失われ、キーボード操作では元の位置に戻れないため)
   const focusFirstField = useRef(false);
+  // 計測:開始と各ステップへの到達は、ページを開くたびに1回だけ送る
+  const started = useRef(false);
+  const furthestStep = useRef(0);
 
   useEffect(() => {
     if (phase.kind !== "form" || !focusFirstField.current) return;
@@ -41,7 +52,19 @@ export function DiagnosisApp() {
   const scrollToTop = () =>
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
+  const changeForm = (update: (prev: FormState) => FormState) => {
+    if (!started.current) {
+      started.current = true;
+      track({ name: "diagnosis_start" });
+    }
+    setForm(update);
+  };
+
   const goToStep = (step: number) => {
+    if (step > furthestStep.current) {
+      furthestStep.current = step;
+      track({ name: "diagnosis_step", step: step + 1, stepName: STEPS[step] });
+    }
     setError(null);
     focusFirstField.current = true;
     setPhase({ kind: "form", step });
@@ -53,16 +76,24 @@ export function DiagnosisApp() {
     scrollToTop();
     let message = "通信エラーが発生しました。もう一度お試しください。";
     const input = toDiagnosisInput(form);
+    // トークンは1回しか使えない。失敗して入力画面に戻ったら、新しいウィジェットで取り直す
+    const token = turnstileToken;
+    setTurnstileToken(null);
     try {
       const res = await fetch("/api/diagnose", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "X-Turnstile-Token": token } : {}),
+        },
         body: JSON.stringify(input),
       });
       // タイムアウト時などはJSONでないエラーページが返るので、解析エラーをそのまま見せない
       const body = await res.json().catch(() => null);
       if (res.ok && body) {
-        setPhase({ kind: "result", data: body as DiagnosisResponse, input });
+        const data = body as DiagnosisResponse;
+        setPhase({ kind: "result", data, input });
+        track({ name: "diagnosis_complete", aiGenerated: data.aiGenerated });
         return;
       }
       message = body?.error ?? "診断に失敗しました。時間をおいてもう一度お試しください。";
@@ -80,8 +111,13 @@ export function DiagnosisApp() {
       setError(stepError);
       return;
     }
-    if (step < STEPS.length - 1) goToStep(step + 1);
-    else void submit();
+    if (step < STEPS.length - 1) {
+      goToStep(step + 1);
+    } else if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setError({ message: TURNSTILE_PENDING_MESSAGE, fields: [] });
+    } else {
+      void submit();
+    }
   };
 
   return (
@@ -121,9 +157,13 @@ export function DiagnosisApp() {
           <DiagnosisForm
             step={phase.step}
             form={form}
-            onChange={setForm}
+            onChange={changeForm}
             invalid={new Set(error?.fields)}
           />
+
+          {phase.step === STEPS.length - 1 && (
+            <TurnstileWidget action="diagnose" onTokenChange={setTurnstileToken} />
+          )}
 
           {error && (
             <p id={FORM_ERROR_ID} role="alert" className="text-sm font-medium text-critical">

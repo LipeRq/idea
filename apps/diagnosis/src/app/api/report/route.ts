@@ -24,7 +24,7 @@ const ReportRequestSchema = z.object({
 // 数値は送られてきた結果を使わず、入力から計算し直す。
 // AIの文章は、このサーバーが付けた署名と一致するときだけ使い、それ以外は標準文面にする。
 export async function POST(request: Request) {
-  if (isReportRateLimited(clientKey(request))) {
+  if (await isReportRateLimited(clientKey(request))) {
     return errorResponse(
       429,
       "PDFの作成回数が上限に達しました。しばらく時間をおいてお試しください。",
