@@ -19,12 +19,18 @@ import { createMockClient } from "./mock-client";
 import { checkHourlyLimit } from "./rate-limit";
 
 export const HEARTBEAT_MS = 15_000;
+/** 生成全体の時間の上限。route.ts の maxDuration(300秒)より前に打ち切って、理由を画面に返せるようにする */
+export const AI_DEADLINE_MS = 280_000;
+/** 1回の依頼(SDK の再試行を含む)の時間の上限。SDK の既定(10分×再試行)は関数の上限より長い */
+export const AI_REQUEST_TIMEOUT_MS = 240_000;
 
 export interface AiRouteDeps {
   env?: NodeJS.ProcessEnv;
   now?: () => Date;
   createClient?: (config: AiServerConfig, signal: AbortSignal) => StructuredClient;
   heartbeatMs?: number;
+  /** 外側からの中止。route.ts がリクエストの中止と全体の時間上限(AI_DEADLINE_MS)をまとめて渡す。省略時は request.signal */
+  signal?: AbortSignal;
 }
 
 /** 外側の形だけを画面アプリの zod で確かめる(report はエンジンの zod のスキーマで別に確かめる。2つを1つのスキーマに混ぜない) */
@@ -47,8 +53,12 @@ export function abortableClient(client: StructuredClient, signal: AbortSignal): 
 }
 
 function defaultClient(config: AiServerConfig, signal: AbortSignal): StructuredClient {
-  return config.mode === "mock" ? createMockClient(config.mockDelayMs, signal) : createClaudeClient();
+  return config.mode === "mock"
+    ? createMockClient(config.mockDelayMs, signal)
+    : createClaudeClient(undefined, { signal, requestTimeoutMs: AI_REQUEST_TIMEOUT_MS });
 }
+
+const TIMEOUT_MESSAGE = "AIによる文章の作成が時間内に終わりませんでした。標準の仕様書をお使いいただくか、時間をおいてお試しください。";
 
 /** 画面に返す失敗の理由。想定外の例外のメッセージ(入力の一部を含みうる)は返さない */
 export function safeAiErrorMessage(e: unknown): string {
@@ -155,8 +165,12 @@ function streamGeneration(
   done: (outcome: AiLogEntry["outcome"], extra?: Partial<AiLogEntry>) => void,
 ): Response {
   const abort = new AbortController();
-  const onAbort = () => abort.abort();
-  request.signal?.addEventListener("abort", onAbort);
+  const outer = deps.signal ?? request.signal;
+  const onAbort = () => abort.abort(outer?.reason);
+  if (outer?.aborted) onAbort();
+  else outer?.addEventListener("abort", onAbort);
+  // 全体の時間上限で止まったか(利用者が中止したときは画面に何も返さない)
+  const timedOut = () => (abort.signal.reason as { name?: unknown } | undefined)?.name === "TimeoutError";
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({
@@ -176,14 +190,20 @@ function streamGeneration(
         send({ type: "accepted", batches });
         const client = abortableClient((deps.createClient ?? defaultClient)(config, abort.signal), abort.signal);
         const ai = await generateAiDocument(report, client, { concurrency: 3, onProgress: (message) => send({ type: "progress", message }) });
-        if (abort.signal.aborted) {
+        if (abort.signal.aborted && timedOut()) {
+          send({ type: "error", message: TIMEOUT_MESSAGE });
+          done("ai_error", { errorClass: "TimeoutError" });
+        } else if (abort.signal.aborted) {
           done("aborted");
         } else {
           send({ type: "done", ai: aiDocumentToJson(ai) });
           done("ok");
         }
       } catch (e) {
-        if (abort.signal.aborted || e instanceof AbortedError) {
+        if (abort.signal.aborted && timedOut()) {
+          send({ type: "error", message: TIMEOUT_MESSAGE });
+          done("ai_error", { errorClass: "TimeoutError" });
+        } else if (abort.signal.aborted || e instanceof AbortedError) {
           done("aborted");
         } else {
           send({ type: "error", message: safeAiErrorMessage(e) });
@@ -191,7 +211,7 @@ function streamGeneration(
         }
       } finally {
         clearInterval(heartbeat);
-        request.signal?.removeEventListener("abort", onAbort);
+        outer?.removeEventListener("abort", onAbort);
         open = false;
         try {
           controller.close();

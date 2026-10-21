@@ -1,4 +1,4 @@
-import { clientKey } from "./http";
+import { clientKey, SHARED_CLIENT_KEY } from "./http";
 
 // Cloudflare Turnstile(ボット対策)のサーバー側の検証。
 // サイトキー(NEXT_PUBLIC_TURNSTILE_SITE_KEY)とシークレット(TURNSTILE_SECRET_KEY)の両方があるときだけ有効。
@@ -97,11 +97,11 @@ export async function isHumanRequest(
 ): Promise<boolean> {
   const secret = turnstileSecret(env);
   if (!secret) return true;
-  const ip = clientKey(request);
+  const ip = clientKey(request, env);
   return verifyTurnstileToken(request.headers.get(TURNSTILE_HEADER), {
     secret,
     action,
-    remoteIp: ip === "unknown" ? undefined : ip,
+    remoteIp: ip === SHARED_CLIENT_KEY ? undefined : ip,
   });
 }
 

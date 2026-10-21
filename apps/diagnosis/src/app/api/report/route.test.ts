@@ -45,6 +45,9 @@ async function pdfOf(res: Response) {
 }
 
 beforeEach(() => {
+  // 送信元ごとの回数制限を x-forwarded-for で確かめるため、手前のプロキシを信用する設定にする(src/lib/http.ts の clientKey)
+  vi.stubEnv("VERCEL", "");
+  vi.stubEnv("DIAGNOSIS_TRUST_PROXY", "true");
   vi.stubEnv("REPORT_SIGNING_SECRET", "test-secret");
   vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
   vi.stubEnv("KV_REST_API_URL", "");

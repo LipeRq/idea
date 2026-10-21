@@ -4,6 +4,7 @@ import { calculateDiagnosis } from "@/lib/diagnosis/calculate";
 import { buildFallbackReport } from "@/lib/diagnosis/fallback";
 import { AiReportSchema, DiagnosisInputSchema } from "@/lib/diagnosis/schema";
 import { clientKey, errorResponse, parseJson, readBodyText } from "@/lib/http";
+import { logError } from "@/lib/log";
 import { isReportRateLimited } from "@/lib/rate-limit";
 import { reportFileName } from "@/lib/report/file-name";
 import { renderReportPdf } from "@/lib/report/pdf";
@@ -68,7 +69,8 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("PDFレポートの作成に失敗しました", error);
+    // 例外は種類とステータスだけを残す(メッセージに会社名などの入力内容が含まれることがあるため)
+    logError("PDFレポートの作成に失敗しました", error);
     return errorResponse(500, "PDFの作成に失敗しました。時間をおいてもう一度お試しください。");
   }
 }

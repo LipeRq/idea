@@ -144,7 +144,7 @@ CSP で止まらないもの(正直に書いておく): ブラウザの拡張機
 1. プロジェクトのルートディレクトリを `apps/inventory-web` にし、「ルートディレクトリ外のファイルをビルドに含める」を有効にする(解析エンジン `apps/inventory` を使うため。`next.config.ts` で Turbopack とファイルトレースのルートを `apps/` にしています)。
 2. インストールコマンド: `npm ci && npm ci --prefix ../inventory`。ビルドコマンドは既定(`npm run build`。前処理で Worker のバンドルとサンプルを用意)。
 3. 環境変数を設定する(上の表)。AI 版を使うなら `INVENTORY_AI_MODE=claude`・`ANTHROPIC_API_KEY`・`INVENTORY_AI_ACCESS_CODE`・Upstash を設定。`NEXT_PUBLIC_*` を変えたらビルドし直す。
-4. `maxDuration` は 300 秒にしています(`src/app/api/ai-document/route.ts`)。大きなファイルで統合に時間がかかる場合は、プランの上限に合わせて調整する。
+4. `maxDuration` は 300 秒にしています(`src/app/api/ai-document/route.ts`)。生成全体はその手前の 280 秒(`AI_DEADLINE_MS`)、1回の依頼は 240 秒(`AI_REQUEST_TIMEOUT_MS`)で打ち切り、画面に理由を返します(`src/lib/server/ai-document.ts`)。大きなファイルで統合に時間がかかる場合は、プランの上限に合わせて3つをそろえて調整する。
 
 ### 公開前チェック
 

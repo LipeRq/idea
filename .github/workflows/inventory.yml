@@ -1,0 +1,82 @@
+# Excel/VBA・Access 棚卸しツールの解析エンジン・CLI(apps/inventory)の型チェック・単体テスト・ブラウザでの動作確認。
+# apps/inventory 配下(とこのファイル)が変わったときだけ動く。外部サービスには接続しない(Claude API はテストでモック)。
+name: inventory
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/inventory/**"
+      - ".github/workflows/inventory.yml"
+  pull_request:
+    paths:
+      - "apps/inventory/**"
+      - ".github/workflows/inventory.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 同じブランチに続けて push したら、古い実行は止める
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: 型チェック・テスト・ブラウザでの確認
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/inventory
+    env:
+      # APIキーは渡さない(テストは SDK をモックし、実際の API は呼ばない)
+      ANTHROPIC_API_KEY: ""
+      # ブラウザでの確認(scripts/browser-check.ts)が使う Playwright。apps/inventory-web と同じ版
+      PLAYWRIGHT_VERSION: "1.56.1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # engines.node は ">=22" なので、Node 22 に固定する
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/inventory/package-lock.json
+
+      - name: 依存関係のインストール
+        run: npm ci
+
+      - name: 型チェック
+        run: npm run typecheck
+
+      - name: 単体テスト
+        run: npm test
+
+      - name: ブラウザ用バンドルのビルド
+        run: npm run build:browser
+
+      # browser-check.ts は playwright をローカルか npm のグローバルから読み込む(package.json の依存には入れていない)
+      - name: Playwright のインストール
+        run: npm install --global "playwright@${PLAYWRIGHT_VERSION}"
+
+      - name: Playwright のブラウザのキャッシュ
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ env.PLAYWRIGHT_VERSION }}
+
+      - name: Playwright のブラウザをインストール
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: playwright install --with-deps chromium
+
+      - name: Playwright のブラウザが使うライブラリをインストール
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: playwright install-deps chromium
+
+      - name: ブラウザでの動作確認
+        run: npm run test:browser

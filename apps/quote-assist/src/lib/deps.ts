@@ -1,5 +1,6 @@
 import path from "node:path";
 import { hasAnthropicCredentials } from "./ai/client";
+import { aiDailyLimitFromEnv, createAiQuota, type AiQuota } from "./ai/quota";
 import { createCrmConnector } from "./crm";
 import type { CrmConnector } from "./crm/types";
 import { loadReferenceData, type ReferenceData } from "./reference/load";
@@ -17,6 +18,8 @@ export type Deps = {
   reference: () => Promise<ReferenceData>;
   /** AIの処理場所。"anthropic" は Claude API、"demo" は合成データ用の固定結果 */
   aiMode: "anthropic" | "demo";
+  /** AI の呼び出しの1日の上限(QUOTE_ASSIST_AI_DAILY_LIMIT) */
+  aiQuota: AiQuota;
   crm: CrmConnector;
   now: () => Date;
 };
@@ -45,12 +48,21 @@ function getStorage(): Storage {
   return storage;
 }
 
+let aiQuota: AiQuota | null = null;
+
+function getAiQuota(): AiQuota {
+  const limit = aiDailyLimitFromEnv();
+  if (!aiQuota || aiQuota.limit !== limit) aiQuota = createAiQuota(limit);
+  return aiQuota;
+}
+
 export function getDeps(): Deps {
   const s = getStorage();
   return {
     storage: s,
     reference: () => loadReferenceData(),
     aiMode: aiModeFromEnv(),
+    aiQuota: getAiQuota(),
     crm: createCrmConnector(s.mockCrm),
     now: () => new Date(),
   };

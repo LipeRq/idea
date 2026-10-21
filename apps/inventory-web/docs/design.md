@@ -303,7 +303,7 @@ interface Derived {
 
 【反映 F04】GET の先頭で `await connection()`(`next/server`)を呼ぶ。Cache Components 有効時、実行時のデータに触れない GET はビルド時に事前生成されて値が固定されるため。E2E で 3410 は `available: false`、3411 は `mode: "mock"`、3412 は `mode: "claude"` になることを確かめる。【反映 F07】`claude` は API キーに加えて**アクセスコードが既定で必須**(匿名で公開するときだけ `INVENTORY_AI_ALLOW_ANONYMOUS=true`)。Vercel 上(または `INVENTORY_AI_REQUIRE_SHARED_STORE=true`)で共有ストアが無いときは `claude` を無効にし、共有ストアに接続できないときも受け付けない(フェイルクローズ)。1日の上限は回数に加えて推定入力トークン(`INVENTORY_AI_DAILY_INPUT_TOKENS`、既定 200万)でも数える。読み取れない設定値は 0(停止)として扱う。`maxDuration` は 300(デプロイ先の上限に合わせて調整)。
 
-**有効化**: `INVENTORY_AI_MODE`(`off` 既定 / `claude` / `mock`)。`claude` は `ANTHROPIC_API_KEY`(または `ANTHROPIC_AUTH_TOKEN`。エンジンの `hasAnthropicCredentials()`)がそろったときだけ有効。`mock` は E2E・デモ用の固定文章(§4.6)。`maxDuration = 800`(デプロイ先の上限に合わせて調整)。
+**有効化**: `INVENTORY_AI_MODE`(`off` 既定 / `claude` / `mock`)。`claude` は `ANTHROPIC_API_KEY`(または `ANTHROPIC_AUTH_TOKEN`。エンジンの `hasAnthropicCredentials()`)がそろったときだけ有効。`mock` は E2E・デモ用の固定文章(§4.6)。`maxDuration = 300`(デプロイ先の上限に合わせて調整)。生成全体は `AI_DEADLINE_MS`(280秒)で、1回の依頼は `AI_REQUEST_TIMEOUT_MS`(240秒)で打ち切る(route.ts が `AbortSignal.any([request.signal, AbortSignal.timeout(...)])` を渡す)。
 
 **GET**: 上の利用可否を返す(本文に秘密を含めない)。
 
@@ -541,7 +541,7 @@ apps/inventory-web/
 
 - dependencies: `next` 16.4.2、`react` / `react-dom` 19.3.0、`zod` ^4.6.7(画面アプリ自身の検証用。エンジンのスキーマと混ぜない)、`mermaid` 12.2.0、`markdown-it` 15.0.3、`dompurify` 3.4.17(いずれも `^` なし。実装時に最新の安定版を確認)
 - devDependencies: 兄弟アプリと同じ(`@playwright/test` 1.56.1 固定、tailwind v4、eslint、vitest、typescript)+ `esbuild`(エンジンと同じ版)、`@types/markdown-it`
-- scripts: `"dev": "next dev -p 3400"`、`"start": "next start -p 3401"`、`"build": "next build"`、`predev` / `prebuild` / `pretypecheck`: `node scripts/prepare.mjs`、`"build:worker"`、`"dev:worker"`(esbuild の watch。エンジンを直しながら開発するとき)、`lint` / `test` / `test:e2e` / `typecheck`
+- scripts: `"dev": "next dev -p 3400"`、`"start": "next start -p 3401"`、`"build": "next build"`、`predev` / `prebuild`: `node scripts/prepare.mjs`(`pretest` / `pretypecheck` は置かない。単体テストと型検査は生成物に依存しない。F19)、`"build:worker"`、`"dev:worker"`(esbuild の watch。エンジンを直しながら開発するとき)、`lint` / `test` / `test:e2e` / `typecheck`
 - ポート: 開発 3400、手元の本番起動 3401、E2E 3410〜3412
 
 | 環境変数 | 既定 | 内容 |

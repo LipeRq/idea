@@ -4,6 +4,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { createAiQuota } from "../src/lib/ai/quota";
 import { createMockSalesforce } from "../src/lib/crm/mock";
 import { todayJst } from "../src/lib/dates";
 import { DEMO_SCENARIOS } from "../src/lib/demo/scenarios";
@@ -22,6 +23,8 @@ async function main() {
     reference: () => loadReferenceData(),
     aiMode,
     crm: createMockSalesforce(storage.mockCrm),
+    // 評価は件数が決まっているので、1日の上限では止めない
+    aiQuota: createAiQuota(Number.MAX_SAFE_INTEGER),
     now: () => new Date(),
   };
   console.log(`方式:${aiMode === "anthropic" ? "Claude API" : "デモモード(固定結果。精度は100%になる)"}\n`);

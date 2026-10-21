@@ -1,7 +1,7 @@
 // AI 版の受付。処理の中身は src/lib/server/ai-document.ts(単体テストはそちらを直接呼ぶ)。
 import { connection } from "next/server";
 import { aiConfigFromEnv, aiStatusBody } from "@/lib/server/ai-config";
-import { handleAiDocumentPost } from "@/lib/server/ai-document";
+import { AI_DEADLINE_MS, handleAiDocumentPost } from "@/lib/server/ai-document";
 import { NO_STORE } from "@/lib/server/http";
 
 // 生成には数分かかることがある(要約の依頼を並べて出し、最後に全体を統合する)。デプロイ先の上限に合わせて調整する
@@ -15,5 +15,6 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  return handleAiDocumentPost(request);
+  // 利用者の中止と、maxDuration より前の全体の上限(AI_DEADLINE_MS)のどちらかで AI への依頼を止める
+  return handleAiDocumentPost(request, { signal: AbortSignal.any([request.signal, AbortSignal.timeout(AI_DEADLINE_MS)]) });
 }

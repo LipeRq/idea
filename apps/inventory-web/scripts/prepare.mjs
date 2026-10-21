@@ -1,4 +1,4 @@
-// 開発・ビルド・テストの前の準備(predev / prebuild / pretest / pretypecheck)。
+// 開発・ビルドの前の準備(package.json の predev / prebuild から呼ぶ。単体テスト・型検査の前には不要で、pretest / pretypecheck は置いていない)。
 // 1. 解析エンジン(apps/inventory)の依存が入っていなければ npm ci する(Worker のバンドルとサーバーの AI ルートが使う)
 // 2. 解析 Worker のバンドルを作る(public/engine/、src/generated/engine-asset.json)
 // 3. サンプルを取り込む(public/samples/、src/generated/samples.json)

@@ -196,6 +196,14 @@ describe("生成", () => {
     expect(calls).toBe(1);
   });
 
+  it("全体の時間上限(外から渡す signal)で止まったら、理由を返して打ち切る", async () => {
+    const deps: AiRouteDeps = { signal: AbortSignal.timeout(20), createClient: (_c, signal) => createMockClient(500, signal) };
+    const list = await events(await call(post(validBody), {}, deps));
+    const last = list.at(-1);
+    expect(last?.type).toBe("error");
+    expect(String(last?.message)).toContain("時間内に終わりませんでした");
+  });
+
   it("無通信で切られないよう heartbeat を送る", async () => {
     const slow: AiRouteDeps = { heartbeatMs: 5, createClient: (_c, signal) => createMockClient(40, signal) };
     const list = await events(await call(post(validBody), {}, slow));

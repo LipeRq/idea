@@ -34,6 +34,9 @@ function webhookPayloads(fetchMock: { mock: { calls: unknown[][] } }) {
 }
 
 beforeEach(() => {
+  // 送信元ごとの回数制限を x-forwarded-for で確かめるため、手前のプロキシを信用する設定にする(src/lib/http.ts の clientKey)
+  vi.stubEnv("VERCEL", "");
+  vi.stubEnv("DIAGNOSIS_TRUST_PROXY", "true");
   // 実際の送信はしない。Webhook の送信先を設定し、fetch をモックする
   vi.stubEnv("SALESFORCE_ORG_ID", "");
   vi.stubEnv("LEAD_WEBHOOK_URL", WEBHOOK_URL);

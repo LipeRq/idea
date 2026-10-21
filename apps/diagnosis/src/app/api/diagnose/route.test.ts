@@ -57,6 +57,9 @@ const postJson = (value: unknown, headers?: Record<string, string>) =>
   post(JSON.stringify(value), headers);
 
 beforeEach(() => {
+  // 送信元ごとの回数制限を x-forwarded-for で確かめるため、手前のプロキシを信用する設定にする(src/lib/http.ts の clientKey)
+  vi.stubEnv("VERCEL", "");
+  vi.stubEnv("DIAGNOSIS_TRUST_PROXY", "true");
   vi.stubEnv("ANTHROPIC_API_KEY", "");
   vi.stubEnv("ANTHROPIC_AUTH_TOKEN", "");
   // 手元の設定に左右されないよう、共有ストア・ボット対策・AIの上限は無効から始める

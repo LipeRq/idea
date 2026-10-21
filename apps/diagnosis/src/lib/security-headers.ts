@@ -64,6 +64,8 @@ export function securityHeaders(options: SecurityHeaderOptions): { key: string; 
     { key: "X-Frame-Options", value: "DENY" },
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
     { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+    // 別のオリジンから window.open されたときに、開いた側からこのページを操作させない
+    { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
     // HTTPS で配信したときだけブラウザが従う(localhost の http では無視される)
     { key: "Strict-Transport-Security", value: "max-age=63072000" },
   ];

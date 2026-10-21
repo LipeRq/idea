@@ -121,6 +121,15 @@ export function validateUpload(files: UploadedFile[], body: string) {
   if (files.length === 0 && body.trim() === "") throw new PipelineError("メール本文か図面のどちらかを入力してください", 400);
 }
 
+const AI_DAILY_LIMIT_MESSAGE = "本日のAIの利用上限に達したため、AIによる読み取りをしていません。各項目を手入力するか、明日以降に登録し直してください。";
+
+/** AI の1日の上限から1回分を確保する。上限に達していたら記録して false */
+function reserveAi(deps: Deps, step: "extract" | "estimate", now: Date): boolean {
+  if (deps.aiQuota.reserve(now)) return true;
+  logEvent("ai.daily_limit", { step, limit: deps.aiQuota.limit });
+  return false;
+}
+
 export async function registerInquiry(
   deps: Deps,
   input: { email: { from: string; subject: string; body: string }; files: UploadedFile[] },
@@ -156,7 +165,12 @@ export async function registerInquiry(
   let error: string | null = null;
   let start = performance.now();
   let extractMetric: StepMetric;
-  if (deps.aiMode === "anthropic") {
+  if (deps.aiMode === "anthropic" && !reserveAi(deps, "extract", now)) {
+    output = emptyExtraction("本日のAIの利用上限に達したため、AIによる読み取りをしていません。各項目を手入力してください。");
+    mode = "failed";
+    error = AI_DAILY_LIMIT_MESSAGE;
+    extractMetric = metric("extract", "ai", elapsed(start), now);
+  } else if (deps.aiMode === "anthropic") {
     try {
       const r = await extractWithClaude({
         drawings: input.files.map((f, i) => ({ fileName: drawings[i].fileName, data: f.data })),
@@ -304,7 +318,10 @@ async function runEstimateNow(deps: Deps, id: string): Promise<Inquiry> {
   let risks: string[] = [];
   let memo = "類似案件の実績工数を類似度で加重平均した工数案です(AIは使っていません)。";
   let estimateMetric = metric("estimate", "fallback", 0, now);
-  if (deps.aiMode === "anthropic" && candidates.length > 0) {
+  if (deps.aiMode === "anthropic" && candidates.length > 0 && !reserveAi(deps, "estimate", now)) {
+    memo = "本日のAIの利用上限に達したため、類似案件の実績工数を類似度で加重平均した工数案にしています(AIは使っていません)。";
+    estimateMetric = metric("estimate", "fallback", elapsed(start), now);
+  } else if (deps.aiMode === "anthropic" && candidates.length > 0) {
     try {
       const r = await estimateWithClaude({ spec, candidates, cases: ref.cases, defects: ref.defects, rates: ref.rates, fallback });
       if (r.result.processes.length > 0) {

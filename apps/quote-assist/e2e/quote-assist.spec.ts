@@ -49,6 +49,10 @@ test("引き合い登録 → 抽出結果 → 類似案件 → 見積修正 → 
   const href = await fieldRow(page, "材質").getByRole("link", { name: "MS-24017_C_1.pdf p.1" }).getAttribute("href");
   const pdf = await request.get(href!);
   expect(pdf.headers()["content-type"]).toBe("application/pdf");
+  // ブラウザの PDF ビューアーでそのまま開けるよう、ページ用の CSP は付けない
+  expect(pdf.headers()["content-disposition"]).toMatch(/^inline;/);
+  expect(pdf.headers()["content-security-policy"]).toBeUndefined();
+  expect(pdf.headers()["x-content-type-options"]).toBe("nosniff");
   expect((await pdf.body()).subarray(0, 5).toString()).toBe("%PDF-");
   expect(await findLowContrastText(page)).toEqual([]);
 
@@ -184,6 +188,24 @@ test("情報不足の引き合い:確認事項を出し、人が修正すると�
   expect((await res.json()).error).toContain("承認されていません");
   await page.goto(`/inquiries/${id}/crm`);
   await expect(page.getByText("見積が承認されていません")).toBeVisible();
+});
+
+test("本番ビルドは Basic 認証なしでは 401。ページにはセキュリティヘッダーを付ける", async ({ request, baseURL }) => {
+  // playwright.request.newContext は設定(use)の httpCredentials を引き継ぐので、認証なしの確認には fetch を使う
+  for (const url of ["/", "/api/inquiries", "/samples/MS-24017_C_1.pdf"]) {
+    const res = await fetch(new URL(url, baseURL), { redirect: "manual" });
+    expect(res.status, url).toBe(401);
+    expect(res.headers.get("www-authenticate"), url).toContain("Basic");
+  }
+  const wrong = await fetch(new URL("/", baseURL), { headers: { authorization: `Basic ${Buffer.from("e2e:wrong").toString("base64")}` } });
+  expect(wrong.status).toBe(401);
+  const res = await request.get("/");
+  expect(res.status()).toBe(200);
+  const headers = res.headers();
+  expect(headers["content-security-policy"]).toContain("frame-ancestors 'none'");
+  expect(headers["x-frame-options"]).toBe("DENY");
+  expect(headers["cross-origin-opener-policy"]).toBe("same-origin");
+  expect(headers["x-powered-by"]).toBeUndefined();
 });
 
 test("PDF以外のファイルと空の登録は受け付けない", async ({ page, request }) => {

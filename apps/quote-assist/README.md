@@ -1,5 +1,7 @@
 # 見積アシスト(製造業向け 引き合い対応・見積作成エージェント)MVP
 
+> **認証なしのMVPです。社外(インターネット)に公開しないでください。** 公開する場合は Basic 認証(`QUOTE_ASSIST_BASIC_AUTH_USER` / `QUOTE_ASSIST_BASIC_AUTH_PASSWORD`)の設定が必須です。本番ビルド(`next start`・`NODE_ENV=production`)は、その設定がないとすべてのリクエストを 401 にします(`src/proxy.ts`)。
+
 部品加工(切削・板金)の単品〜小ロット見積を対象に、引き合いメールと2D図面PDFから要件と確認事項を整理し、過去の類似案件と単価表をもとに見積根拠・見積書案・回答メール案を作り、承認後にSalesforceへ商談と見積を登録します。
 
 - **読み取りと文章はAI(Claude)、計算と判定はプログラム、最終決定と送信は人。** 金額はAIに決めさせず、単価表と工数から TypeScript で計算します。
@@ -13,19 +15,19 @@
 cd apps/quote-assist
 npm install
 cp .env.example .env.local   # ANTHROPIC_API_KEY を設定(未設定でもデモモードで全画面が動く)
-npm run dev                  # http://localhost:3000
+npm run dev                  # http://localhost:3300
 ```
 
 | コマンド | 内容 |
 |---|---|
 | `npm test` | 単体テスト(vitest。Claude API は SDK をモックし、実際には呼ばない) |
-| `npm run test:e2e` | 操作テスト(Playwright。本番ビルドを3310番ポートで起動し、デモモード・モックのSalesforceで確認) |
+| `npm run test:e2e` | 操作テスト(Playwright。本番ビルドを3310番ポートで、E2E用の Basic 認証をつけて起動し、デモモード・モックのSalesforceで確認) |
 | `npm run typecheck` / `npm run lint` / `npm run build` | 型チェック / ESLint / 本番ビルド |
 | `npm run generate-data` | 合成データ(`data/*.json`)とデモ用図面PDF(`public/samples/`)を作り直す(乱数の種は固定) |
 | `npm run eval` | デモ用の引き合い3件を読み取り、正解ラベルと照合して、項目の正解率・確認事項の再現率・処理時間・トークン数・概算費用を表示 |
 | `npm run demo:record` | 5分デモの台本([docs/manufacturing/demo/demo-script.md](../../docs/manufacturing/demo/demo-script.md))どおりに画面を自動操作し、スクリーンショット(`docs/manufacturing/demo/screens/`)と録画(`demo-output/`、git管理外)を作る。デモモード・一時ディレクトリの保存先で3530番ポートに起動する(`--no-build` `--only=screens|video` `--pace=1.5` `--port=35xx`) |
 
-E2E はプリインストール済みのブラウザを使います(`PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers npm run test:e2e`。`playwright install` は不要)。
+E2E には Playwright の Chromium が必要です(初回は `npx playwright install chromium`。ブラウザを別の場所に入れてある環境では `PLAYWRIGHT_BROWSERS_PATH=<ブラウザのディレクトリ> npm run test:e2e`)。
 
 ## デモの流れ(5分、use-cases.md 5.6)
 
@@ -54,6 +56,9 @@ E2E はプリインストール済みのブラウザを使います(`PLAYWRIGHT_
 | `QUOTE_ASSIST_REFERENCE_DIR` | 単価表・顧客・過去案件などのディレクトリ | `data/` |
 | `CRM_PROVIDER` | `mock` で常にモック | 自動 |
 | `SF_INSTANCE_URL` / `SF_CLIENT_ID` / `SF_CLIENT_SECRET` | 3つそろったときだけ本番の Salesforce REST API を使う | なし(モック) |
+| `QUOTE_ASSIST_BASIC_AUTH_USER` / `QUOTE_ASSIST_BASIC_AUTH_PASSWORD` | 両方そろえば全ページ・APIに Basic 認証を求める。**本番ビルドではどちらかが欠けると全リクエストが 401** | なし |
+| `QUOTE_ASSIST_ALLOW_NO_AUTH` | `true` で、本番ビルドでも認証なしで動かす(社内ネットワークだけ・前段の別の認証で守るとき・デモ録画。社外公開では使わない) | なし |
+| `QUOTE_ASSIST_AI_DAILY_LIMIT` | Claude API の呼び出しの1日(日本時間)の上限回数。読み取りと工数案をそれぞれ1回と数える。超えたら読み取りは手入力、工数案は類似実績からの計算になる。`0` で AI を使わない(読み取れない値も `0` 扱い)。プロセスのメモリで数えるので再起動で数え直す | 200 |
 | `SF_API_VERSION` / `SF_OPPORTUNITY_STAGE` | API版、作成する商談のフェーズ | `v62.0` / `Proposal/Price Quote` |
 
 Salesforce の本番接続を使うには、接続アプリケーションでクライアントクレデンシャルフローを有効にして実行ユーザーを設定し、組織で見積(Quote)を有効にしておきます。顧客マスタの `salesforceAccountId` に取引先のIDを入れると商談に紐づきます。
@@ -108,7 +113,7 @@ npm run generate-data
 
 ## 制約・未実装
 
-- **認証・権限管理はありません。** 手元やデモでの利用を前提にしています。社外に公開する場合は前段にSSOかBasic認証を置いてください。
+- **利用者ごとの認証・権限管理はありません。** 手元やデモ・社内での利用を前提にしています。社外に公開しないでください。公開する場合は Basic 認証(上の環境変数)が必須で、できれば前段に SSO を置いてください。誤公開の歯止めとして、本番ビルドは Basic 認証の設定がないと全リクエストを 401 にし(`QUOTE_ASSIST_ALLOW_NO_AUTH=true` で明示的に解除)、AI の呼び出しには1日の上限があります。ページには CSP などのセキュリティヘッダーを付けています(`src/lib/security-headers.ts`。図面PDFの表示は CSP の対象外)。
 - デモモードの読み取り結果は、サンプル図面(ファイル名かメール中の図番で判定)に対する固定結果です。それ以外の図面は全項目が「不足」になり、手入力で進めます。
 - 実際の Claude API での抽出精度・処理時間・費用は、この環境(APIキーなし)では未計測です。`npm run eval` で計測できます。
 - Salesforce の本番実装(REST・Composite API)は、fetch をモックした単体テストのみで、実際の組織への接続は未検証です。見積品目(QuoteLineItem)は作らず、明細は見積の説明欄に入れています。

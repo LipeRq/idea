@@ -112,7 +112,7 @@ git diff --quiet ${VERCEL_GIT_PREVIOUS_SHA:-HEAD^} HEAD -- .
 | 最長の実行時間 | コードで指定済み(診断120秒、PDF・申し込み30秒) | AIは100秒で打ち切り、標準レポートで返す |
 
 - **フォントの同梱**:PDFの日本語フォント(`assets/fonts/*.ttf`)は `next.config.ts` の `outputFileTracingIncludes` でサーバーの成果物に含めています。OGP画像はビルド時に作られます。追加の設定は要りません(公開後の確認 8-3 でPDFが作れることを確かめます)。
-- **送信元IP**:回数制限は `x-forwarded-for` の先頭で数えます。Vercel はこのヘッダーを付け直すので偽装できません。Vercel 以外で動かすときは、このヘッダーを付け直すリバースプロキシの後ろに置いてください。
+- **送信元IP**:回数制限の送信元は、Vercel 上では Vercel が付ける `x-vercel-forwarded-for` で数えます(利用者が送った値は Vercel が上書きするので偽装できません。設定は不要です)。Vercel 以外で動かすときは、信頼できるリバースプロキシを1段だけ手前に置いて `DIAGNOSIS_TRUST_PROXY=true` にすると、`x-forwarded-for` の末尾(そのプロキシが付けた値)で数えます。どちらでもないとき(`next start` を直接公開しているなど)は、偽装できるヘッダーは使わず全員で1つの枠を共有します(回数制限が全体の上限として効きます)。
 - **費用の上限(Vercel)**:「Settings → Billing → Spend Management」で月の上限と通知を設定しておくと、アクセスが急増したときの請求を抑えられます。
 
 ## 4. AIの1日の上限を決める
@@ -146,6 +146,7 @@ Vercel の「Settings → Environment Variables」で登録します。秘密の
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 なら必須 | `G-XXXXXXXXXX` |
 | `NEXT_PUBLIC_CONTACT_URL` | 任意 | 外部の問い合わせ窓口のURL |
 | `RATE_LIMIT_DIAGNOSE_PER_HOUR` ほか | 任意 | 回数制限を変えるとき(既定:診断5・PDF30・申し込み5) |
+| `DIAGNOSIS_TRUST_PROXY` | Vercel では不要 | Vercel 以外で、信頼できるリバースプロキシの後ろに置くときだけ `true`(`x-forwarded-for` の末尾を送信元にする) |
 
 `LEAD_LOG_ONLY` は本番には入れません(入れると申し込みがログに出るだけで、どこにも届きません)。
 

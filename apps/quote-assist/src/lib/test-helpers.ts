@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { createAiQuota } from "./ai/quota";
 import { loadReferenceData } from "./reference/load";
 import { createMockSalesforce } from "./crm/mock";
 import type { Deps } from "./deps";
@@ -20,6 +21,7 @@ export function testDeps(overrides: Partial<Deps> = {}): Deps {
     storage,
     reference: () => loadReferenceData(DATA_DIR),
     aiMode: "demo",
+    aiQuota: createAiQuota(1000),
     crm: createMockSalesforce(storage.mockCrm),
     now: () => new Date("2026-10-19T01:00:00Z"),
     ...overrides,

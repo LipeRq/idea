@@ -1,6 +1,7 @@
 // Claude による解説文の生成。モジュール単位で要約(map)してから、全体の仕様書の文章に統合(reduce)する。
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
+import type { BetaContentBlock } from "@anthropic-ai/sdk/resources/beta/messages/messages";
 import type { z } from "zod";
 import {
   ENTRY_POINT_KIND_LABEL,
@@ -47,23 +48,83 @@ export function hasAnthropicCredentials(): boolean {
   return Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
 }
 
-export function createClaudeClient(anthropic: Anthropic = new Anthropic()): StructuredClient {
+export interface ClaudeClientOptions {
+  /** 外側から中止する信号(Web の受付ではリクエストの中止・全体の時間上限) */
+  signal?: AbortSignal;
+  /** 1回の依頼(SDK の再試行を含む)の時間の上限(ミリ秒) */
+  requestTimeoutMs?: number;
+}
+
+/** 1回の依頼の時間の既定の上限。SDK の既定(10分×再試行)では長すぎるため、出力上限 32,000 トークンに見合う長さにする */
+export const DEFAULT_REQUEST_TIMEOUT_MS = 8 * 60_000;
+
+/**
+ * 構造化出力の形式。スキーマだけを渡し、解析は parseStructuredOutput で行う。
+ * parse つきの形式(betaZodOutputFormat そのもの)を渡すと、SDK がテキストブロックを1つずつ解析するため、
+ * 生成の途中でサーバー側フォールバックが起きた応答では、途中までの文の解析で例外になり、
+ * 切り替え後のモデルが書いた正しい出力まで失われる(出力上限・辞退の判定より先に例外になる)。
+ */
+export function jsonSchemaFormat(schema: z.ZodType) {
+  return { type: "json_schema" as const, schema: betaZodOutputFormat(schema).schema };
+}
+
+/**
+ * 応答の本文から構造化出力(JSON)を取り出し、zod で検証する。取り出せなければ null。
+ *
+ * 生成の途中でフォールバックが起きると、content は [途中までの text, fallback, 切り替え後の text] になる
+ * (ストリーミングでは途中までの文も残る)。切り替え後のモデルは途中までの文を続きの文脈として受け取るので、
+ * 最後の fallback より後の text だけで完結する場合を優先し、次に前の区切りからつなげた場合を試す。
+ */
+export function parseStructuredOutput<T>(content: readonly BetaContentBlock[], schema: z.ZodType<T>): T | null {
+  const starts = [...content.flatMap((b, i) => (b.type === "fallback" ? [i + 1] : [])).reverse(), 0];
+  const textFrom = (start: number) => content.slice(start).flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
+  for (const text of new Set(starts.map(textFrom))) {
+    let json: unknown;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      continue;
+    }
+    const parsed = schema.safeParse(json);
+    if (parsed.success) return parsed.data;
+  }
+  return null;
+}
+
+export function createClaudeClient(anthropic: Anthropic = new Anthropic(), options: ClaudeClientOptions = {}): StructuredClient {
+  const requestTimeoutMs = options.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS;
   return {
     async generate<S extends z.ZodType>(req: StructuredRequest<S>): Promise<z.infer<S>> {
-      const stream = anthropic.beta.messages.stream({
-        model: MODEL,
-        max_tokens: req.maxTokens,
-        betas: ["server-side-fallback-2026-07-01"],
-        fallbacks: "default",
-        output_config: { effort: req.effort, format: betaZodOutputFormat(req.schema) },
-        system: req.system,
-        messages: [{ role: "user", content: req.user }],
-      });
-      const message = await stream.finalMessage();
+      const timeout = AbortSignal.timeout(requestTimeoutMs);
+      const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
+      const stream = anthropic.beta.messages.stream(
+        {
+          model: MODEL,
+          max_tokens: req.maxTokens,
+          betas: ["server-side-fallback-2026-07-01"],
+          fallbacks: "default",
+          output_config: { effort: req.effort, format: jsonSchemaFormat(req.schema) },
+          system: req.system,
+          messages: [{ role: "user", content: req.user }],
+        },
+        { signal },
+      );
+      let message: Awaited<ReturnType<typeof stream.finalMessage>>;
+      try {
+        message = await stream.finalMessage();
+      } catch (e) {
+        // 1回の依頼の上限で止めたときは、SDK の中止の例外ではなく分かる理由にする(外側から中止されたときはそのまま投げる)
+        if (timeout.aborted && !options.signal?.aborted) {
+          throw new AiGenerationError(`AIの応答が時間内(${Math.round(requestTimeoutMs / 1000)}秒)に終わりませんでした`);
+        }
+        throw e;
+      }
+      // stop_reason を先に見る(フォールバック先も辞退した・出力上限で途中切れ、のときは途中までの文を使わない)
       if (message.stop_reason === "refusal") throw new AiGenerationError("AIが文章の生成を辞退しました");
       if (message.stop_reason === "max_tokens") throw new AiGenerationError("AIの出力が上限に達しました");
-      if (!message.parsed_output) throw new AiGenerationError("AIの出力を解析できませんでした");
-      return message.parsed_output as z.infer<S>;
+      const output = parseStructuredOutput(message.content, req.schema);
+      if (output === null) throw new AiGenerationError("AIの出力を解析できませんでした");
+      return output as z.infer<S>;
     },
   };
 }

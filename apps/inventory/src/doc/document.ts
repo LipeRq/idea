@@ -30,6 +30,7 @@ export async function generateDocument(
 export function describeAiError(e: unknown): string {
   if (e instanceof Anthropic.AuthenticationError) return "APIキーが無効です";
   if (e instanceof Anthropic.RateLimitError) return "APIの利用上限に達しました。時間をおいて再実行してください";
+  if (e instanceof Anthropic.APIUserAbortError) return "AIによる文章生成を中止しました(時間の上限に達したか、中止されました)";
   if (e instanceof Anthropic.APIConnectionError) return "APIに接続できませんでした";
   if (e instanceof Anthropic.APIError) return `APIエラー(${e.status ?? "不明"}): ${e.message}`;
   return e instanceof Error ? e.message : String(e);

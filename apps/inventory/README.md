@@ -161,7 +161,9 @@ AI の呼び出しは `StructuredClient` インターフェースの裏に隠し
 - **事実は機械的に、文章は AI に**: 件数・行数・依存の有無・リスクの検出・表・図の構文はすべて抽出結果から作ります。AI(構造化出力)には概要、業務フロー(ステップの一覧として返させ、Mermaid はこちらで組み立てる)、リスク評価、移行先候補と難易度、ヒアリング事項、モジュール・プロシージャの要約だけを書かせます。
 - **map → reduce**: まずモジュール単位でソースを要約し(大きいモジュールはプロシージャ境界で分割、1 つのプロシージャが大きすぎるときだけ行で分割して要約を連結)、次に要約と抽出結果の要点を統合して全体の文章を作ります。入力が大きいときは、全体統合でプロシージャ単位の要約や一覧の一部を省いたことを仕様書の付録に明記します(黙って切り捨てない)。
 - ファイル由来のデータはシステムプロンプトに入れず、区切りタグを無害化してからユーザーメッセージに入れます(「AI と機密情報の扱い」を参照)。
-- API 呼び出しは `client.beta.messages.stream` + `betaZodOutputFormat` で、`output_config.effort` を明示(要約は medium、統合は high)、`server-side-fallback-2026-07-01` のフォールバックを有効にし、`stop_reason`(refusal / max_tokens)と `parsed_output` を確認します。thinking パラメータは送りません。
+- API 呼び出しは `client.beta.messages.stream` で、`output_config.effort` を明示(要約は medium、統合は high)、`server-side-fallback-2026-07-01` のフォールバックを有効にしています。thinking パラメータは送りません。
+- 構造化出力は `output_config.format` に JSON スキーマだけを渡し(`betaZodOutputFormat` の parse つきの形式や `parsed_output` は使わない)、先に `stop_reason`(refusal / max_tokens)を確認してから、本文を zod で検証します(`parseStructuredOutput`)。生成の途中でサーバー側フォールバックが起きた応答は `[途中までの text, fallback, 切り替え後の text]` になり、SDK の自動解析では途中までの文で例外になって切り替え後の正しい出力まで失われるためです。最後の `fallback` より後の text を優先し、だめなら全体をつなげて解析します。
+- 時間の上限: 1回の依頼(SDK の再試行を含む)は既定 8 分(`createClaudeClient(anthropic, { requestTimeoutMs, signal })` で変更・外からの中止が可能)。CLI は全体で 30 分を超えたら標準レポートに切り替えます。Web 版(`apps/inventory-web`)は関数の実行時間の上限に合わせて全体を約 280 秒で打ち切ります。
 
 ## 制約・未対応
 

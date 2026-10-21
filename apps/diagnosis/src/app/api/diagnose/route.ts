@@ -5,6 +5,7 @@ import { buildFallbackReport } from "@/lib/diagnosis/fallback";
 import { DiagnosisInputSchema } from "@/lib/diagnosis/schema";
 import type { DiagnosisResponse, FallbackReason } from "@/lib/diagnosis/types";
 import { clientKey, errorResponse, parseJson, readBodyText } from "@/lib/http";
+import { logError } from "@/lib/log";
 import { isDiagnoseRateLimited } from "@/lib/rate-limit";
 import { signReport } from "@/lib/report/token";
 import { TURNSTILE_ERROR_MESSAGE, isHumanRequest } from "@/lib/turnstile";
@@ -50,7 +51,8 @@ export async function POST(request: Request) {
           reportToken: signReport(parsed.data, report),
         } satisfies DiagnosisResponse);
       } catch (error) {
-        console.error("AIレポートの生成に失敗しました", error);
+        // 例外は種類とステータスだけを残す(メッセージや原因に入力内容・APIの応答が含まれることがあるため)
+        logError("AIレポートの生成に失敗しました", error);
       }
     } else {
       // 1日の上限(AI_DAILY_LIMIT)に達したら、AIを呼ばずに標準レポートで返す

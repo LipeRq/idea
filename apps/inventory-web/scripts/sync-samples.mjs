@@ -1,4 +1,4 @@
-// サンプルを取り込む(predev / prebuild / pretest で prepare.mjs から呼ぶ)。
+// サンプルを取り込む(predev / prebuild で prepare.mjs から呼ぶ)。
 //   INVENTORY_SAMPLES_DIR を指定すると、そのディレクトリから取り込む(E2E はテスト用のサンプルで確かめる)
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

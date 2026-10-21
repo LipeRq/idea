@@ -77,8 +77,12 @@ function serverEnv(dataDir: string, port: number): NodeJS.ProcessEnv {
     STORAGE_DRIVER: "file",
     QUOTE_ASSIST_DATA_DIR: dataDir,
     QUOTE_ASSIST_REFERENCE_DIR: path.join(APP_DIR, "data"),
+    // ローカルで録画するだけなので、本番ビルドの Basic 認証(src/proxy.ts)を明示的に外す(録画に認証の入力欄が映らないように)
+    QUOTE_ASSIST_ALLOW_NO_AUTH: "true",
   };
-  for (const key of ["TENANT_ID", "SF_INSTANCE_URL", "SF_CLIENT_ID", "SF_CLIENT_SECRET"]) delete env[key];
+  for (const key of ["TENANT_ID", "SF_INSTANCE_URL", "SF_CLIENT_ID", "SF_CLIENT_SECRET", "QUOTE_ASSIST_BASIC_AUTH_USER", "QUOTE_ASSIST_BASIC_AUTH_PASSWORD"]) {
+    delete env[key];
+  }
   return env;
 }
 

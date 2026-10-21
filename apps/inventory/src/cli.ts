@@ -7,6 +7,9 @@ import { createClaudeClient, hasAnthropicCredentials, MODEL } from "./doc/ai";
 import { aiDocumentToJson, generateDocument } from "./doc/document";
 import { InventoryReportSchema, SEVERITY_LABEL, type InventoryReport } from "./schema";
 
+/** AI による文章生成全体の時間の上限(CLI)。超えたら標準レポートに切り替える */
+const CLI_AI_TIMEOUT_MS = 30 * 60_000;
+
 const HELP = `Excel/VBA・Access の棚卸しツール
 
 使い方:
@@ -92,7 +95,9 @@ async function main(argv: string[]): Promise<number> {
   } else if (!values["no-ai"]) {
     log("ANTHROPIC_API_KEY が設定されていないため、AIを使わない標準レポートを作成します。");
   }
-  const result = await generateDocument(report, useAi ? createClaudeClient() : null, { onProgress: log });
+  // 全体の上限。1回の依頼の上限(DEFAULT_REQUEST_TIMEOUT_MS)とは別に、大きいファイルで依頼が続いても止まるようにする
+  const client = useAi ? createClaudeClient(undefined, { signal: AbortSignal.timeout(CLI_AI_TIMEOUT_MS) }) : null;
+  const result = await generateDocument(report, client, { onProgress: log });
   if (result.aiError) log(`AIによる文章生成に失敗したため、標準レポートを出力します: ${result.aiError}`);
   await write(values.out, result.markdown);
   if (values.out) log(`仕様書を保存しました: ${values.out}`);

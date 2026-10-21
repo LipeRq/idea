@@ -101,7 +101,7 @@ describe("isHumanRequest", () => {
   const request = (headers: Record<string, string> = {}) =>
     new Request("http://localhost/api/diagnose", {
       method: "POST",
-      headers: { "x-forwarded-for": "203.0.113.9, 10.0.0.1", ...headers },
+      headers: { "x-vercel-forwarded-for": "203.0.113.9", "x-forwarded-for": "198.51.100.1, 10.0.0.1", ...headers },
     });
 
   it("Turnstile が無効なら外部に接続せず true", async () => {
@@ -113,11 +113,18 @@ describe("isHumanRequest", () => {
   it("有効なら X-Turnstile-Token ヘッダーのトークンを、送信元IPと一緒に検証する", async () => {
     const fetchMock = siteverify({ success: true, action: "lead" });
     expect(
-      await isHumanRequest(request({ "x-turnstile-token": "token-2" }), "lead", enabledEnv),
+      await isHumanRequest(request({ "x-turnstile-token": "token-2" }), "lead", { ...enabledEnv, VERCEL: "1" }),
     ).toBe(true);
     const form = fetchMock.mock.calls[0][1]?.body as URLSearchParams;
     expect(form.get("response")).toBe("token-2");
     expect(form.get("remoteip")).toBe("203.0.113.9");
+  });
+
+  it("送信元を信用できない環境では、送信元IPを送らない(x-forwarded-for は偽装できる)", async () => {
+    const fetchMock = siteverify({ success: true, action: "lead" });
+    expect(await isHumanRequest(request({ "x-turnstile-token": "token-3" }), "lead", enabledEnv)).toBe(true);
+    const form = fetchMock.mock.calls[0][1]?.body as URLSearchParams;
+    expect(form.get("remoteip")).toBeNull();
   });
 
   it("有効でトークンがなければ false", async () => {

@@ -45,12 +45,13 @@ GitHub Actions(リポジトリの `.github/workflows/diagnosis.yml`)が、`apps/
 | `RATE_LIMIT_DIAGNOSE_PER_HOUR` | 診断の回数制限(送信元ごと・1時間) | 5 |
 | `RATE_LIMIT_REPORT_PER_HOUR` | PDF作成の回数制限 | 30 |
 | `RATE_LIMIT_LEAD_PER_HOUR` | 申し込みの回数制限 | 5 |
+| `DIAGNOSIS_TRUST_PROXY` | `true` で `x-forwarded-for` の末尾を送信元にする(Vercel 以外で、信頼できるリバースプロキシの後ろに置くときだけ) | 使わない(Vercel 上は `x-vercel-forwarded-for`) |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | 回数制限とAIの1日の上限を Upstash Redis で数える(インスタンスをまたいで効く)。Vercel の Marketplace 経由の `KV_REST_API_URL` / `KV_REST_API_TOKEN` でもよい。**Vercel では設定** | インスタンス内のメモリで数える(サーバーレスではほとんど効かない) |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile のボット対策。**両方**あるときだけ、診断と申し込みの送信時に確認する | 確認しない(今までどおり) |
 | `NEXT_PUBLIC_ANALYTICS_PROVIDER` | 計測の送り先。`ga4` / `vercel` / `debug`(ページの変数とコンソールに出すだけ。手元とE2Eの確認用) | 計測しない |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 の測定ID(`G-` で始まる) | GA4 を使わない |
 
-送信元は `x-forwarded-for` の先頭で判断するので、この値を付け直すリバースプロキシ(Vercel など)の後ろで動かす前提です。
+送信元は、Vercel 上では `x-vercel-forwarded-for`、`DIAGNOSIS_TRUST_PROXY=true`(信頼できるリバースプロキシを1段手前に置いたとき)では `x-forwarded-for` の末尾で判断します。どちらでもないときは、偽装できるヘッダーを使わず全員で1つの枠を共有します(`src/lib/http.ts` の `clientKey`)。
 
 ## 無料相談の申し込みの送信先
 

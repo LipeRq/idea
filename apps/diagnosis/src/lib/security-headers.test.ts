@@ -60,6 +60,7 @@ describe("securityHeaders", () => {
     );
     expect(Object.keys(headers).sort()).toEqual([
       "Content-Security-Policy",
+      "Cross-Origin-Opener-Policy",
       "Permissions-Policy",
       "Referrer-Policy",
       "Strict-Transport-Security",

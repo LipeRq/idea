@@ -13,6 +13,7 @@ import {
   updateExtraction,
   validateUpload,
 } from "./pipeline";
+import { createAiQuota } from "./ai/quota";
 import { calculateQuote } from "./quote/calculate";
 import { sampleFile, TEST_TODAY, testDeps } from "./test-helpers";
 
@@ -105,6 +106,22 @@ describe("registerInquiry(AIモード、SDKはモック)", () => {
     expect(inquiry.extraction.error).toContain("失敗しました");
     expect(JSON.stringify(inquiry)).not.toContain("secret upstream detail");
     expect(inquiry.extraction.fields.find((f) => f.key === "material")!.status).toBe("missing");
+  });
+});
+
+describe("AIの1日の上限", () => {
+  it("上限に達したら AI を呼ばず、読み取りは手入力に、工数案は類似実績からの計算にする", async () => {
+    streamMock.mockClear();
+    const limited = { ...deps, aiMode: "anthropic" as const, aiQuota: createAiQuota(0) };
+    const inquiry = await register(limited);
+    expect(inquiry.extraction.mode).toBe("failed");
+    expect(inquiry.extraction.error).toContain("利用上限");
+    // 工数案は、読み取りが済んだ(類似案件の候補がある)引き合いで確かめる
+    const { id } = await register(deps);
+    const estimated = await runEstimate(limited, id);
+    expect(estimated.estimate!.mode).toBe("fallback");
+    expect(estimated.estimate!.memo).toContain("利用上限");
+    expect(streamMock).not.toHaveBeenCalled();
   });
 });
 

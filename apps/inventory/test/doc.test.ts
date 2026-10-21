@@ -1,8 +1,17 @@
-import type Anthropic from "@anthropic-ai/sdk";
+import Anthropic from "@anthropic-ai/sdk";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { analyzeBuffer, type InventoryReport } from "../src";
-import { AiGenerationError, createClaudeClient, factsText, generateAiDocument, MODEL, type StructuredClient, type StructuredRequest } from "../src/doc/ai";
+import {
+  AiGenerationError,
+  createClaudeClient,
+  factsText,
+  generateAiDocument,
+  MODEL,
+  parseStructuredOutput,
+  type StructuredClient,
+  type StructuredRequest,
+} from "../src/doc/ai";
 import { AiOverallSchema, ModuleSummariesSchema, type AiOverall, type ModuleSummaries } from "../src/doc/aiSchema";
 import { batchUnits, buildUnits, estimateTokens } from "../src/doc/chunk";
 import { generateDocument } from "../src/doc/document";
@@ -256,16 +265,17 @@ function accessInfo(): InventoryReport["access"] {
 }
 
 describe("createClaudeClient", () => {
-  function fakeAnthropic(message: Record<string, unknown>) {
-    const stream = vi.fn(() => ({ finalMessage: () => Promise.resolve(message) }));
+  function fakeAnthropic(message: Record<string, unknown> | (() => Promise<unknown>)) {
+    const stream = vi.fn(() => ({ finalMessage: typeof message === "function" ? message : () => Promise.resolve(message) }));
     return { anthropic: { beta: { messages: { stream } } } as unknown as Anthropic, stream };
   }
+  const text = (t: string) => ({ type: "text", text: t });
   const req = { system: "sys", user: "user", schema: z.object({ a: z.string() }), maxTokens: 1000, effort: "medium" as const };
 
-  it("Opus 5.5・フォールバック・effort を指定し、thinking は送らない", async () => {
-    const { anthropic, stream } = fakeAnthropic({ stop_reason: "end_turn", parsed_output: { a: "ok" } });
+  it("Opus 5.5・フォールバック・effort を指定し、thinking は送らない。形式はスキーマだけを渡す", async () => {
+    const { anthropic, stream } = fakeAnthropic({ stop_reason: "end_turn", content: [text('{"a":"ok"}')] });
     await expect(createClaudeClient(anthropic).generate(req)).resolves.toEqual({ a: "ok" });
-    const params = (stream.mock.calls[0] as unknown[])[0] as Record<string, unknown>;
+    const [params, options] = stream.mock.calls[0] as unknown as [Record<string, unknown>, { signal?: AbortSignal }];
     expect(params).toMatchObject({
       model: "claude-opus-5-5",
       max_tokens: 1000,
@@ -274,19 +284,67 @@ describe("createClaudeClient", () => {
       system: "sys",
       messages: [{ role: "user", content: "user" }],
     });
-    expect((params.output_config as Record<string, unknown>).effort).toBe("medium");
-    expect((params.output_config as Record<string, unknown>).format).toBeTruthy();
+    const outputConfig = params.output_config as { effort: string; format: Record<string, unknown> };
+    expect(outputConfig.effort).toBe("medium");
+    expect(outputConfig.format.type).toBe("json_schema");
+    expect(outputConfig.format.schema).toBeTruthy();
+    // parse つきの形式を渡すと、フォールバックを含む応答で SDK が途中までの文を解析して例外になる
+    expect(outputConfig.format).not.toHaveProperty("parse");
     expect(params).not.toHaveProperty("thinking");
+    expect(options.signal).toBeInstanceOf(AbortSignal);
   });
 
-  it("refusal / max_tokens / 解析失敗はエラーにする", async () => {
+  it("生成の途中でフォールバックした応答は、最後の fallback より後の文を使う", async () => {
+    const { anthropic } = fakeAnthropic({
+      stop_reason: "end_turn",
+      content: [text('{"a":"途中'), { type: "fallback", model: "claude-opus-5-5" }, text('{"a":"切り替え後"}')],
+    });
+    await expect(createClaudeClient(anthropic).generate(req)).resolves.toEqual({ a: "切り替え後" });
+  });
+
+  it("切り替え後の文が途中からの続きなら、全体をつなげて解析する", async () => {
+    const { anthropic } = fakeAnthropic({
+      stop_reason: "end_turn",
+      content: [text('{"a":'), { type: "fallback", model: "claude-opus-5-5" }, text('"続き"}')],
+    });
+    await expect(createClaudeClient(anthropic).generate(req)).resolves.toEqual({ a: "続き" });
+  });
+
+  it("parseStructuredOutput はスキーマに合わない出力を null にする", () => {
+    expect(parseStructuredOutput([text('{"a":1}')] as never, req.schema)).toBeNull();
+    expect(parseStructuredOutput([text("not json")] as never, req.schema)).toBeNull();
+  });
+
+  it("refusal / max_tokens / 解析失敗はエラーにする(stop_reason を先に見る)", async () => {
     for (const [message, error] of [
-      [{ stop_reason: "refusal", parsed_output: null }, "辞退"],
-      [{ stop_reason: "max_tokens", parsed_output: null }, "上限"],
-      [{ stop_reason: "end_turn", parsed_output: null }, "解析できません"],
+      [{ stop_reason: "refusal", content: [text('{"a":"ok"}')] }, "辞退"],
+      [{ stop_reason: "max_tokens", content: [text('{"a":"ok"}')] }, "上限"],
+      [{ stop_reason: "end_turn", content: [text('{"a":')] }, "解析できません"],
+      [{ stop_reason: "end_turn", content: [] }, "解析できません"],
     ] as const) {
       const { anthropic } = fakeAnthropic(message);
       await expect(createClaudeClient(anthropic).generate(req)).rejects.toThrow(error);
     }
+  });
+
+  it("1回の依頼の上限を過ぎたら、分かる理由のエラーにする", async () => {
+    const { anthropic, stream } = fakeAnthropic(() => new Promise(() => {}));
+    stream.mockImplementation(((_params: unknown, options: { signal: AbortSignal }) => ({
+      finalMessage: () =>
+        new Promise((_, reject) => options.signal.addEventListener("abort", () => reject(new Anthropic.APIUserAbortError()))),
+    })) as never);
+    await expect(createClaudeClient(anthropic, { requestTimeoutMs: 20 }).generate(req)).rejects.toThrow(AiGenerationError);
+  });
+
+  it("外側の signal で中止されたときは、その例外をそのまま返す", async () => {
+    const { anthropic, stream } = fakeAnthropic(() => new Promise(() => {}));
+    stream.mockImplementation(((_params: unknown, options: { signal: AbortSignal }) => ({
+      finalMessage: () =>
+        new Promise((_, reject) => options.signal.addEventListener("abort", () => reject(new Anthropic.APIUserAbortError()))),
+    })) as never);
+    const outer = new AbortController();
+    const pending = createClaudeClient(anthropic, { signal: outer.signal }).generate(req);
+    outer.abort();
+    await expect(pending).rejects.toBeInstanceOf(Anthropic.APIUserAbortError);
   });
 });
