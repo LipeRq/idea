@@ -1,6 +1,6 @@
 import path from "node:path";
 import type { NextConfig } from "next";
-import { securityHeaders } from "./src/lib/security-headers";
+import { securityHeaders, WORKER_SCRIPT_CSP } from "./src/lib/security-headers";
 
 // サーバーの AI ルートが解析エンジン(../inventory/src)を import し、その依存(@anthropic-ai/sdk・zod)を
 // apps/inventory/node_modules から解決するため、Turbopack のルートとファイルトレースのルートを apps/ にする。
@@ -29,9 +29,14 @@ const nextConfig: NextConfig = {
         headers: securityHeaders({ isDev: process.env.NODE_ENV === "development" }),
       },
       {
-        // ファイル名に内容のハッシュが入っているので、ずっとキャッシュしてよい
+        // 解析 Worker のスクリプト。ファイル名に内容のハッシュが入っているので、ずっとキャッシュしてよい(オフラインでも作り直せる)。
+        // CSP は上の全体のものを上書きし、Worker の中では一切の通信・スクリプトの読み込み・Worker の作成を禁止する
+        // (同じキーのヘッダーは後に書いたものが優先される)
         source: "/engine/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Content-Security-Policy", value: WORKER_SCRIPT_CSP },
+        ],
       },
       {
         source: "/api/:path*",

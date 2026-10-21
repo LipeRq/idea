@@ -18,19 +18,35 @@ const PUBLIC_DIR = join(APP_ROOT, "public/engine");
 const GENERATED = join(APP_ROOT, "src/generated/engine-asset.json");
 export const DEV_FILE_NAME = "inventory-worker-dev.js";
 
-/** 通信に使える API の呼び出しの形。見つかればビルドを失敗させる */
+/**
+ * 通信・別のスクリプトの実行・保存に使える API の呼び出しの形と、Worker の守り(lockdown.ts)を迂回する書き方。
+ * 見つかればビルドを失敗させる(Worker の CSP と lockdown に加えた三重目の守り)。
+ */
 export const FORBIDDEN_PATTERNS = [
   /\bfetch\s*\(/,
+  /\bfetch\s*\.\s*(?:call|apply|bind)\b/,
+  /\.prototype\.fetch\b/,
   /\bnew\s+XMLHttpRequest\b/,
   /\bsendBeacon\s*\(/,
   /\bnew\s+WebSocket\b/,
   /\bnew\s+EventSource\b/,
   /\bimportScripts\s*\(/,
   /\bnew\s+WebTransport\b/,
+  /\bnew\s+(?:Shared)?Worker\b/,
+  /\bimport\s*\(/,
+  /\bcaches\s*\./,
+  /\bindexedDB\s*\./,
+  /\bnew\s+BroadcastChannel\b/,
+  /\bReflect\s*\.\s*apply\b/,
+  /\bgetPrototypeOf\s*\(\s*(?:self|globalThis)\b/,
 ];
 
-/** 例外として許すもの(パターンと理由)。今は無し */
-const ALLOWED = [];
+/**
+ * 例外として許すもの(前後の文字列に当てはまる場合)と理由。
+ * - zod の関数スキーマ(z.function().implement)が引数・戻り値を検証しながら呼ぶための Reflect.apply。
+ *   呼ぶ関数は zod の利用者が渡したもので、通信の API ではない(エンジンは z.function を使っていない)
+ */
+const ALLOWED = [{ pattern: /_def\.input\?[\s\S]*Reflect\.apply\(/, reason: "zod の z.function() の実装" }];
 
 export function findForbidden(code) {
   const found = [];

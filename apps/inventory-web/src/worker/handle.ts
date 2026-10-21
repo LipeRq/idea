@@ -132,7 +132,9 @@ export function buildAiPayload(report: InventoryReport, includeSource: boolean, 
   const redacted = redactForAi(report, includeSource);
   const body = JSON.stringify({ consentVersion, report: redacted });
   const modules = redacted.vba?.modules ?? [];
-  const queries = (redacted.access?.queries ?? []).filter((q) => !q.hidden);
+  // 送るクエリはすべて数える(フォーム・レポートの内部のクエリ ~sq_ も SQL ごと送られるため、別に数えて示す)
+  const allQueries = redacted.access?.queries ?? [];
+  const queries = allQueries.filter((q) => !q.hidden);
   return {
     body,
     bodyBytes: textBytes(body),
@@ -142,7 +144,8 @@ export function buildAiPayload(report: InventoryReport, includeSource: boolean, 
       modulesWithSource: modules.filter((m) => m.source !== null).length,
       codeLines: modules.filter((m) => m.source !== null).reduce((s, m) => s + m.lineCount, 0),
       queries: queries.length,
-      queriesWithSql: queries.filter((q) => q.sql !== null).length,
+      hiddenQueries: allQueries.length - queries.length,
+      queriesWithSql: allQueries.filter((q) => q.sql !== null).length,
       sheets: redacted.excel?.sheets.length ?? 0,
       tables: redacted.access?.tables.length ?? 0,
       dependencies: redacted.dependencies.length,

@@ -7,11 +7,13 @@ import { MARKER, secretWorkbook } from "@/test/fixtures";
 import { buildAiPayload } from "@/worker/handle";
 import { aiConfigFromEnv, aiStatusBody } from "./ai-config";
 import { handleAiDocumentPost, type AiRouteDeps } from "./ai-document";
+import { resetAccessGuardForTest } from "./access-guard";
 import { resetAiQuotaForTest } from "./ai-quota";
+import { clientKey } from "./http";
 import { createMockClient, MOCK_MARK } from "./mock-client";
 import { resetRateLimitForTest } from "./rate-limit";
 
-const ACCESS_CODE = "コード-123";
+const ACCESS_CODE = "テスト用のアクセスコード-0123456789";
 const env = (e: Record<string, string>) => e as unknown as NodeJS.ProcessEnv;
 const BASE_ENV: Record<string, string> = {
   INVENTORY_AI_MODE: "mock",
@@ -44,6 +46,7 @@ const logs: string[] = [];
 beforeEach(() => {
   resetRateLimitForTest();
   resetAiQuotaForTest();
+  resetAccessGuardForTest();
   for (const level of ["info", "warn", "error", "log"] as const) {
     vi.spyOn(console, level).mockImplementation((...args: unknown[]) => {
       logs.push(args.map(String).join(" "));
@@ -69,6 +72,25 @@ describe("POST /api/ai-document の受付順", () => {
     const req = post(validBody);
     req.headers.delete("x-access-code");
     expect((await call(req)).status).toBe(403);
+  });
+
+  it("誤ったアクセスコードの試行が続くと、その送信元は正しいコードでも 429(総当たり対策)", async () => {
+    const vercel = { VERCEL: "1", INVENTORY_AI_ACCESS_FAILURES_PER_HOUR: "3" };
+    const from = (ip: string, code: string) => post(validBody, { "x-vercel-forwarded-for": ip, "x-access-code": encodeURIComponent(code) });
+    for (let i = 0; i < 3; i++) expect((await call(from("198.51.100.1", "wrong"), vercel)).status).toBe(403);
+    const locked = await call(from("198.51.100.1", ACCESS_CODE), vercel);
+    expect(locked.status).toBe(429);
+    expect(await locked.json()).toMatchObject({ code: "access_locked" });
+    // 別の送信元は受け付ける
+    expect((await call(from("198.51.100.2", ACCESS_CODE), vercel)).status).toBe(200);
+  });
+
+  it("サイト全体の誤ったコードの試行が上限に達すると、どの送信元も 429", async () => {
+    const env = { VERCEL: "1", INVENTORY_AI_ACCESS_FAILURES_SITE_PER_HOUR: "4" };
+    for (let i = 0; i < 4; i++) {
+      await call(post(validBody, { "x-vercel-forwarded-for": `192.0.2.${i}`, "x-access-code": "wrong" }), env);
+    }
+    expect((await call(post(validBody, { "x-vercel-forwarded-for": "192.0.2.99" }), env)).status).toBe(429);
   });
 
   it("送信元ごとの回数を超えると 429", async () => {
@@ -199,15 +221,17 @@ describe("設定(費用の歯止め)", () => {
   it("claude モードは APIキーとアクセスコードがそろったときだけ有効(匿名公開は明示したときだけ)", () => {
     const base = { INVENTORY_AI_MODE: "claude" };
     expect(aiConfigFromEnv(env(base)).reason).toBe("no_credentials");
+    // 短いアクセスコードは総当たりで当てられるので、AI 版を使わない
+    expect(aiConfigFromEnv(env({ ...base, ANTHROPIC_API_KEY: "k", INVENTORY_AI_ACCESS_CODE: "short-code" })).reason).toBe("weak_access_code");
     expect(aiConfigFromEnv(env({ ...base, ANTHROPIC_API_KEY: "k" })).reason).toBe("no_access_code");
-    expect(aiConfigFromEnv(env({ ...base, ANTHROPIC_API_KEY: "k", INVENTORY_AI_ACCESS_CODE: "c" })).available).toBe(true);
+    expect(aiConfigFromEnv(env({ ...base, ANTHROPIC_API_KEY: "k", INVENTORY_AI_ACCESS_CODE: ACCESS_CODE })).available).toBe(true);
     expect(aiConfigFromEnv(env({ ...base, ANTHROPIC_API_KEY: "k", INVENTORY_AI_ALLOW_ANONYMOUS: "true" })).available).toBe(true);
   });
 
   it("Vercel 上で共有ストアが無いと使わない。読み取れない上限・0 は止める", () => {
     const vercel = { INVENTORY_AI_MODE: "mock", VERCEL: "1" };
     expect(aiConfigFromEnv(env(vercel)).available).toBe(true); // mock は費用がかからない
-    expect(aiConfigFromEnv(env({ ...vercel, INVENTORY_AI_MODE: "claude", ANTHROPIC_API_KEY: "k", INVENTORY_AI_ACCESS_CODE: "c" })).reason).toBe("no_shared_store");
+    expect(aiConfigFromEnv(env({ ...vercel, INVENTORY_AI_MODE: "claude", ANTHROPIC_API_KEY: "k", INVENTORY_AI_ACCESS_CODE: ACCESS_CODE })).reason).toBe("no_shared_store");
     expect(aiConfigFromEnv(env({ INVENTORY_AI_MODE: "mock", INVENTORY_AI_DAILY_LIMIT: "abc" })).reason).toBe("stopped");
     expect(aiConfigFromEnv(env({ INVENTORY_AI_MODE: "mock", INVENTORY_AI_DAILY_LIMIT: "0" })).reason).toBe("stopped");
     expect(aiConfigFromEnv(env({ INVENTORY_AI_MODE: "chatgpt" })).reason).toBe("invalid_mode");
@@ -215,7 +239,21 @@ describe("設定(費用の歯止め)", () => {
 
   it("GET の応答に秘密を含めない", () => {
     const body = aiStatusBody(aiConfigFromEnv(env({ ...BASE_ENV, ANTHROPIC_API_KEY: "sk-secret" })));
-    expect(JSON.stringify(body)).not.toMatch(/sk-secret|コード-123/);
+    expect(JSON.stringify(body)).not.toContain("sk-secret");
+    expect(JSON.stringify(body)).not.toContain(ACCESS_CODE);
     expect(body).toMatchObject({ available: true, mode: "mock", requiresAccessCode: true, consentVersion: CONSENT_VERSION });
+  });
+});
+
+describe("clientKey(回数制限の送信元)", () => {
+  const req = (headers: Record<string, string>) => new Request("http://localhost/", { headers });
+  it("Vercel 上では x-vercel-forwarded-for を使い、偽装できる x-forwarded-for は使わない", () => {
+    expect(clientKey(req({ "x-vercel-forwarded-for": "198.51.100.7", "x-forwarded-for": "1.1.1.1" }), env({ VERCEL: "1" }))).toBe("198.51.100.7");
+  });
+  it("信頼するプロキシの設定が無ければ転送元のヘッダーを使わず、全員で1つの枠にする", () => {
+    expect(clientKey(req({ "x-forwarded-for": "1.1.1.1" }), env({}))).toBe("shared");
+  });
+  it("INVENTORY_TRUST_PROXY=true のときは、プロキシが付けた末尾の値を使う", () => {
+    expect(clientKey(req({ "x-forwarded-for": "6.6.6.6, 198.51.100.8" }), env({ INVENTORY_TRUST_PROXY: "true" }))).toBe("198.51.100.8");
   });
 });

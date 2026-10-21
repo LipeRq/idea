@@ -14,6 +14,9 @@ const isolatedEnv = {
   INVENTORY_AI_MODE: "off",
   INVENTORY_AI_ACCESS_CODE: "",
   INVENTORY_AI_ALLOW_ANONYMOUS: "",
+  INVENTORY_AI_ACCESS_FAILURES_PER_HOUR: "",
+  INVENTORY_AI_ACCESS_FAILURES_SITE_PER_HOUR: "",
+  INVENTORY_TRUST_PROXY: "",
   INVENTORY_AI_DAILY_LIMIT: "",
   INVENTORY_AI_DAILY_INPUT_TOKENS: "",
   INVENTORY_AI_PER_HOUR: "",
@@ -94,7 +97,7 @@ export default defineConfig({
       env: {
         ...isolatedEnv,
         INVENTORY_AI_MODE: "mock",
-        INVENTORY_AI_ACCESS_CODE: "e2e-code",
+        INVENTORY_AI_ACCESS_CODE: "e2e-access-code-0123",
         INVENTORY_AI_PER_HOUR: "1000",
         INVENTORY_AI_DAILY_LIMIT: "1000",
         // 生成中の「中止」を確かめられるよう、1回の依頼に時間をかける
@@ -111,7 +114,7 @@ export default defineConfig({
       env: {
         ...isolatedEnv,
         INVENTORY_AI_MODE: "claude",
-        INVENTORY_AI_ACCESS_CODE: "e2e-code",
+        INVENTORY_AI_ACCESS_CODE: "e2e-access-code-0123",
         // AI を使う設定にするが、送信先は接続を拒む手元のポート(9番)にする(外部に接続しない・費用はかからない)
         ANTHROPIC_API_KEY: "sk-ant-e2e-dummy",
         ANTHROPIC_BASE_URL: "http://127.0.0.1:9",

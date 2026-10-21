@@ -21,17 +21,30 @@ const evalAttempts: string[] = [];
 
 beforeAll(async () => {
   code = await bundleWorker();
-  scope = {
+  // ブラウザと同じく、通信の API はグローバルのプロトタイプ側に置く(self の上書きだけでは塞げない形)
+  const sent: string[] = [];
+  const proto = {
+    fetch: (url: string) => sent.push(url),
+    importScripts: (url: string) => sent.push(url),
+    Worker: function Worker(url: string) {
+      sent.push(url);
+    },
+    get caches() {
+      return { open: () => sent.push("caches") };
+    },
+  };
+  scope = Object.assign(Object.create(proto), {
     listeners: {},
     out: [],
-    navigator: {},
+    sent,
+    navigator: Object.create({ sendBeacon: (url: string) => sent.push(url) }),
     addEventListener(type: string, fn: (event: unknown) => void) {
       scope.listeners[type] = fn;
     },
     postMessage(msg: WorkerResponse) {
       scope.out.push(msg);
     },
-  };
+  });
   // Function を、呼ばれたら記録して失敗する偽物に差し替えて実行する(CSP で eval を禁止したときと同じ状況)
   const block = (what: string) => () => {
     evalAttempts.push(what);
@@ -61,10 +74,17 @@ describe("解析 Worker のバンドル", () => {
     expect(findForbidden(code)).toEqual([]);
   });
 
-  it("起動すると ready を返し、通信の API を使えなくする", () => {
+  it("起動すると ready を返し、プロトタイプの段も含めて通信の API を使えなくする", () => {
     expect(scope.out[0]).toMatchObject({ type: "ready" });
-    expect(() => (scope.fetch as () => void)()).toThrow();
-    expect(() => (scope.importScripts as () => void)()).toThrow();
+    const proto = Object.getPrototypeOf(scope) as Record<string, unknown>;
+    const s = scope as Record<string, unknown>;
+    expect(() => (s.fetch as (u: string) => void)("/x")).toThrow();
+    expect(() => (proto.fetch as (u: string) => void).call(scope, "/x")).toThrow();
+    expect(() => (proto.importScripts as (u: string) => void)("/x")).toThrow();
+    expect(() => new (proto.Worker as new (u: string) => unknown)("/x")).toThrow();
+    expect(() => (proto.caches as { open: () => void }).open()).toThrow();
+    expect(() => (Object.getPrototypeOf(s.navigator) as { sendBeacon: (u: string) => void }).sendBeacon("/x")).toThrow();
+    expect(scope.sent).toEqual([]);
   });
 
   it("minify 後も、壊れたファイルは corrupt、パスワード付き Access は encryptedAccess で返す", async () => {

@@ -10,6 +10,7 @@ import { CONSENT_VERSION } from "@/lib/ai-consent";
 import { estimateAiRequest } from "@/shared/ai-estimate";
 import { redactForAi } from "@/shared/ai-redact";
 import { accessCodeMatches, readAccessCode } from "./access-code";
+import { accessCodeLocked, recordAccessCodeFailure } from "./access-guard";
 import { aiConfigFromEnv, type AiServerConfig } from "./ai-config";
 import { reserveDailyAi } from "./ai-quota";
 import { clientKey, errorResponse, NO_STORE, parseJson, readBodyText } from "./http";
@@ -70,10 +71,26 @@ export async function handleAiDocumentPost(request: Request, deps: AiRouteDeps =
     if (!config.available) {
       return finish(errorResponse(503, "disabled", "この環境ではAI版は利用できません。"), "disabled");
     }
-    if (config.accessCode !== null && !accessCodeMatches(readAccessCode(request), config.accessCode)) {
-      return finish(errorResponse(403, "forbidden", "アクセスコードが違います。"), "forbidden");
+    const env = deps.env ?? process.env;
+    const source = clientKey(request, env);
+    if (config.accessCode !== null) {
+      // 総当たり対策: 誤ったコードの試行が続いた送信元(とサイト全体)は、正しいコードでもしばらく受け付けない
+      const lock = await accessCodeLocked(source, { perSource: config.accessFailuresPerSource, site: config.accessFailuresSite }, Date.now(), env);
+      if (lock === "unavailable") {
+        return finish(errorResponse(503, "unavailable", "現在AI版を受け付けられません。時間をおいてお試しください。"), "store_unavailable");
+      }
+      if (lock === "limited") {
+        return finish(
+          errorResponse(429, "access_locked", "アクセスコードの誤りが続いたため、しばらく受け付けません。1時間ほどおいてお試しください。"),
+          "access_locked",
+        );
+      }
+      if (!accessCodeMatches(readAccessCode(request), config.accessCode)) {
+        await recordAccessCodeFailure(source, Date.now(), env);
+        return finish(errorResponse(403, "forbidden", "アクセスコードが違います。"), "forbidden");
+      }
     }
-    const hourly = await checkHourlyLimit(clientKey(request), config.perHour, Date.now(), deps.env ?? process.env);
+    const hourly = await checkHourlyLimit(source, config.perHour, Date.now(), env);
     if (hourly === "unavailable") {
       return finish(errorResponse(503, "unavailable", "現在AI版を受け付けられません。時間をおいてお試しください。"), "store_unavailable");
     }

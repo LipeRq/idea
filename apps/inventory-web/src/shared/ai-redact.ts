@@ -5,11 +5,26 @@ import type { InventoryReport } from "@engine/browser";
 
 export const AI_FILE_BASENAME = "対象ファイル";
 
+/** 日時は年だけにする(ファイルの古さは移行の判断に使うが、月日・時刻は要らない) */
+const yearOnly = (value: string | null) => (value && /^\d{4}/.test(value) ? value.slice(0, 4) : null);
+
 export function redactForAi(report: InventoryReport, includeSource: boolean): InventoryReport {
   return {
     ...report,
-    file: { ...report.file, name: `${AI_FILE_BASENAME}.${report.file.format}`, sha256: "" },
-    properties: { ...report.properties, title: null, creator: null, lastModifiedBy: null, company: null },
+    // ファイル名・指紋・大きさは AI に要らない
+    file: { ...report.file, name: `${AI_FILE_BASENAME}.${report.file.format}`, sha256: "", sizeBytes: 0 },
+    // 作成者・更新者・会社名・タイトル・作成したアプリの名前と版は送らない。日時は年だけ
+    properties: {
+      ...report.properties,
+      title: null,
+      creator: null,
+      lastModifiedBy: null,
+      company: null,
+      application: null,
+      appVersion: null,
+      created: yearOnly(report.properties.created),
+      modified: yearOnly(report.properties.modified),
+    },
     vba:
       report.vba && !includeSource
         ? { ...report.vba, modules: report.vba.modules.map((m) => ({ ...m, source: null })) }

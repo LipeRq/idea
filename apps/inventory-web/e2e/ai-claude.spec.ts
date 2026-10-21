@@ -20,7 +20,7 @@ test("AI に接続できないときはエラーを表示して標準の結果�
   await expect(dialog).not.toContainText("デモ用の固定文章");
   await dialog.getByRole("checkbox", { name: /同意します/ }).check();
   await dialog.getByRole("checkbox", { name: /了承を得ています/ }).check();
-  await dialog.getByLabel("アクセスコード").fill("e2e-code");
+  await dialog.getByLabel("アクセスコード").fill("e2e-access-code-0123");
   const send = dialog.getByRole("button", { name: "同意してAI版を作成" });
 
   // 1回目: 接続できない

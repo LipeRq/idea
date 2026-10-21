@@ -6,6 +6,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { fixturePath, FIXTURES, LOG_DIR, MARKER } from "./constants";
 import {
   analyzeFixture,
+  backToSelect,
   downloadBy,
   expectNoCspViolations,
   expectNoHorizontalScroll,
@@ -16,7 +17,7 @@ import {
   waitForReady,
 } from "./helpers";
 
-const ACCESS_CODE = "e2e-code";
+const ACCESS_CODE = "e2e-access-code-0123";
 const SEND = "同意してAI版を作成";
 
 async function openConsent(page: Page) {
@@ -83,7 +84,10 @@ test("同意画面は「そのまま送るもの」を正しく伝え、同意�
   const sha256 = createHash("sha256").update(readFileSync(fixturePath(FIXTURES.secret))).digest("hex");
   const payload = JSON.parse(saved.text);
   expect(payload.report.file).toMatchObject({ name: "対象ファイル.xlsm", sha256: "" });
-  expect(payload.report.properties).toMatchObject({ creator: null, lastModifiedBy: null, company: null, title: null });
+  expect(payload.report.properties).toMatchObject({ creator: null, lastModifiedBy: null, company: null, title: null, application: null, appVersion: null });
+  // AI に要らない項目は外す(大きさ・作成したアプリ)。日時は年だけ
+  expect(payload.report.file.sizeBytes).toBe(0);
+  expect(payload.report.properties.created).toMatch(/^\d{4}$/);
   for (const word of [MARKER.password, MARKER.creator, MARKER.lastModifiedBy, MARKER.company, FIXTURES.secret, sha256]) {
     expect(saved.text, `送信内容に ${word}`).not.toContain(word);
   }
@@ -153,6 +157,19 @@ test("生成中に「中止」すると、元の結果に戻る", async ({ page 
   await expect(dialog).toBeHidden();
   await expect(page.getByRole("tab", { name: "概要" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "AIによる解説" })).toHaveCount(0);
+});
+
+test("フォーム・レポートの内部のクエリも、送るものとして件数を示す", async ({ page }) => {
+  await backToSelect(page);
+  await analyzeFixture(page, FIXTURES.hiddenQueryAccess);
+  const dialog = await openConsent(page);
+  const saved = await downloadBy(page, () => dialog.getByRole("button", { name: /^送信内容を保存/ }).click());
+  const queries: { hidden: boolean; sql: string | null }[] = JSON.parse(saved.text).report.access.queries;
+  const hidden = queries.filter((q) => q.hidden).length;
+  expect(hidden).toBeGreaterThan(0);
+  const sendAsIs = dialog.locator("section", { has: page.getByRole("heading", { name: "そのまま送るもの" }) });
+  await expect(sendAsIs).toContainText(`保存済みのクエリ ${queries.length - hidden} 件、フォーム・レポートの内部のクエリ ${hidden} 件`);
+  await expect(sendAsIs).toContainText(`SQL ${queries.filter((q) => q.sql !== null).length} 件を含む`);
 });
 
 test.describe("スマホ幅(390px)", () => {

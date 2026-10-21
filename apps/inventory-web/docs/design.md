@@ -589,3 +589,15 @@ apps/inventory-web/
 | F18 | medium | 採用 | 提案どおり段階1を実装し、段階2を §8 と README に未実装として明記。ただし AI 同意画面には要注意文字列の一覧(F03)を段階1で入れた |
 | F19 | low | 採用(一部変更) | plugin はファイル自身の場所を基準にパスを解決(エンジンに切り出さず、画面アプリ側に写した。上の §3.2)。開発時の Worker のファイル名は固定(`dev:worker`)。Worker の `self` は `src/worker/scope.ts` で局所的に型付け。アクセスコードは両方を SHA-256 にしてから timingSafeEqual。`pretest` は不採用: 単体テストは生成物(`src/generated/`)を import せず、Worker のバンドルもテストの中でメモリ上に作るため不要 |
 
+## 付録E 独立検証の指摘への対応(2026-10-21)
+
+| ID | 重要度 | 対応 |
+| --- | --- | --- |
+| V-01 | medium | 解析 Worker を Blob URL ではなくスクリプトの URL から起動し、そのスクリプト(`/engine/*`)に `default-src 'none'; connect-src 'none'; script-src 'none'; worker-src 'none'` の CSP を付けた(Worker はスクリプトの応答の CSP に従うため、同一オリジンへの fetch・Cache API・import()・importScripts・入れ子の Worker をブラウザが止める)。画面の CSP の `worker-src` から `blob:` を外した。`lockdown.ts` はプロトタイプのすべての段で通信・スクリプト・保存の API(Worker・SharedWorker・caches・indexedDB・BroadcastChannel を含む)を置き換える。ビルド時の検査に `import(`・`new Worker`・`caches.`・`.prototype.fetch`・`fetch.call` などを追加(zod の `Reflect.apply` だけ理由付きで許可)。E2E で各抜け道がサーバーに届かないことを確認。§3.6 の Blob 方式(F10)は取りやめ、オフラインでの Worker の作り直しは長期キャッシュ(immutable)に頼る(開発者ツールでキャッシュを無効にしたままオフラインにした場合だけ、ページの再読み込みが必要) |
+| V-02 | low | 解析を始めた後の要求は「解析の前に読み込んだ URL と完全に同じもの」以外を0件とした(ダウンロード用の blob: を除く) |
+| V-03 | medium | 誤ったアクセスコードの試行を送信元ごと(既定5回/時)・サイト全体(既定50回/時)で数え、上限で 429(`access_locked`。正しいコードでも受け付けない)。アクセスコードは16文字以上を必須とし、短ければ AI 版を無効にする |
+| V-04 | low | 送信元は、Vercel では `x-vercel-forwarded-for`、`INVENTORY_TRUST_PROXY=true` のときだけ `x-forwarded-for` の末尾を使い、それ以外は全員で1つの枠(偽装できない側に倒す)。README に記載 |
+| V-05 | medium | フォーム・レポートの内部のクエリ(~sq_)も送るものとして数え、同意画面に「保存済みのクエリ N 件、フォーム・レポートの内部のクエリ M 件(SQL K 件を含む)」と表示。E2E で送信内容の件数と表示が一致することを確認 |
+| V-06 | medium | 要注意文字列の検出に、複合名(`cdoSendPassword` など)、名前が `…_KEY` / `…Key` / `…Secret` / `…Token` の変数への文字列の代入、よく知られたキーの接頭辞(AKIA・AIza・xox?-・ghp_・glpat-・sk-ant-・sk-)、ボタンの表示文字列を追加。単体テストを追加 |
+| V-07 | low | AI に不要なファイルの大きさ・作成したアプリの名前と版を外し、作成・更新日時は年だけにした。残すもの(VBA プロジェクト名・参照設定のパス・ボタンの文字・Access のフォーム/レポート/マクロ名・リンク先・テーブルの行数・作成/更新の年)を同意画面と /how-it-works の「そのまま送るもの」に書いた |
+

@@ -36,6 +36,7 @@ export async function fetchAiStatus(signal?: AbortSignal): Promise<AiStatus | nu
 export type AiErrorCode =
   | "disabled"
   | "forbidden"
+  | "access_locked"
   | "rate_limited"
   | "unsupported_media_type"
   | "too_large"
@@ -63,6 +64,7 @@ const ErrorBodySchema = z.object({ error: z.string().max(500), code: z.string().
 const KNOWN_CODES = new Set<string>([
   "disabled",
   "forbidden",
+  "access_locked",
   "rate_limited",
   "unsupported_media_type",
   "too_large",

@@ -4,13 +4,24 @@
 // ここでの検出も完全ではない(見つけたものを示すだけ)。誤検出も含めて「確認のきっかけ」として表示する。
 import type { InventoryReport } from "@engine/browser";
 
-export type SensitiveKind = "email" | "phone" | "webhook" | "urlSecret" | "secretKeyword" | "randomString" | "userFolder";
+export type SensitiveKind =
+  | "email"
+  | "phone"
+  | "webhook"
+  | "urlSecret"
+  | "knownKey"
+  | "namedSecret"
+  | "secretKeyword"
+  | "randomString"
+  | "userFolder";
 
 export const SENSITIVE_KIND_LABEL: Record<SensitiveKind, string> = {
   email: "メールアドレス",
   phone: "電話番号",
   webhook: "通知・連携用のURL(Webhook など)",
   urlSecret: "キーやトークンを含むURL",
+  knownKey: "よく知られたサービスのキーの形(AWS・Google・Slack・GitHub など)",
+  namedSecret: "キー・トークンらしい名前の変数に入れた文字列",
   secretKeyword: "APIキー・トークン・認証情報の可能性",
   randomString: "長いランダムな文字列(キーの可能性)",
   userFolder: "個人のフォルダのパス(氏名を含む可能性)",
@@ -32,7 +43,7 @@ export const MAX_SENSITIVE_HITS = 300;
 interface Pattern {
   kind: SensitiveKind;
   re: RegExp;
-  accept?: (match: string, line: string) => boolean;
+  accept?: (match: string, line: string, index: number) => boolean;
 }
 
 const GUID = /^\{?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\}?$/i;
@@ -60,10 +71,21 @@ const PATTERNS: Pattern[] = [
     re: /https?:\/\/[^\s"'<>]*[?&](?:api[_-]?key|apikey|key|token|access[_-]?token|secret|sig|signature|code|auth)=[^\s"'&<>]+/gi,
   },
   {
+    // よく知られたキーの接頭辞(AWS のアクセスキー・Google の API キー・Slack・GitHub・GitLab・Anthropic / OpenAI 形式)
+    kind: "knownKey",
+    re: /(?<![A-Za-z0-9])(?:AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}|xox[abposr]-[0-9A-Za-z-]{10,}|ghp_[0-9A-Za-z]{30,}|glpat-[0-9A-Za-z_-]{20,}|sk-ant-[0-9A-Za-z_-]{10,}|sk-[0-9A-Za-z_-]{20,})/g,
+  },
+  {
+    // 名前が …_KEY / …Key / …Secret / …Token の変数・定数に文字列を入れている(Const CW_KEY = "…" など)
+    kind: "namedSecret",
+    re: /\b[A-Za-z_]\w*?(?:_KEY|_Key|Key|KEY|_SECRET|Secret|SECRET|_TOKEN|Token|TOKEN)\w*\s*(?:As\s+String\s*)?=\s*"[^"]{4,}"/g,
+  },
+  {
+    // 複合名(cdoSendPassword・LINE_TOKEN・lineToken など)の中の語にも一致させる。後ろが小文字で続く語(tokenize など)は除く
     kind: "secretKeyword",
-    re: /(?<![A-Za-z])(?:api[_-]?key|apikey|access[_-]?key|secret|client[_-]?secret|token|bearer|authorization|x-api-key|webhook|send(?:password|username)|smtpauthenticate)(?![A-Za-z])/gi,
+    re: /(?:api[_-]?key|apikey|access[_-]?key|secret|client[_-]?secret|token|bearer|authorization|x-api-key|webhook|send(?:password|username)|smtpauthenticate)/gi,
     // 名前だけの言及(コメントの説明文など)でも出すが、値の代入・引数・文字列のある行に絞る
-    accept: (_m, line) => /[="':(,]/.test(line),
+    accept: (m, line, index) => !/[a-z]/.test(line.charAt(index + m.length)) && /[="':(,]/.test(line),
   },
   {
     kind: "randomString",
@@ -95,7 +117,7 @@ export function scanSensitive(report: InventoryReport, max = MAX_SENSITIVE_HITS)
         p.re.lastIndex = 0;
         for (let m = p.re.exec(line); m; m = p.re.exec(line)) {
           const found = m[0];
-          if (p.accept && !p.accept(found, line)) continue;
+          if (p.accept && !p.accept(found, line, m.index)) continue;
           const where = location(i + 1);
           const key = `${p.kind}\u0000${found.toLowerCase()}\u0000${where}`;
           if (seen.has(key)) continue;
@@ -122,6 +144,7 @@ export function scanSensitive(report: InventoryReport, max = MAX_SENSITIVE_HITS)
     }
     for (const n of x.definedNames) scanText(n.refersTo, () => `名前定義「${n.name}」`);
     for (const l of x.externalLinks) scanText(l.target, () => "外部リンク");
+    for (const b of x.controlMacros) scanText(b.text, () => `シート「${b.sheet}」のボタン「${b.control}」`);
     for (const c of x.connections) {
       scanText(c.connectionString, () => `データ接続「${c.name}」`);
       scanText(c.command, () => `データ接続「${c.name}」`);

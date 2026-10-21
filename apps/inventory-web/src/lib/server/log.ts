@@ -6,6 +6,7 @@ export type AiOutcome =
   | "ok"
   | "disabled"
   | "forbidden"
+  | "access_locked"
   | "rate_limited"
   | "unsupported_media_type"
   | "invalid"

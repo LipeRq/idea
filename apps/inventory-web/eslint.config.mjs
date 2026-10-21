@@ -2,11 +2,11 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
-// 通信に使える API。ブラウザで動くコードでは、決めた3ファイル(サンプルの取得・解析プログラムの取得・同意後の AI 送信)
+// 通信に使える API。ブラウザで動くコードでは、決めた2ファイル(サンプルの取得・同意後の AI 送信)
 // 以外で使うとエラーにする(docs/design.md §4.1「通信を書ける場所を限定」)
 const NETWORK_GLOBALS = ["fetch", "XMLHttpRequest", "WebSocket", "EventSource", "WebTransport", "importScripts"].map((name) => ({
   name,
-  message: "ブラウザ側で通信できるのは src/lib/samples.ts・src/lib/engine-loader.ts・src/lib/ai-client.ts だけです(docs/design.md §4.1)",
+  message: "ブラウザ側で通信できるのは src/lib/samples.ts・src/lib/ai-client.ts だけです(docs/design.md §4.1)",
 }));
 const NETWORK_PROPERTIES = [
   { object: "navigator", property: "sendBeacon", message: "通信はできません(docs/design.md §4.1)" },
@@ -54,7 +54,6 @@ const eslintConfig = defineConfig([
       "src/app/api/**",
       "src/lib/server/**",
       "src/lib/samples.ts",
-      "src/lib/engine-loader.ts",
       "src/lib/ai-client.ts",
       "src/**/*.test.ts",
     ],

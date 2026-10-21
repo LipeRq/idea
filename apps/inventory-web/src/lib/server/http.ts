@@ -1,8 +1,21 @@
 // Route Handler で共通に使う、リクエストの読み取りと応答のヘルパー(apps/diagnosis の src/lib/http.ts をもとにしている)。
 
-/** 回数制限のキーにする送信元。リバースプロキシが付ける x-forwarded-for の先頭を使う */
-export function clientKey(request: Request): string {
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+/**
+ * 回数制限のキーにする送信元。利用者が偽装できない値だけを使う。
+ * - Vercel 上: Vercel が付ける x-vercel-forwarded-for(利用者が送った値は Vercel が上書きする)
+ * - INVENTORY_TRUST_PROXY=true(手前に信頼できるリバースプロキシが1段ある): x-forwarded-for の末尾(そのプロキシが付けた値)
+ * - それ以外(next start を直接公開しているなど): 転送元のヘッダーは偽装できるので使わず、全員で1つの枠を共有する
+ */
+export function clientKey(request: Request, env: NodeJS.ProcessEnv = process.env): string {
+  if (env.VERCEL?.trim()) {
+    const v = request.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim();
+    if (v) return v;
+  }
+  if (env.INVENTORY_TRUST_PROXY?.trim() === "true") {
+    const v = request.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
+    if (v) return v;
+  }
+  return "shared";
 }
 
 /** 本文を maxBytes まで読む。超えたら null(Content-Length のない分割送信も途中で打ち切る) */

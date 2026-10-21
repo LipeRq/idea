@@ -15,10 +15,13 @@ import {
 } from "./helpers";
 
 /** 解析に使っている Worker の中で式を評価する(page.workers() のうち、まだ動いているもの) */
-async function evaluateInWorker<T>(page: Page, fn: () => T): Promise<T> {
-  const workers = page.workers();
-  expect(workers.length, "解析 Worker が無い").toBeGreaterThan(0);
-  return workers[workers.length - 1].evaluate(fn);
+async function evaluateInWorker<T>(page: Page, fn: (arg: string) => T | Promise<T>, arg = ""): Promise<T> {
+  let engine = null;
+  for (const w of page.workers()) {
+    if ((await w.evaluate(() => self.name).catch(() => "")) === "inventory-engine") engine = w;
+  }
+  expect(engine, "解析 Worker が無い").not.toBeNull();
+  return engine!.evaluate(fn, arg);
 }
 
 test("解析から保存までの間、ファイルの中身・ファイル名を送信しない(リクエストは同一オリジンの GET だけ)", async ({ page, context, baseURL }) => {
@@ -49,27 +52,12 @@ test("解析から保存までの間、ファイルの中身・ファイル名�
     expect(r.postData, `本文付きの通信: ${r.url}`).toBeNull();
     for (const word of forbidden) expect(decodeURIComponent(r.url), `URL にファイル由来の文字列: ${r.url}`).not.toContain(word);
   }
-  // 解析を始めてからの通信は、画面の部品の読み込み(同一オリジンの GET)だけ
-  // (blob: は解析 Worker をメモリ上のスクリプトから起動したもの。ネットワークには出ない)
-  const after = requests
-    .slice(beforeAnalysis)
-    .filter((r) => !r.url.startsWith("blob:") && !/\/_next\/|\/engine\/|\/favicon/.test(new URL(r.url).pathname));
+  // 解析を始めてからの通信は、解析の前に読み込んだものと完全に同じ URL(予備の解析 Worker の作り直しなど)だけ。
+  // 新しい URL(クエリ付きの要求を含む)は1件も無い
+  const loadedBefore = new Set(requests.slice(0, beforeAnalysis).map((r) => r.url));
+  const isDownloadBlob = (u: string) => new RegExp(`^blob:${origin}/[0-9a-f-]{36}$`).test(u);
+  const after = requests.slice(beforeAnalysis).filter((r) => !loadedBefore.has(r.url) && !isDownloadBlob(r.url));
   expect(after.map((r) => r.url)).toEqual([]);
-
-  // 解析 Worker の中では通信の API が使えない(コードに混入しても送れない)
-  const blocked = await evaluateInWorker(page, () =>
-    ["fetch", "XMLHttpRequest", "WebSocket", "EventSource", "importScripts"].map((name) => {
-      try {
-        const api = (self as unknown as Record<string, unknown>)[name] as (...args: unknown[]) => unknown;
-        api("/x");
-        return `${name}: 使える`;
-      } catch {
-        return `${name}: 使えない`;
-      }
-    }),
-  );
-  expect(blocked.filter((b) => b.endsWith(": 使える"))).toEqual([]);
-
   await expectNoCspViolations(page);
 });
 
@@ -83,13 +71,18 @@ test("CSP で外部への通信が止まり、外部の読み込みもない", a
   expect(csp).not.toContain("unsafe-eval");
   expect(csp).not.toMatch(/https?:\/\//);
 
-  // Worker のスクリプトにも同じヘッダーと、長期キャッシュが付く
+  expect(csp).toMatch(/worker-src 'self'(;|$)/);
+
+  // 解析 Worker のスクリプトには、通信・スクリプトの読み込み・Worker の作成をすべて禁止する CSP と、長期キャッシュが付く
   const workerUrl = await page.evaluate(() =>
     performance.getEntriesByType("resource").map((e) => e.name).find((n) => n.includes("/engine/inventory-worker-")),
   );
   expect(workerUrl).toBeTruthy();
   const workerRes = await request.get(workerUrl!);
-  expect(workerRes.headers()["content-security-policy"]).toContain("connect-src 'self'");
+  const workerCsp = workerRes.headers()["content-security-policy"];
+  for (const directive of ["default-src 'none'", "connect-src 'none'", "script-src 'none'", "worker-src 'none'"]) {
+    expect(workerCsp).toContain(directive);
+  }
   expect(workerRes.headers()["cache-control"]).toContain("immutable");
 
   // 画面からの外部への fetch はブラウザが止める
@@ -118,6 +111,65 @@ test("CSP で外部への通信が止まり、外部の読み込みもない", a
   });
   expect(external.resources).toEqual([]);
   expect(external.anchors.sort()).toEqual(["https://example.com/contact", "https://example.com/privacy"]);
+});
+
+test("解析 Worker の中からは、抜け道(プロトタイプの fetch・入れ子の Worker・import()・Cache API)を使っても通信できない", async ({ page, context, baseURL }) => {
+  // CSP で止められた読み込みも「要求」としては記録されることがあるため、応答が返ったか(サーバーに届いたか)で判定する
+  const answered: string[] = [];
+  const failed: string[] = [];
+  context.on("response", (r) => {
+    if (r.url().includes("probe")) answered.push(`${r.status()} ${r.url()}`);
+  });
+  context.on("requestfailed", (r) => {
+    if (r.url().includes("probe")) failed.push(`${r.url()} ${r.failure()?.errorText}`);
+  });
+  await page.goto("/");
+  await waitForReady(page);
+  const origin = new URL(baseURL!).origin;
+  // 画面から Blob の Worker を作って送る(CSP の worker-src 'self' で起動できない)
+  await page.evaluate((o) => {
+    try {
+      new Worker(URL.createObjectURL(new Blob([`fetch('${o}/probe-page-blob?d=x')`], { type: "text/javascript" })));
+    } catch {
+      // 止められる
+    }
+  }, origin);
+  const results = await evaluateInWorker(page, async (o: string) => {
+    const out: Record<string, string> = {};
+    const attempt = async (name: string, f: () => unknown) => {
+      try {
+        await f();
+        out[name] = "通信できた";
+      } catch {
+        out[name] = "止められた";
+      }
+    };
+    const protoWith = (key: string) => {
+      let p: object | null = Object.getPrototypeOf(self);
+      while (p && !Object.prototype.hasOwnProperty.call(p, key)) p = Object.getPrototypeOf(p);
+      return p as Record<string, unknown> | null;
+    };
+    const g = self as unknown as Record<string, unknown>;
+    await attempt("fetch", () => (g.fetch as (u: string) => Promise<unknown>)(`${o}/probe-fetch?d=x`));
+    await attempt("プロトタイプの fetch", () => (protoWith("fetch")!.fetch as (u: string) => Promise<unknown>).call(self, `${o}/probe-proto?d=x`));
+    await attempt("XMLHttpRequest", () => {
+      const X = (protoWith("XMLHttpRequest") ?? g).XMLHttpRequest as new () => XMLHttpRequest;
+      const x = new X();
+      x.open("GET", `${o}/probe-xhr?d=x`, false);
+      x.send();
+    });
+    await attempt("入れ子の Worker", () => new (g.Worker as new (u: string) => unknown)(`${o}/probe-nested.js?d=x`));
+    await attempt("import()", () => import(/* @vite-ignore */ `${o}/probe-import.js?d=x`));
+    await attempt("Cache API", async () => {
+      const c = await (g.caches as CacheStorage).open("x");
+      await c.add(`${o}/probe-cache?d=x`);
+    });
+    await attempt("importScripts", () => (g.importScripts as (u: string) => void)(`${o}/probe-import-scripts.js?d=x`));
+    return out;
+  }, origin);
+  await page.waitForTimeout(1_000);
+  expect(Object.entries(results).filter(([, v]) => v !== "止められた")).toEqual([]);
+  expect(answered, `サーバーに届いた: ${answered.join(" / ")}(止められたもの: ${failed.join(" / ")})`).toEqual([]);
 });
 
 test("Worker の中の CSP 違反も検知できる(検知の仕組みの確認)", async ({ page }) => {

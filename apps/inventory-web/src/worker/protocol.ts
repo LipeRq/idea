@@ -105,7 +105,11 @@ export interface AiPayloadSummary {
   modules: number;
   modulesWithSource: number;
   codeLines: number;
+  /** 保存済みのクエリ(フォーム・レポートの内部のクエリを除く) */
   queries: number;
+  /** フォーム・レポートの内部のクエリ(~sq_。SQL ごと送られる) */
+  hiddenQueries: number;
+  /** SQL を含めて送るクエリ(内部のクエリを含む) */
   queriesWithSql: number;
   sheets: number;
   tables: number;

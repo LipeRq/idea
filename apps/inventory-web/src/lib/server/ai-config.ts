@@ -15,6 +15,7 @@ export type UnavailableReason =
   | "invalid_mode"
   | "no_credentials"
   | "no_access_code"
+  | "weak_access_code"
   | "no_shared_store"
   | "invalid_shared_store"
   | "stopped";
@@ -24,6 +25,9 @@ export interface AiServerConfig {
   available: boolean;
   reason: UnavailableReason | null;
   accessCode: string | null;
+  /** 誤ったアクセスコードの試行の上限(1時間あたり。送信元ごと / サイト全体) */
+  accessFailuresPerSource: number;
+  accessFailuresSite: number;
   perHour: number;
   dailyLimit: number;
   dailyInputTokens: number;
@@ -35,7 +39,12 @@ export interface AiServerConfig {
   mockDelayMs: number;
 }
 
+/** アクセスコードの最低の長さ(短いと総当たりで当てられるため、短ければ AI 版を使わない) */
+export const MIN_ACCESS_CODE_LENGTH = 16;
+
 export const DEFAULTS = {
+  accessFailuresPerSource: 5,
+  accessFailuresSite: 50,
   perHour: 3,
   dailyLimit: 20,
   dailyInputTokens: 2_000_000,
@@ -78,11 +87,14 @@ export function aiConfigFromEnv(env: NodeJS.ProcessEnv = process.env): AiServerC
   const maxBatches = intFromEnv(env.INVENTORY_AI_MAX_BATCHES, DEFAULTS.maxBatches);
   const maxBody = intFromEnv(env.INVENTORY_AI_MAX_BODY_BYTES, DEFAULTS.maxBodyBytes);
   const mockDelay = intFromEnv(env.INVENTORY_AI_MOCK_DELAY_MS, DEFAULTS.mockDelayMs);
+  const failSource = intFromEnv(env.INVENTORY_AI_ACCESS_FAILURES_PER_HOUR, DEFAULTS.accessFailuresPerSource);
+  const failSite = intFromEnv(env.INVENTORY_AI_ACCESS_FAILURES_SITE_PER_HOUR, DEFAULTS.accessFailuresSite);
 
   let reason: UnavailableReason | null = null;
   if (rawMode !== "off" && mode === "off") reason = "invalid_mode";
   else if (mode === "off") reason = "off";
   else if (storeInvalid) reason = "invalid_shared_store";
+  else if (accessCode !== null && [...accessCode].length < MIN_ACCESS_CODE_LENGTH) reason = "weak_access_code";
   else if (mode === "claude") {
     if (!(env.ANTHROPIC_API_KEY?.trim() || env.ANTHROPIC_AUTH_TOKEN?.trim())) reason = "no_credentials";
     else if (!accessCode && env.INVENTORY_AI_ALLOW_ANONYMOUS?.trim() !== "true") reason = "no_access_code";
@@ -95,6 +107,8 @@ export function aiConfigFromEnv(env: NodeJS.ProcessEnv = process.env): AiServerC
     available: reason === null,
     reason,
     accessCode,
+    accessFailuresPerSource: failSource.value,
+    accessFailuresSite: failSite.value,
     perHour: perHour.value,
     dailyLimit: daily.value,
     dailyInputTokens: dailyTokens.value,

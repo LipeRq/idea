@@ -192,8 +192,8 @@ export function AiConsentDialog({
               </h3>
               <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">
                 <li>ファイル本体と、シートのセルの値(データ本体。最初から読み取っていません)</li>
-                <li>元のファイル名(「対象ファイル.{format}」に置き換えます)とファイルの指紋(SHA-256)</li>
-                <li>文書の情報に記録された作成者・最終更新者・会社名・タイトル</li>
+                <li>元のファイル名(「対象ファイル.{format}」に置き換えます)・ファイルの指紋(SHA-256)・ファイルの大きさ</li>
+                <li>文書の情報に記録された作成者・最終更新者・会社名・タイトル・作成したアプリの名前と版、作成・更新の月日と時刻(年だけ送ります)</li>
                 <li>解析の警告</li>
               </ul>
             </section>
@@ -218,14 +218,19 @@ export function AiConsentDialog({
                 ) : (
                   <li>マクロのソースコード本文は送りません(モジュール名・処理の名前・行数・呼び出し関係は送ります)</li>
                 )}
-                {payload.summary.queries > 0 && (
+                {payload.summary.queries + payload.summary.hiddenQueries > 0 && (
                   <li>
-                    Access のクエリ: {payload.summary.queries} 件{includeSource ? `(SQL ${payload.summary.queriesWithSql} 件を含む)` : "(SQL の本文は送りません)"}
+                    Access のクエリ: 保存済みのクエリ {payload.summary.queries} 件
+                    {payload.summary.hiddenQueries > 0 && `、フォーム・レポートの内部のクエリ ${payload.summary.hiddenQueries} 件`}
+                    {includeSource ? `(SQL ${payload.summary.queriesWithSql} 件を含む)` : "(SQL の本文は送りません)"}
                   </li>
                 )}
-                <li>シート名・数式の例・名前定義、テーブル名・列名(シート {payload.summary.sheets} 枚、テーブル {payload.summary.tables} 個)</li>
+                <li>シート名・数式の例・名前定義、テーブル名・列名・行数(シート {payload.summary.sheets} 枚、テーブル {payload.summary.tables} 個)</li>
+                <li>Access のフォーム・レポート・マクロ・モジュールの名前、リンクテーブルの参照先(データベースのパス・接続文字列。パスワードは伏せ字)</li>
+                <li>シートのボタン・図形に表示された文字と、登録されたマクロの名前</li>
+                <li>VBA プロジェクトの名前、参照設定(ライブラリの名前とファイルのパス)、ファイルの形式、作成・更新の年</li>
                 <li>コードから取り出した SQL 文・接続文字列・ファイルのパス・URL など({n(payload.summary.dependencies)} 件。パスワードは伏せ字)</li>
-                <li>呼び出し関係・起動のきっかけ・機械的に検出したリスク</li>
+                <li>呼び出し関係・起動のきっかけ・機械的に検出したリスク・規模の件数</li>
                 <li>
                   <strong>
                     コード・コメント・数式・パスの中に書かれた氏名・メールアドレス・電話番号・会社名・ファイル名・APIキー・トークン・Webhook の URL(伏せ字の対象外です)
