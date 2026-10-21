@@ -52,3 +52,6 @@ next-env.d.ts
 
 # 図面用フォントを作り直すときの作業場所
 /.cache/
+
+# デモの録画(npm run demo:record の出力。スクリーンショットは docs/manufacturing/demo/screens/ に置く)
+/demo-output/

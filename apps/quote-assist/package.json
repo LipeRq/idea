@@ -11,7 +11,8 @@
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "generate-data": "tsx scripts/generate-data.ts",
-    "eval": "tsx scripts/eval-extraction.ts"
+    "eval": "tsx scripts/eval-extraction.ts",
+    "demo:record": "tsx scripts/record-demo.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",

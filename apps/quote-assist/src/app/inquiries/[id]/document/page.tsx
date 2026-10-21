@@ -159,7 +159,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
           <dt className="font-semibold">納期</dt>
           <dd>
             受注後 約{doc.standardLeadDays}営業日
-            {doc.dueDate && (doc.meetsDueDate ? `(ご希望の${formatJpDate(doc.dueDate)}に対応${doc.expedite ? "・特急対応" : ""})` : `(ご希望の${formatJpDate(doc.dueDate)}は要相談)`)}
+            {doc.dueDate && (doc.meetsDueDate ? `(ご希望の${formatJpDate(doc.dueDate)}に対応できる見込み${doc.expedite ? "・特急で調整" : ""}。確定納期は受注時にご連絡します)` : `(ご希望の${formatJpDate(doc.dueDate)}は要相談)`)}
           </dd>
           <dt className="font-semibold">見積範囲</dt>
           <dd>{doc.includes.join("、")}</dd>
