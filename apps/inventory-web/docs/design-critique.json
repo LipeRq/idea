@@ -1,0 +1,176 @@
+{
+  "summary": "design.md を、エンジンのコード、Next 16.4 のドキュメント、実際に動かした結果と照らし合わせて確認しました。設計書は編集していません。\n\n**全体の判断:** 骨格は実現できますが、実装前に直すべき重大な問題が5件あります。\n\n**実際に動かして確認できたこと(問題なし):**\n- 設計と同じ設定で Worker 用バンドルを作ると 704KB(gzip で約177KB)で、目安の 1MB 以下に収まります。\n- バンドル内に fetch / XMLHttpRequest / sendBeacon / WebSocket / EventSource / importScripts の文字列はありません。\n- Worker のスクリプトの応答ヘッダーに付けた CSP は、Chromium で Worker の中にも効きます。\n- パスワード付き .accdb を Worker で解析すると、設計の想定どおり「パスワードで暗号化された Access…」の UnsupportedFileError になります。\n- Next の headers() は public/ のファイルにも付きます。mermaid 12.2.0 / markdown-it 15.0.3 / dompurify 3.4.17 は実在する版で、mermaid の設定名(htmlLabels など)も正しいです。\n\n**重大な問題(high)5件:**\n- **F01 エラー名が壊れる:** minify すると error.name が \"Ve\" や \"de\" になり、§2.3 の文言の対応がすべて「想定外」に落ちます(実測)。\n- **F02 CSP 違反が毎回出る:** zod がスキーマを作るときに new Function で eval できるか試すため、Worker を起動するたびに CSP 違反が起きます(Chromium で実測)。開発者ツールに赤いエラーが出て、機密性の説明と矛盾します。§5.1 の「eval が無いことは確認済み」は、実際には配信されないファイル(mermaid.min.js)を見ています。\n- **F03 AI に送る内容の説明が実際より安全に見える:** APIキー・トークン・Webhook URL・`.Item(cdoSendPassword)` 形式のメールのパスワード・コード中の氏名やメールは伏せ字になりません(エンジンで確認)。「ソースとSQLを送らない」を選んでも、コード中の SQL 文・URL・パスは送られます。\n- **F04 AI の利用可否がビルド時に固定される:** cacheComponents 有効時、環境変数しか読まない GET はビルド時に事前生成されます。同じビルドを環境変数だけ変えて3台起動する E2E が成り立たず、本番でも環境変数で AI を止められません。\n- **F05 オフラインで図が描けない:** `import(\"mermaid\")` を先読みしても、flowchart の実装は初めて図を描くときに別ファイルとして読み込まれます。オフラインの E2E と「機内モードで実演」の約束が守れません。\n\n**中程度(medium):**\n- Vercel の本文上限 4.5MB と既定値 8MB の食い違い、同意前の事前判定の不足\n- AI の費用の歯止めが回数だけ(1回 最大約$7)で、共有ストアが無いと上限が効かない\n- 監視タイマーにファイルの読み込み時間が含まれる。自前の SHA-256 は 100MB で 2.4秒(実測)\n- データの多いブックが解析全体ごと失敗し、「zip 爆弾」という怖い文言が出る\n- Worker の読み込み失敗を「メモリ不足」と表示し、オフライン動作がブラウザのキャッシュ頼み\n- 大きな結果でメインスレッドが固まる\n- CSP の説明が強すぎる。エラー監視SDK・useOffline・Vercel Toolbar などの禁止が無い\n- 同意画面に送信先の国(米国)と Anthropic 側での保持の説明が無い\n- ITに詳しくない利用者が迷う点・結果を失う点(専門語、ドロップゾーン外へのドロップ、再読み込み、行き止まりになる AI ボタン)\n- テスト観点の漏れ\n- MVP の範囲が大きすぎる(段階分けを提案)\n\n**軽微(low):** NDJSON の無通信対策とログ漏れ、図・印刷・HTML 保存の細部、ビルドと開発環境の細部。\n\n確認に使ったスクリプトは /tmp/claude-0/-home-user-idea/3d5733b2-5a88-5374-910d-d39c034e1d56/scratchpad/wk/ にあります(build.mjs:バンドルとサイズ・エラー名、chrome-check.cjs:Chromium の Worker で CSP とエラー名、secrets-check.ts:伏せ字の限界、sha.ts:SHA-256 の速度)。",
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "high",
+      "title": "Worker を minify するとエラー名が壊れ、§2.3 の文言の対応が全部外れる",
+      "detail": "§3.2 の build-worker は minify: true ですが、keepNames を指定していません。エンジンのエラーは this.name = new.target.name なので、esbuild が識別子を短くするとクラス名が変わります。§3.3 は Worker から error.name を返し、§2.3 は name で文言を引くので、すべて「その他(想定外)」扱いになります。暗号化 Access・壊れたファイル・上限超過の専用文言は出ません。handle.ts の単体テストは Node でソースを直接呼ぶため、この問題を検出できません。",
+      "evidence": "設計と同じ設定(iife, minify, es2022, エンジンの plugin)でバンドルを作り、Chromium の Worker で実行しました。V2010_with-password.accdb は name \"Ve\"、壊れた zip は \"de\" になりました。keepNames: true なら \"CorruptFileError\" になります(704KB→730KB)。design.md 151行(minify)、183行(name を返す)、83-92行(name で対応づけ)。",
+      "suggestion": "handle.ts で instanceof により判定し、固定の code(unsupported / encryptedAccess / password / corrupt / limit / internal)を返すプロトコルに変えます。暗号化 Access の判定も Worker 側で行います。保険として keepNames: true も付けます。ビルド後のバンドルを使うテスト(vm で実行するか E2E のエラーケース)で code を確認します。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F02",
+      "severity": "high",
+      "title": "zod の eval 試行で、解析のたびに CSP 違反がコンソールに出る",
+      "detail": "エンジンの schema.ts はモジュールの初期化時に zod v4 の z.object を作ります。このとき zod は new Function(\"\") で eval できるかを試します(allowsEval)。Worker の CSP には unsafe-eval が無いので、Worker を起動するたびに securitypolicyviolation が起き、DevTools に \"Refused to evaluate a string as JavaScript\" の赤いエラーが出ます。§4.3 は利用者に開発者ツールで確かめるよう案内しているので、まさにその画面で機密性の説明が損なわれます。また §5.1 の「eval が無いことは確認済み」は mermaid.min.js を見ていますが、npm の mermaid が実際に読み込むのは mermaid.core.mjs と依存パッケージで、Turbopack がそれをまとめたチャンクが配信されます。確認した対象が違います。apps/diagnosis はこの問題を zod-setup.ts で解決済みです。",
+      "evidence": "設計どおりの CSP(script-src 'self' 'unsafe-inline'、unsafe-eval なし)で配信した Worker で正常な .accdb を解析すると、{\"csp\":\"script-src\"} の違反イベントが発生しました(Chromium で実測)。zod/v4/core/util.js 218行の allowsEval、schemas.js 1194-1196行(スキーマを作るときに評価)。apps/diagnosis/src/lib/zod-setup.ts。design.md 340行。",
+      "suggestion": "Worker の入口で最初に import するモジュールで globalThis.__zod_globalConfig = { ...既存, jitless: true } を設定します。zod の globalConfig は globalThis で共有されるので、エンジン側の zod にも効きます。ES module の評価順で schema.ts より前に実行される位置に置きます。画面側の zod には diagnosis の zod-setup をコピーします。E2E に「通常の操作(解析・図・保存・AI同意)の間、page と worker の securitypolicyviolation が0件」を追加し、§5.1 の確認は Next の本番ビルドの出力に対して行います。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F03",
+      "severity": "high",
+      "title": "AI に送る内容の説明が実際より安全に見える(伏せ字の限界・送らない選択の中身)",
+      "detail": "§4.4 の表は「パスワード」「ファイル名」「作成者・会社名」を送らないものに入れ、「ソースコードとSQLは送らない」という選択肢も用意しています。しかし実際には次のとおりです。(1) 伏せ字の対象は Password= / Pwd= / パスワードらしい変数名などのパターンだけです。APIキー・トークン・Bearer・Webhook URL・URL のクエリに書いたキー・CDO の .Item(cdoSendPassword) = \"…\" は伏せられません。中小企業のマクロでは、メール送信や LINE / Slack / Chatwork への通知が頻出します。(2) コード・コメント・文字列・数式・パス・シート名に書かれた氏名・メール・電話番号・会社名・元のファイル名は、そのまま送られます。(3)「送らない」を選んでも、dependencies の target(VBA 内の SQL 文字列・URL・パス)、接続文字列、数式の例、名前定義、参照設定のパス(C:\\Users\\<氏名>…)は残ります。ITに詳しくない利用者は「パスワードや個人名は送られない」と誤解します。",
+      "evidence": "エンジンの maskVbaSource で確認しました。Const LINE_TOKEN / API_KEY、setRequestHeader \"Authorization\",\"Bearer …\"、\"https://hooks.slack.com/services/…\"、\"?apikey=…\"、.Item(cdoSendPassword) = \"smtp-pass-1\"、MsgBox の氏名・メール・電話は伏せられずに残ります。sendpassword の URL 形式と Const DB_PASS は伏せられます。apps/inventory/src/vba/analyze.ts 396-401行で、SQL・URL・パスの文字列を dependencies に入れています。design.md 264-275行、284行。",
+      "suggestion": "表を3つに分けます:「送らないもの」「伏せ字にして送るもの(検出できたパスワードだけ)」「そのまま送るもの(APIキー・トークン・Webhook URL、コード・コメント・数式・パスに書かれた氏名・メール・会社名・ファイル名)」。選択肢の名前は「ソースコード本文とクエリのSQLを送らない(コード中のSQL文・URL・パスなどの抽出結果は送られます)」にするか、その選択時は dependencies の sql / url の target も伏せます。送信前に Worker で要注意の文字列(メール・電話番号、token / key / secret / bearer / webhook / hooks.slack.com / notify-api、長いランダム文字列)を数え、場所付きで表示します。E2E のテスト用ファイルに API キーとメールを入れ、画面が「送られる」と正しく伝えていることを確認して、伏せ字の限界をテストで固定します。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F04",
+      "severity": "high",
+      "title": "cacheComponents 有効下で GET /api/ai-document がビルド時に固定され、AIの有効化とE2Eの3台構成が成り立たない",
+      "detail": "next.config は cacheComponents: true です(兄弟アプリと同じ)。Next 16 では、Cache Components 有効時の GET Route Handler は、リクエストや実行時の API に触れなければビルド時に事前生成されます。設計の GET は環境変数(INVENTORY_AI_MODE など)を読んで返すだけなので、ビルド時の値で固定されます。§7.2 は「同じビルドを環境変数を変えて3台起動」するため、3410 / 3411 / 3412 の利用可否が同じになり、E2E が成り立ちません。本番でも、環境変数で AI を止める操作が再ビルドまで効きません。",
+      "evidence": "node_modules/next/dist/docs/01-app/01-getting-started/15-route-handlers.md の「With Cache Components」:\"can be prerendered when they don't access uncached or runtime data\"。静的な例は Response.json だけを返すものです。design.md 294行(GET)、422-425行(3台構成)、512行(cacheComponents)。",
+      "suggestion": "GET の先頭で await connection()(next/server)を呼ぶこと(または request.headers を読むこと)を設計に明記し、単体テストと E2E(3410 は available:false、3411 は mode:\"mock\")で確認します。NEXT_PUBLIC_* はビルド時に埋め込まれ、3台で値を変えられないことも §7.2 に書きます。「相談URLが未設定なら出さない」は単体テストで確認します。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F05",
+      "severity": "high",
+      "title": "オフライン時に図が描けない(mermaid の flowchart は初回描画時に別チャンクを読み込む)",
+      "detail": "§3.6 は「アイドル時に mermaid を動的 import して読み込んでおく」ことで data-diagram-ready にします。しかし mermaid 12 の ESM(mermaid.core.mjs)は、図の種類ごとの実装を初めて描画するときに import(\"./chunks/mermaid.core/flowDiagram-….mjs\") で読み込みます。import(\"mermaid\") だけでは flowchart とレイアウトのチャンクは取得されないので、オフラインにすると最初の図の描画で失敗します。§7.2 のオフライン E2E が落ち、「機内モードで実演」の約束が守れません。",
+      "evidence": "npm pack mermaid@12.2.0 の dist/mermaid.core.mjs に import(\"./chunks/mermaid.core/flowDiagram-IUGLLWBU.mjs\") などの動的 import が 37行あります。package.json の exports \".\" は mermaid.core.mjs です(設計が確認した mermaid.min.js ではありません)。design.md 213行、340行、434行。",
+      "suggestion": "アイドル時に、画面外の要素で小さな flowchart(flowchart LR; a-->b)を使うテーマで1回描画してから data-diagram-ready を立てます。オフライン E2E は「ready の後にオフラインにし、その後で初めて図のあるタブを開く」順序で確認します。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F06",
+      "severity": "medium",
+      "title": "AI送信の事前判定が不十分(Vercel の本文上限4.5MB・要約の依頼数・単位の不一致)",
+      "detail": "既定の INVENTORY_AI_MAX_BODY_BYTES は 8MB です。一方、デプロイ先として想定している Vercel の関数は、リクエスト本文が 4.5MB までです(超えるとプラットフォームが JSON でない 413 を返します。実装前に最新の値を確認してください)。同意画面は「約 X 文字(上限 Y)」だけを見ていますが、サーバーは推定トークン数・要約の依頼数(8回以下)・本文のバイト数の3つで拒否します。GET は maxInputTokens しか返さないので、利用者は同意した後で 413 に当たります。画面の「文字」とサーバーの「トークン」という単位も一致していません。",
+      "evidence": "design.md 260行(GET の項目)、272行、304行、307行、531行。",
+      "suggestion": "既定値を 4MB 以下にします。GET で maxInputTokens・maxBatches・maxBodyBytes を返し、Worker の aiPayload で buildUnits + batchUnits + estimateTokens と body のバイト数を計算して、3つとも同意前に判定します(超えていれば送信ボタンを無効にし、理由を表示)。ai-client は JSON でない応答(413 や 504 の HTML)も扱えるようにします。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F07",
+      "severity": "medium",
+      "title": "AI の費用の歯止めが回数だけで、共有ストアが無いと上限が効かない(フェイルオープン)",
+      "detail": "1日の上限は回数で数えます(未設定なら20回)が、費用は入力の大きさで大きく変わります。claude-opus-5-5 は入力 $4・出力 $20(100万トークンあたり)で、思考は無効にできません。1回の依頼で最大「要約8回+統合1回」を呼び、それぞれ max_tokens は 32k です。また diagnosis からコピーする rate-limit は、共有ストアが無い・接続できないときにメモリで数えます。サーバーレスではこれで1日の上限が実質効きません。アクセスコードは任意なので、既定では誰でも匿名で使えます。",
+      "evidence": "claude-api スキルの shared/models.md にある Opus 5.5 の価格。apps/inventory/src/doc/ai.ts の maxTokens 32_000 と effort。apps/diagnosis/src/lib/rate-limit.ts の createSharedRateLimiter(接続に失敗するとメモリに切り替える)。design.md 301-309行、322行、529行。概算: 入力 約29万トークン(約$1.2)+出力 最大28.8万トークン(約$5.8)で1回 約$7、20回/日で約$140/日。",
+      "suggestion": "本番(VERCEL などで判定)で共有ストアが無い場合、claude モードは「利用不可」にし、ストアの障害時も AI は拒否します(フェイルクローズ)。回数に加えて、1日の推定入力トークンの上限(例: INVENTORY_AI_DAILY_INPUT_TOKENS)を持ちます。MVP ではアクセスコード必須(コンサルタント専用)を既定とし、匿名で公開するかは利用状況を見て判断します。README に1回あたりの費用の目安を書きます。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F08",
+      "severity": "medium",
+      "title": "監視タイマーに読み込み時間が含まれ、自前の SHA-256 が時間を食う",
+      "detail": "§3.5 の監視タイマー(60秒+15秒)を依頼時から数えると、file.arrayBuffer() の時間も含まれます。共有フォルダや VPN 越しの 200MB は読み込みだけで数十秒かかるので、エンジンの制限時間内に終わる解析でも terminate されます。エンジンの時間予算は analyzeBuffer の開始後だけを数えます。さらに SHA-256 は自前の同期実装で、このサーバーでも 100MB に 2.4秒かかります。中小企業の低性能 PC ではその数倍なので、200MB では時間予算の大部分を使います。",
+      "evidence": "自前の sha256Hex を計測: 100MB で 2383ms。apps/inventory/src/limits.ts の Budget は analyzeBuffer の中で作られます。AnalyzeOptions.sha256 で外から渡せます。design.md 183行、203-204行。",
+      "suggestion": "監視タイマーは Worker から phase: \"analyzing\" を受けた時点で開始し、読み込み中は経過時間の表示と中止だけにします。読み込みの失敗(NotReadableError / NotFoundError)には「ファイルを開けませんでした。共有フォルダの接続や、別のアプリで編集中でないかを確認し、デスクトップにコピーしてからお試しください」を対応づけます。Worker で crypto.subtle.digest で先にハッシュを計算し、エンジンの options.sha256 に渡します(secure context でない場合は従来どおり)。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F09",
+      "severity": "medium",
+      "title": "データの多いブックが解析全体ごと失敗し、「zip 爆弾」の文言で利用者を怖がらせる",
+      "detail": "エンジンはシートの XML を部品単位で全部展開します(展開中のチャンク+連結したコピー+文字列化で、部品の数倍のメモリを使います)。宣言サイズが maxPartBytes を超えると、LimitExceededError で解析全体が止まります。設計は根拠を示さずに上限を 256MB→128MB、1GB→512MB に下げています。中小企業ではデータ貼り付け用のシートに数十万行あるブックが多く、本題のマクロは小さいのに「zip 爆弾の可能性」というメッセージで失敗します。§2.3 は LimitExceededError をエンジンのメッセージのまま表示します。大きなファイルでの時間とメモリは、どのテストも測っていません。",
+      "evidence": "apps/inventory/src/excel/zip.ts 137-185行(ensurePartSize と chunks の連結)。design.md 88行、198-202行、442行(目安はサンプル1件だけ)。",
+      "suggestion": "実装前に、合成の大きなブック(例: 30万行×20列のデータシート付き .xlsm で、展開後 100MB 超)と 150MB 級の .accdb を Chromium の Worker で解析し、時間とメモリを測ってから上限を決め、結果を設計書に書きます。partSize / totalSize の表示に「マクロの解析にデータは不要です。データの行を消したコピーを保存してお試しください」を足し、「zip 爆弾」の語は画面に出しません。上限を超えたシートを警告にして VBA だけ解析するモードは、エンジン担当への今後の依頼として書きます(この作業の範囲外)。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F10",
+      "severity": "medium",
+      "title": "Worker の起動失敗を「メモリ不足」と表示し、オフライン動作が HTTP キャッシュ頼み",
+      "detail": "1依頼1Worker の方式なので、解析のたびに /engine/…js を読み込みます(HTTP キャッシュに依存)。次の場合は Worker の error が発生します: 再デプロイ後にキャッシュが消えている(古いハッシュのファイルは public/engine/ ごと消えます)、DevTools の「キャッシュを無効にする」がオン(§4.3 は開発者ツールを開くよう案内しています)、CSP などで読み込めない。§2.3 はこれを「ブラウザのメモリが足りない可能性」と表示し、原因と対処がずれます。",
+      "evidence": "design.md 91行、152行、189-190行、206行、212行、251行。",
+      "suggestion": "ready を受ける前の error は「解析プログラムを読み込めませんでした。ページを再読み込みしてください」に分けます(偽の Worker で単体テスト)。オフラインの確実性を上げるには、(a) Worker を使い回し、時間切れ・中止・異常のときだけ作り直す、または (b) 起動時に Worker のスクリプトを1回取得して Blob URL から起動する(worker-src に blob: を追加。Blob の Worker はページの CSP を引き継ぐ)、のどちらかを設計で決めます。§4.3 の確かめ方に「『キャッシュを無効にする』はオフのままにしてください」と書きます。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F11",
+      "severity": "medium",
+      "title": "大きな結果で画面が固まる(メインスレッドでの Markdown 変換、一覧の分割表示の不足)",
+      "detail": "仕様書タブは、renderMarkdown の全文をメインスレッドで markdown-it → DOMPurify にかけて HTML にします。エンジンは一覧を最大10万件まで出すので、Markdown が数十MB になりえます。分割表示はプロシージャ一覧(200行)にしか書かれていません。依存関係・名前定義・テーブルの列・呼び出し関係の一覧(図の代替テキスト)・リスクの場所はどう分けるか決まっていません。",
+      "evidence": "design.md 107-112行、360-364行。apps/inventory/src/limits.ts の maxListItems 100,000。",
+      "suggestion": "markdown-it の変換は Worker で行い(DOM は不要)、メインスレッドでは DOMPurify と画面への差し込みだけを行います。プレビューに上限(例: 2MB)を設け、超えたら「大きいためプレビューを省略しました。保存して開いてください」と表示します。すべての一覧で共通の「さらに表示」(例: 200件ずつ)を使います。E2E に「モジュール300・依存5,000件」程度の合成ブックで操作が固まらないことの確認を追加します。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F12",
+      "severity": "medium",
+      "title": "CSP の説明が強すぎ、送信しうる機能の禁止リストが足りない",
+      "detail": "§4.1-3 の「仮にコードに混入しても第三者への送信はブラウザが止める」は不正確です。connect-src は画面遷移(location の変更・window.open・リンク)や DNS の先読みを止めません(script-src には 'unsafe-inline' もあります)。また §4.1-4 の禁止リストに、エラー監視SDK(Sentry 等)、instrumentation-client.ts、Server Actions、experimental.useOffline(オフライン中に HEAD 要求を繰り返す)、Vercel のプレビュー環境で注入される Toolbar(vercel.live)が入っていません。なお「Worker にも同じ制限がかかる」点は正しく、Worker の応答ヘッダーの CSP で違反が報告されることを Chromium で確認しました。",
+      "evidence": "design.md 224-237行。node_modules/next/dist/docs/01-app/03-api-reference/05-config/01-next-config-js/useOffline.md(HEAD でのポーリング)。",
+      "suggestion": "文言を「第三者のサーバーへの通信(fetch など)はブラウザが止めます」に弱め、画面遷移については「外部へのリンクは相談ページとプライバシーポリシーだけ」と別に保証します(E2E で外部を指す a[href] と window.open を列挙して確認)。Worker の入口の最初に、fetch / XMLHttpRequest / WebSocket / EventSource / importScripts / navigator.sendBeacon を消す(上書きする)処理を入れます。禁止リストに上記の機能を追加し、デプロイの注意に「Vercel の Toolbar はプロジェクト設定で無効にする」と書きます。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F13",
+      "severity": "medium",
+      "title": "AI同意の説明に、送信先の国と保持の扱いが無い。顧客許可のチェックが自社利用者には分かりにくい",
+      "detail": "§4.3 と §4.4 は「サーバーに保存しない」とだけ言っています。送信先が米国の事業者であること、Anthropic 側での保持(同社の規約による期間)、運営者のサーバーの所在地(Vercel のリージョン)には触れていません。コードやコメントに個人情報が含まれうる以上(F03)、個人情報保護法の「外国にある第三者への提供」の論点が出ます。また同意のチェック「顧客から預かったファイルの場合…許可を得ています」は、自社のファイルを解析する経営者には意味が取りにくく、必須にすると迷います。",
+      "evidence": "design.md 245行、252行、286行。",
+      "suggestion": "同意画面と /how-it-works に次を書きます:「送信先: 運営者のサーバー(所在地)を経由して Anthropic 社(米国)の API」「Anthropic 社では同社の規約に従い一定期間保持される場合があります(リンク)」「個人情報を含むコードは送らないでください」。法務確認が要るかどうかを、README の公開前チェックに入れます。チェックボックスは「このファイルの持ち主(自社または顧客)から、外部の AI サービスへの送信について了承を得ています」の1文にまとめます。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F14",
+      "severity": "medium",
+      "title": "ITに詳しくない利用者が迷う点・結果を失う点",
+      "detail": "(1) 主要なボタンに「Markdown」「抽出結果(JSON)」、概要に「SHA-256」、タブ名に「モジュール・プロシージャ」、表に「Option Explicit」などの専門語が並びます。(2) ドロップゾーンの外にファイルを落とすと、ブラウザがそのファイルを開いて画面が遷移し、メモリ上の結果が消えます。(3) 再読み込み・戻る・相談リンク(同じタブで開く場合)でも結果が消えますが、確認がありません。(4) AI が無効な環境でも「AIで詳しい仕様書を作る」ボタンが出て、押すと「使えません」で行き止まりになります(§1 は「有効な環境のみ」と書いており矛盾しています)。(5) 抽出結果の JSON にはソースコードと作成者名が入りますが、注意書きがありません。",
+      "evidence": "design.md 21行、98行、105行、108行、119-123行、258行。",
+      "suggestion": "保存の主ボタンを「レポートを保存(HTML。ブラウザで開けます)」と「印刷・PDF」にし、Markdown と JSON は「技術者向けの形式」の中に畳みます。専門語には短い言い換えを付け(例: プロシージャ=マクロの処理の単位)、SHA-256 は詳細の欄に移します。ページ全体で dragover / drop の既定の動作を止めます。結果があるときは beforeunload で確認し、外部リンクは新しいタブで開きます。AI の可否はページ表示時に取得してかまいません(ファイル由来の情報を含まない GET です)。無効なら最初からボタンを出しません。JSON の保存時に「ソースコードと作成者名を含みます」と表示します。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F15",
+      "severity": "low",
+      "title": "NDJSON の無通信・異常な応答・サーバーログへの漏れへの備えが無い",
+      "detail": "全体の統合の依頼(effort high)は数分間イベントが出ないことがあり、社内の UTM やプロキシは無通信の接続を切ることがあります。Vercel の maxDuration 800 は上位プランが前提です。ストリームの中で捕まえ損ねた例外は Next がスタック付きで標準エラーに出し、JSON.parse などのエラーメッセージには入力の一部が含まれます。§7.1 のログの確認は console のスパイなので、Next 自身が出すログは対象外です。",
+      "evidence": "design.md 292行、313-319行、324-327行、416行。",
+      "suggestion": "15秒ごとに {\"type\":\"heartbeat\"} を送ります。ストリームの start 全体を try/catch で包み、例外を外に出しません。E2E(3411 / 3412)で webServer の stdout / stderr をファイルに取り、目印・ファイル名・ダミーのパスワードが出ていないことを確認します。ai-client は、行の途中での分割・最後に改行が無い行・JSON でない応答・途中切断を扱い、done の中身は画面の zod で検証してから使います。consentVersion の不一致(デプロイ後に開きっぱなしの古いタブ)には「ページを再読み込みしてください」と表示します。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F16",
+      "severity": "low",
+      "title": "図・印刷・HTML保存の細部(辺の上限、SVG の id の衝突、details タグ、title のエスケープ)",
+      "detail": "(1) §5.1 は「ノードは最大60」と書いていますが、relationshipDiagram には上限が無く、queryDiagram と callFlowDiagram も辺の数は無制限です。mermaid の maxEdges の既定値は 500 です。(2) 画面用(ダーク)と印刷用(ライト)を同じ DOM に描くとき、render の id が同じだと SVG 内の <style>(#id で範囲を限定)が衝突します。Ctrl+P で印刷された場合に、ライトテーマの図と仕様書が揃っている保証もありません(beforeprint は非同期の処理を待てません)。(3) DOMPurify の許可タグに details / summary が無いため、エンジンが Access の SQL に使う <details><summary> が崩れます。(4) 単体 HTML の <title>棚卸しレポート: …</title> に、ファイル名をエスケープして入れることが書かれていません。",
+      "evidence": "apps/inventory/src/doc/mermaid.ts の relationshipDiagram(上限なし)、apps/inventory/src/doc/markdown.ts の renderAccess(<details> を使用)。mermaid 12.2.0 の既定値 \"maxEdges\": 500。design.md 339行、354-356行、363行、365行。",
+      "suggestion": "関係図の上限と省略の注記はエンジン担当に別途依頼し、画面側では maxEdges を超えたときにコード表示へ正しく切り替わることをテストします。render の id にテーマと用途を含めます。印刷用のライト版は結果を表示した後のアイドル時に、非表示の印刷専用の領域へ用意しておき、印刷用 CSS ではそこだけを出します。DOMPurify の許可に details / summary を加えます。title は HTML エスケープし、「<script>.xlsm」のようなファイル名でテストします。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F17",
+      "severity": "medium",
+      "title": "テスト観点の漏れ(ビルド後のバンドル、大きなファイル、失敗経路、ブラウザの種類)",
+      "detail": "(1) 単体テストはエンジンのソースを Node で直接呼ぶため、minify 後のバンドルに固有の問題(F01)や CSP の下での挙動(F02)を検出できません。(2) 大きなファイル(時間・メモリ・上限の境界)のテストがありません。(3) Worker の読み込み失敗、読み込み中の NotReadableError、ドロップゾーン外へのドロップ、同じ名前のファイルの複数投入、0バイトや拡張子なしのファイルのテストがありません。(4) 確認するブラウザは Chromium だけで(/opt/pw-browsers に WebKit / Firefox はありません)、Safari の確認手順もありません。(5) AI については、画面の事前判定とサーバーの 413 の一致、JSON でない応答、done の検証、古い consentVersion、サーバーログ(Next 自身の出力)のテストがありません。(6) 通常の操作で CSP 違反が0件であることを確認していません。",
+      "evidence": "design.md 404-442行。ls /opt/pw-browsers の結果は chromium、chromium_headless_shell、ffmpeg だけでした。",
+      "suggestion": "上記を §7 に追加します。特に「ビルド済みの Worker バンドルを使うスモークテスト(エラーの code と CSP 違反0件)」「合成の大きなブックでの計測テスト(時間がかかるのでタグを付け、CI では任意)」「Safari での手動確認の項目」を明記します。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F18",
+      "severity": "medium",
+      "title": "MVP の範囲が大きすぎる(詳細タブは仕様書タブと内容が重複)",
+      "detail": "最初の実装に次のものがすべて入っています: 9つのタブ、複数ファイル(10件)と棚卸し一覧、オフライン動作の保証、ダーク時の図の描き直し、4段階の AI 同意と送信内容の全文プレビュー、off / claude / mock の AI ルート(アクセスコード・回数制限・1日の上限・Upstash・NDJSON・ログ方針)、サンプル取り込みのビルド時検証、3台構成の E2E。これに F01〜F16 の修正も加わります。仕様書タブはほぼすべての情報を含むので、詳細タブ4つ(モジュール・依存関係・シート・Access)は内容が重複します。",
+      "evidence": "design.md 101-113行、446-470行。",
+      "suggestion": "段階1(公開できる最小): ファイルは1件ずつ解析。タブは概要・リスク・処理の流れ・仕様書(全文)の4つ。保存は HTML・印刷・Markdown・JSON。オフライン動作とネットワークの E2E は残す。図は常にライトテーマの白い枠で表示し、ダーク時の描き直しはやめる。AI は mock と claude(アクセスコード必須)で、同意画面は要約と全文の保存だけ。段階2: 複数ファイルと棚卸し一覧、詳細タブ、送信内容のタブ表示、匿名で使える AI、ダーク時の図。段階の境界を §8 に書きます。",
+      "file": "apps/inventory-web/docs/design.md"
+    },
+    {
+      "id": "F19",
+      "severity": "low",
+      "title": "実装時に詰まる細部(plugin のパス解決、開発時の public/、pretest、Worker の型、アクセスコードの比較)",
+      "detail": "(1) plugin を apps/inventory/scripts/browser-plugin.mjs に切り出すとき、mdbEnvironment.ts のパスを呼び出し側の cwd ではなく plugin ファイル基準(import.meta.url)で解決しないと、画面アプリからのビルドで壊れます。(2) Next は public/ のファイル一覧を起動時に集めるので、dev:worker の監視ビルドでハッシュ付きの新しい名前のファイルができると、開発サーバーで 404 になる可能性があります。(3) prepare.mjs を pretest でも実行しないと、生成物を import するモジュールの単体テストが落ちます。(4) engine.worker.ts は DOM と WebWorker の型定義が衝突します。(5) X-Access-Code の比較に使う timingSafeEqual は、長さが違うと例外を投げます。",
+      "evidence": "apps/inventory/scripts/build-browser.mjs の root の解決。next/dist/server/lib/router-utils/filesystem.js(publicFolderItems を起動時に集める)。design.md 149-152行、301行、486行、520行。",
+      "suggestion": "§3.2 に「plugin はファイル自身の場所を基準にパスを解決する」「開発時は Worker のファイル名を固定にする」を書きます。付録C に pretest を足します。Worker の self は局所的に型を付ける(または Worker 用の tsconfig を分ける)ことを書きます。アクセスコードは両方をハッシュしてから timingSafeEqual で比べる、と §4.5 に追記します。",
+      "file": "apps/inventory-web/docs/design.md"
+    }
+  ]
+}
