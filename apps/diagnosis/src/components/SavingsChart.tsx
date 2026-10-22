@@ -66,7 +66,8 @@ export function SavingsChart({ tasks, topIds }: Props) {
                 <div />
                 <div
                   role="tooltip"
-                  className="w-max max-w-full rounded-md border border-line bg-surface px-3 py-2 text-sm shadow-md"
+                  // 幅を16rem(と表示枠)までに抑え、フォントの字幅で長くなっても折り返してはみ出さないようにする
+                  className="w-fit max-w-[min(16rem,100%)] rounded-md border border-line bg-surface px-3 py-2 text-sm shadow-md"
                   style={{ marginLeft: `max(0px, min(${barEnd}, calc(100% - 16rem)))` }}
                 >
                   <span className="font-semibold text-ink">
