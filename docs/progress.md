@@ -10,7 +10,7 @@
 | `apps/inventory` | 棚卸しツールの解析エンジンとCLI。堅牢化(ファジング)、パスワードの伏せ字、ブラウザ対応まで完了 |
 | `apps/quote-assist` | 製造業向け見積アシストのMVP。金額計算の精度、承認ゲート、AI抽出の堅牢化まで検証済み |
 | `docs/manufacturing` | 業務設計(`use-cases.md`)と技術設計(`quote-assist-design.md`) |
-| `apps/inventory-web`、`apps/inventory/samples` | 棚卸しツールの画面(段階1:ブラウザ内解析、標準の仕様書、AI版は同意制)とデモ用サンプル4本。段階2(複数ファイル、詳細タブなど)は未実装 |
+| `apps/inventory-web`、`apps/inventory/samples` | 棚卸しツールの画面(ブラウザ内解析、複数ファイルの一覧と詳細タブ、標準の仕様書、AI版は同意制)とデモ用サンプル4本 |
 | `apps/quote-assist` の効果測定ダッシュボード、`docs/evals.md` と各アプリの評価スクリプト、`portfolio/`、`docs/legal/`、`packages/shared`、ツール間の導線 | いずれも実装・検証済み(詳細は各README) |
 | `docs/manufacturing/demo`、`docs/manufacturing/sales` | 見積アシストのデモ台本・スクリーンショット・録画スクリプト(`npm run demo:record`)と営業資料8点。批判レビューの指摘を反映済み |
 
