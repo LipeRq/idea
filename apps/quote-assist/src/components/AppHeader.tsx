@@ -5,6 +5,7 @@ import { ModeBadge } from "./ModeBadge";
 const NAV = [
   { href: "/", label: "見積待ち一覧" },
   { href: "/inquiries/new", label: "引き合い登録" },
+  { href: "/dashboard", label: "効果測定" },
   { href: "/rates", label: "単価表" },
   { href: "/crm-mock", label: "Salesforce(モック)" },
 ];

@@ -21,8 +21,10 @@ import {
   PastCaseSchema,
   RateTableSchema,
 } from "../src/lib/domain/reference";
+import { BaselineFileSchema, PilotFileSchema } from "../src/lib/domain/impact";
 import { CollectCanvas, drawSheet, renderDrawingPdf } from "./lib/drawings";
 import { backlog, company, customers, rateTable } from "./lib/masters";
+import { generateBaseline, generatePilot } from "./lib/impact";
 import { generatePastCases } from "./lib/past-cases";
 
 const root = process.cwd();
@@ -62,6 +64,11 @@ async function main() {
   const { cases, defects } = generatePastCases(rateTable);
   writeJson("past-cases.json", z.array(PastCaseSchema), cases);
   writeJson("defects.json", z.array(DefectSchema), defects);
+  // 効果測定ダッシュボードのデモ用(導入前の記録シート、導入後の記録。どちらも架空)
+  const impactBaseline = generateBaseline();
+  const impactPilot = generatePilot();
+  writeJson("impact-baseline.json", BaselineFileSchema, impactBaseline);
+  writeJson("impact-pilot.json", PilotFileSchema, impactPilot);
 
   const fontBytes = new Uint8Array(fs.readFileSync(fontPath));
   const font = fontkit.create(Buffer.from(fontBytes));

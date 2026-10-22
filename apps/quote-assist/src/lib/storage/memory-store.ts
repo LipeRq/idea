@@ -1,3 +1,4 @@
+import { BaselineSchema, type Baseline } from "../domain/impact";
 import { InquirySchema, type Inquiry } from "../domain/inquiry";
 import type { MockCrmRecord, Storage } from "./types";
 
@@ -6,6 +7,7 @@ export function createMemoryStorage(): Storage {
   const inquiries = new Map<string, Inquiry>();
   const blobs = new Map<string, Uint8Array>();
   const crm: MockCrmRecord[] = [];
+  let baseline: Baseline | null = null;
   const clone = <T>(v: T): T => structuredClone(v);
   return {
     inquiries: {
@@ -22,6 +24,11 @@ export function createMemoryStorage(): Storage {
     mockCrm: {
       list: async () => crm.map(clone),
       add: async (record) => void crm.push(clone(record)),
+    },
+    impact: {
+      getBaseline: async () => (baseline ? clone(baseline) : null),
+      saveBaseline: async (b) => void (baseline = clone(BaselineSchema.parse(b))),
+      deleteBaseline: async () => void (baseline = null),
     },
   };
 }

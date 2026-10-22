@@ -14,11 +14,12 @@ function isPdf(file: File) {
   return file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 }
 
-export function RegisterForm({ aiMode }: { aiMode: "anthropic" | "demo" }) {
+export function RegisterForm({ aiMode, operators }: { aiMode: "anthropic" | "demo"; operators: string[] }) {
   const router = useRouter();
   const [from, setFrom] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [operator, setOperator] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -69,6 +70,7 @@ export function RegisterForm({ aiMode }: { aiMode: "anthropic" | "demo" }) {
     form.set("from", from);
     form.set("subject", subject);
     form.set("body", body);
+    form.set("operator", operator);
     for (const f of files) form.append("files", f, f.name);
     try {
       const res = await fetch("/api/inquiries", { method: "POST", body: form });
@@ -126,6 +128,19 @@ export function RegisterForm({ aiMode }: { aiMode: "anthropic" | "demo" }) {
           <input className={inputClass} value={subject} disabled={!hydrated} onChange={(e) => setSubject(e.target.value)} />
         </label>
       </div>
+
+      <label className="block space-y-1 sm:max-w-sm">
+        <span className="text-sm font-medium">この見積を作る人(任意)</span>
+        <select className={inputClass} value={operator} disabled={!hydrated} onChange={(e) => setOperator(e.target.value)}>
+          <option value="">選ばない</option>
+          {operators.map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
+        </select>
+        <span className="block text-xs text-muted">効果測定の「見積担当者以外が作成した割合」に使います。</span>
+      </label>
 
       <label className="block space-y-1">
         <span className="text-sm font-medium">メール本文</span>

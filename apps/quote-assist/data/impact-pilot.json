@@ -1,0 +1,6470 @@
+{
+  "note": "架空の記録。しらかば精工が2026年9月から6週間、試験導入した、という設定のデモ用データです。実在の会社・調査の数字ではありません。",
+  "records": [
+    {
+      "id": "pilot-003",
+      "receivedAt": "2026-09-07",
+      "answeredAt": "2026-09-11",
+      "operator": "技術課 田村",
+      "workMinutes": 72,
+      "aiUsed": true,
+      "aiCostJpy": 162,
+      "aiProcessingMs": 20000,
+      "aiTokens": 33674,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "won",
+      "orderAmount": 708000,
+      "quotedCost": 564000,
+      "actualCost": 528000,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-005",
+      "receivedAt": "2026-09-07",
+      "answeredAt": "2026-09-11",
+      "operator": "工場長 森",
+      "workMinutes": 74,
+      "aiUsed": true,
+      "aiCostJpy": 143,
+      "aiProcessingMs": 45083,
+      "aiTokens": 30210,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.16,
+        0.16
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-006",
+      "receivedAt": "2026-09-07",
+      "answeredAt": "2026-09-10",
+      "operator": "営業部 青木",
+      "workMinutes": 69,
+      "aiUsed": true,
+      "aiCostJpy": 143,
+      "aiProcessingMs": 55160,
+      "aiTokens": 31156,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.21
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-008",
+      "receivedAt": "2026-09-07",
+      "answeredAt": "2026-09-10",
+      "operator": "工場長 森",
+      "workMinutes": 28,
+      "aiUsed": true,
+      "aiCostJpy": 134,
+      "aiProcessingMs": 65641,
+      "aiTokens": 28640,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-001",
+      "receivedAt": "2026-09-08",
+      "answeredAt": "2026-09-11",
+      "operator": "代表取締役 白石",
+      "workMinutes": 47,
+      "aiUsed": true,
+      "aiCostJpy": 137,
+      "aiProcessingMs": 66696,
+      "aiTokens": 30463,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.14,
+        0.06
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-004",
+      "receivedAt": "2026-09-08",
+      "answeredAt": "2026-09-09",
+      "operator": "工場長 森",
+      "workMinutes": 30,
+      "aiUsed": true,
+      "aiCostJpy": 172,
+      "aiProcessingMs": 55907,
+      "aiTokens": 38046,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-002",
+      "receivedAt": "2026-09-11",
+      "answeredAt": "2026-09-17",
+      "operator": "営業部 青木",
+      "workMinutes": 35,
+      "aiUsed": true,
+      "aiCostJpy": 160,
+      "aiProcessingMs": 33793,
+      "aiTokens": 36281,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 3
+        }
+      ],
+      "hourChangeRates": [
+        0.16,
+        0.23,
+        0.11
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-007",
+      "receivedAt": "2026-09-11",
+      "answeredAt": "2026-09-17",
+      "operator": "工場長 森",
+      "workMinutes": 61,
+      "aiUsed": true,
+      "aiCostJpy": 135,
+      "aiProcessingMs": 38200,
+      "aiTokens": 31020,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-016",
+      "receivedAt": "2026-09-14",
+      "answeredAt": "2026-09-15",
+      "operator": "技術課 田村",
+      "workMinutes": 36,
+      "aiUsed": true,
+      "aiCostJpy": 137,
+      "aiProcessingMs": 43185,
+      "aiTokens": 30228,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-017",
+      "receivedAt": "2026-09-14",
+      "answeredAt": "2026-09-15",
+      "operator": "代表取締役 白石",
+      "workMinutes": 31,
+      "aiUsed": true,
+      "aiCostJpy": 177,
+      "aiProcessingMs": 57919,
+      "aiTokens": 38290,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 4
+        }
+      ],
+      "hourChangeRates": [
+        0.08,
+        0.09,
+        0.07,
+        0.18
+      ],
+      "result": "won",
+      "orderAmount": 200000,
+      "quotedCost": 161000,
+      "actualCost": 193000,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-010",
+      "receivedAt": "2026-09-15",
+      "answeredAt": "2026-09-17",
+      "operator": "工場長 森",
+      "workMinutes": 42,
+      "aiUsed": true,
+      "aiCostJpy": 170,
+      "aiProcessingMs": 60325,
+      "aiTokens": 37883,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.15
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-009",
+      "receivedAt": "2026-09-16",
+      "answeredAt": "2026-09-18",
+      "operator": "技術課 田村",
+      "workMinutes": 21,
+      "aiUsed": true,
+      "aiCostJpy": 160,
+      "aiProcessingMs": 48867,
+      "aiTokens": 34719,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.03
+      ],
+      "result": "won",
+      "orderAmount": 321000,
+      "quotedCost": 270000,
+      "actualCost": 300000,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-012",
+      "receivedAt": "2026-09-16",
+      "answeredAt": "2026-09-21",
+      "operator": "代表取締役 白石",
+      "workMinutes": 58,
+      "aiUsed": true,
+      "aiCostJpy": 146,
+      "aiProcessingMs": 52778,
+      "aiTokens": 32951,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.12,
+        0.06
+      ],
+      "result": "won",
+      "orderAmount": 111000,
+      "quotedCost": 90000,
+      "actualCost": 108000,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-013",
+      "receivedAt": "2026-09-16",
+      "answeredAt": "2026-09-21",
+      "operator": "代表取締役 白石",
+      "workMinutes": 26,
+      "aiUsed": true,
+      "aiCostJpy": 109,
+      "aiProcessingMs": 39231,
+      "aiTokens": 25277,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "won",
+      "orderAmount": 427000,
+      "quotedCost": 338000,
+      "actualCost": 414000,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-018",
+      "receivedAt": "2026-09-16",
+      "answeredAt": "2026-09-18",
+      "operator": "工場長 森",
+      "workMinutes": 38,
+      "aiUsed": true,
+      "aiCostJpy": 130,
+      "aiProcessingMs": 20519,
+      "aiTokens": 29187,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.08,
+        0.25
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-011",
+      "receivedAt": "2026-09-17",
+      "answeredAt": "2026-09-21",
+      "operator": "代表取締役 白石",
+      "workMinutes": 32,
+      "aiUsed": true,
+      "aiCostJpy": 133,
+      "aiProcessingMs": 47445,
+      "aiTokens": 29114,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.25
+      ],
+      "result": "won",
+      "orderAmount": 395000,
+      "quotedCost": 323000,
+      "actualCost": 285000,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-014",
+      "receivedAt": "2026-09-17",
+      "answeredAt": "2026-09-24",
+      "operator": "代表取締役 白石",
+      "workMinutes": 59,
+      "aiUsed": true,
+      "aiCostJpy": 134,
+      "aiProcessingMs": 52186,
+      "aiTokens": 27880,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "won",
+      "orderAmount": 294000,
+      "quotedCost": 246000,
+      "actualCost": 315000,
+      "reworkCount": 1
+    },
+    {
+      "id": "pilot-015",
+      "receivedAt": "2026-09-17",
+      "answeredAt": "2026-09-22",
+      "operator": "代表取締役 白石",
+      "workMinutes": 35,
+      "aiUsed": true,
+      "aiCostJpy": 110,
+      "aiProcessingMs": 57677,
+      "aiTokens": 25465,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.28,
+        0.16
+      ],
+      "result": "won",
+      "orderAmount": 1418000,
+      "quotedCost": 1117000,
+      "actualCost": 1105000,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-024",
+      "receivedAt": "2026-09-21",
+      "answeredAt": "2026-09-25",
+      "operator": "代表取締役 白石",
+      "workMinutes": 53,
+      "aiUsed": true,
+      "aiCostJpy": 123,
+      "aiProcessingMs": 63331,
+      "aiTokens": 27215,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-027",
+      "receivedAt": "2026-09-21",
+      "answeredAt": "2026-09-25",
+      "operator": "工場長 森",
+      "workMinutes": 26,
+      "aiUsed": true,
+      "aiCostJpy": 98,
+      "aiProcessingMs": 43393,
+      "aiTokens": 22491,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.25
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-029",
+      "receivedAt": "2026-09-21",
+      "answeredAt": "2026-09-22",
+      "operator": "代表取締役 白石",
+      "workMinutes": 22,
+      "aiUsed": true,
+      "aiCostJpy": 104,
+      "aiProcessingMs": 48805,
+      "aiTokens": 22455,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.19,
+        0.28
+      ],
+      "result": "won",
+      "orderAmount": 266000,
+      "quotedCost": 212000,
+      "actualCost": 254000,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-019",
+      "receivedAt": "2026-09-22",
+      "answeredAt": "2026-09-24",
+      "operator": "営業部 青木",
+      "workMinutes": 35,
+      "aiUsed": true,
+      "aiCostJpy": 168,
+      "aiProcessingMs": 54869,
+      "aiTokens": 38729,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.12
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-020",
+      "receivedAt": "2026-09-22",
+      "answeredAt": "2026-09-28",
+      "operator": "工場長 森",
+      "workMinutes": 35,
+      "aiUsed": true,
+      "aiCostJpy": 133,
+      "aiProcessingMs": 53275,
+      "aiTokens": 28396,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.17
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-021",
+      "receivedAt": "2026-09-22",
+      "answeredAt": "2026-09-24",
+      "operator": "営業部 青木",
+      "workMinutes": 45,
+      "aiUsed": true,
+      "aiCostJpy": 175,
+      "aiProcessingMs": 59336,
+      "aiTokens": 40632,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.17,
+        0.22
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-028",
+      "receivedAt": "2026-09-22",
+      "answeredAt": "2026-09-23",
+      "operator": "営業部 青木",
+      "workMinutes": 31,
+      "aiUsed": true,
+      "aiCostJpy": 191,
+      "aiProcessingMs": 36579,
+      "aiTokens": 41493,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.23,
+        0.09
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-023",
+      "receivedAt": "2026-09-24",
+      "answeredAt": "2026-10-01",
+      "operator": "代表取締役 白石",
+      "workMinutes": 27,
+      "aiUsed": true,
+      "aiCostJpy": 167,
+      "aiProcessingMs": 36329,
+      "aiTokens": 35396,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.2,
+        0.32
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-025",
+      "receivedAt": "2026-09-24",
+      "answeredAt": "2026-09-30",
+      "operator": "工場長 森",
+      "workMinutes": 65,
+      "aiUsed": true,
+      "aiCostJpy": 131,
+      "aiProcessingMs": 48603,
+      "aiTokens": 29397,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.2,
+        0.21
+      ],
+      "result": "won",
+      "orderAmount": 304000,
+      "quotedCost": 244000,
+      "actualCost": null,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-022",
+      "receivedAt": "2026-09-25",
+      "answeredAt": "2026-09-29",
+      "operator": "工場長 森",
+      "workMinutes": 39,
+      "aiUsed": true,
+      "aiCostJpy": 197,
+      "aiProcessingMs": 49296,
+      "aiTokens": 43680,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.2
+      ],
+      "result": "won",
+      "orderAmount": 927000,
+      "quotedCost": 731000,
+      "actualCost": null,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-026",
+      "receivedAt": "2026-09-25",
+      "answeredAt": "2026-09-29",
+      "operator": "代表取締役 白石",
+      "workMinutes": 27,
+      "aiUsed": true,
+      "aiCostJpy": 117,
+      "aiProcessingMs": 50896,
+      "aiTokens": 24604,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "won",
+      "orderAmount": 267000,
+      "quotedCost": 214000,
+      "actualCost": null,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-030",
+      "receivedAt": "2026-09-25",
+      "answeredAt": "2026-10-01",
+      "operator": "代表取締役 白石",
+      "workMinutes": 38,
+      "aiUsed": true,
+      "aiCostJpy": 154,
+      "aiProcessingMs": 36969,
+      "aiTokens": 33467,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.1
+      ],
+      "result": "won",
+      "orderAmount": 529000,
+      "quotedCost": 425000,
+      "actualCost": null,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-035",
+      "receivedAt": "2026-09-28",
+      "answeredAt": "2026-10-05",
+      "operator": "技術課 田村",
+      "workMinutes": 21,
+      "aiUsed": true,
+      "aiCostJpy": 166,
+      "aiProcessingMs": 50383,
+      "aiTokens": 36349,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.15,
+        0.3
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-034",
+      "receivedAt": "2026-09-29",
+      "answeredAt": "2026-10-01",
+      "operator": "代表取締役 白石",
+      "workMinutes": 24,
+      "aiUsed": true,
+      "aiCostJpy": 145,
+      "aiProcessingMs": 55134,
+      "aiTokens": 33727,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.18
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-036",
+      "receivedAt": "2026-09-29",
+      "answeredAt": "2026-10-01",
+      "operator": "工場長 森",
+      "workMinutes": 33,
+      "aiUsed": true,
+      "aiCostJpy": 92,
+      "aiProcessingMs": 46591,
+      "aiTokens": 19597,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.18,
+        0.17
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-039",
+      "receivedAt": "2026-09-29",
+      "answeredAt": "2026-10-02",
+      "operator": "工場長 森",
+      "workMinutes": 22,
+      "aiUsed": true,
+      "aiCostJpy": 123,
+      "aiProcessingMs": 51232,
+      "aiTokens": 25935,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.25,
+        0.28
+      ],
+      "result": "won",
+      "orderAmount": 1025000,
+      "quotedCost": 858000,
+      "actualCost": null,
+      "reworkCount": 0
+    },
+    {
+      "id": "pilot-031",
+      "receivedAt": "2026-09-30",
+      "answeredAt": "2026-10-01",
+      "operator": "営業部 青木",
+      "workMinutes": 30,
+      "aiUsed": true,
+      "aiCostJpy": 197,
+      "aiProcessingMs": 36893,
+      "aiTokens": 43510,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.2,
+        0.23
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-037",
+      "receivedAt": "2026-09-30",
+      "answeredAt": "2026-10-05",
+      "operator": "代表取締役 白石",
+      "workMinutes": 33,
+      "aiUsed": true,
+      "aiCostJpy": 109,
+      "aiProcessingMs": 49161,
+      "aiTokens": 23628,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.09
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-038",
+      "receivedAt": "2026-10-01",
+      "answeredAt": "2026-10-09",
+      "operator": "営業部 青木",
+      "workMinutes": 65,
+      "aiUsed": true,
+      "aiCostJpy": 127,
+      "aiProcessingMs": 54647,
+      "aiTokens": 29418,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.16
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-032",
+      "receivedAt": "2026-10-02",
+      "answeredAt": "2026-10-07",
+      "operator": "代表取締役 白石",
+      "workMinutes": 26,
+      "aiUsed": true,
+      "aiCostJpy": 145,
+      "aiProcessingMs": 27953,
+      "aiTokens": 33221,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-033",
+      "receivedAt": "2026-10-02",
+      "answeredAt": "2026-10-07",
+      "operator": "工場長 森",
+      "workMinutes": 28,
+      "aiUsed": true,
+      "aiCostJpy": 166,
+      "aiProcessingMs": 65897,
+      "aiTokens": 34303,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "won",
+      "orderAmount": 62000,
+      "quotedCost": 51000,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-041",
+      "receivedAt": "2026-10-05",
+      "answeredAt": "2026-10-09",
+      "operator": "工場長 森",
+      "workMinutes": 39,
+      "aiUsed": true,
+      "aiCostJpy": 113,
+      "aiProcessingMs": 37908,
+      "aiTokens": 25162,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "won",
+      "orderAmount": 173000,
+      "quotedCost": 144000,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-044",
+      "receivedAt": "2026-10-05",
+      "answeredAt": "2026-10-07",
+      "operator": "工場長 森",
+      "workMinutes": 24,
+      "aiUsed": true,
+      "aiCostJpy": 176,
+      "aiProcessingMs": 47108,
+      "aiTokens": 39429,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": "won",
+      "orderAmount": 193000,
+      "quotedCost": 153000,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-046",
+      "receivedAt": "2026-10-05",
+      "answeredAt": "2026-10-07",
+      "operator": "代表取締役 白石",
+      "workMinutes": 55,
+      "aiUsed": true,
+      "aiCostJpy": 169,
+      "aiProcessingMs": 40339,
+      "aiTokens": 35063,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.15
+      ],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-045",
+      "receivedAt": "2026-10-06",
+      "answeredAt": "2026-10-12",
+      "operator": "技術課 田村",
+      "workMinutes": 37,
+      "aiUsed": true,
+      "aiCostJpy": 143,
+      "aiProcessingMs": 63297,
+      "aiTokens": 33407,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.15
+      ],
+      "result": "won",
+      "orderAmount": 527000,
+      "quotedCost": 425000,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-050",
+      "receivedAt": "2026-10-06",
+      "answeredAt": "2026-10-12",
+      "operator": "営業部 青木",
+      "workMinutes": 65,
+      "aiUsed": true,
+      "aiCostJpy": 76,
+      "aiProcessingMs": 46986,
+      "aiTokens": 16590,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.13
+      ],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-043",
+      "receivedAt": "2026-10-07",
+      "answeredAt": "2026-10-12",
+      "operator": "営業部 青木",
+      "workMinutes": 65,
+      "aiUsed": true,
+      "aiCostJpy": 160,
+      "aiProcessingMs": 45664,
+      "aiTokens": 32838,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.31
+      ],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-047",
+      "receivedAt": "2026-10-07",
+      "answeredAt": "2026-10-12",
+      "operator": "工場長 森",
+      "workMinutes": 34,
+      "aiUsed": true,
+      "aiCostJpy": 154,
+      "aiProcessingMs": 58350,
+      "aiTokens": 33568,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.05,
+        0.23
+      ],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-040",
+      "receivedAt": "2026-10-08",
+      "answeredAt": "2026-10-14",
+      "operator": "技術課 田村",
+      "workMinutes": 26,
+      "aiUsed": true,
+      "aiCostJpy": 157,
+      "aiProcessingMs": 39415,
+      "aiTokens": 34887,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.19
+      ],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-042",
+      "receivedAt": "2026-10-08",
+      "answeredAt": "2026-10-14",
+      "operator": "工場長 森",
+      "workMinutes": 63,
+      "aiUsed": true,
+      "aiCostJpy": 157,
+      "aiProcessingMs": 34099,
+      "aiTokens": 36858,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 2
+        }
+      ],
+      "hourChangeRates": [
+        0.05,
+        0.34
+      ],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-048",
+      "receivedAt": "2026-10-08",
+      "answeredAt": "2026-10-09",
+      "operator": "代表取締役 白石",
+      "workMinutes": 71,
+      "aiUsed": true,
+      "aiCostJpy": 164,
+      "aiProcessingMs": 55327,
+      "aiTokens": 35072,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 5,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.22
+      ],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-049",
+      "receivedAt": "2026-10-08",
+      "answeredAt": "2026-10-12",
+      "operator": "営業部 青木",
+      "workMinutes": 35,
+      "aiUsed": true,
+      "aiCostJpy": 150,
+      "aiProcessingMs": 30168,
+      "aiTokens": 32917,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-055",
+      "receivedAt": "2026-10-12",
+      "answeredAt": "2026-10-14",
+      "operator": "営業部 青木",
+      "workMinutes": 28,
+      "aiUsed": true,
+      "aiCostJpy": 127,
+      "aiProcessingMs": 47324,
+      "aiTokens": 28349,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 3
+        }
+      ],
+      "hourChangeRates": [
+        0.14,
+        0.08,
+        0.07
+      ],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-056",
+      "receivedAt": "2026-10-12",
+      "answeredAt": "2026-10-16",
+      "operator": "工場長 森",
+      "workMinutes": 68,
+      "aiUsed": true,
+      "aiCostJpy": 136,
+      "aiProcessingMs": 53802,
+      "aiTokens": 28171,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.04
+      ],
+      "result": "lost",
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-058",
+      "receivedAt": "2026-10-12",
+      "answeredAt": "2026-10-15",
+      "operator": "営業部 青木",
+      "workMinutes": 34,
+      "aiUsed": true,
+      "aiCostJpy": 173,
+      "aiProcessingMs": 67408,
+      "aiTokens": 38819,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 1
+        }
+      ],
+      "hourChangeRates": [
+        0.3
+      ],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-059",
+      "receivedAt": "2026-10-12",
+      "answeredAt": "2026-10-13",
+      "operator": "営業部 青木",
+      "workMinutes": 52,
+      "aiUsed": true,
+      "aiCostJpy": 137,
+      "aiProcessingMs": 42321,
+      "aiTokens": 32139,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 1
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 4,
+          "modified": 3
+        }
+      ],
+      "hourChangeRates": [
+        0.13,
+        0.09,
+        0.12
+      ],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-051",
+      "receivedAt": "2026-10-13",
+      "answeredAt": "2026-10-16",
+      "operator": "代表取締役 白石",
+      "workMinutes": 60,
+      "aiUsed": true,
+      "aiCostJpy": 86,
+      "aiProcessingMs": 38073,
+      "aiTokens": 18255,
+      "adoption": [
+        {
+          "item": "field:customerName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:partName",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:drawingNumber",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:revision",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dimensions",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:tolerance",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:surfaceTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:heatTreatment",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:dueDate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:inspection",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "field:processType",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:material",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:quantity",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:treatments",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:profitRate",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:expedite",
+          "evaluated": 1,
+          "modified": 0
+        },
+        {
+          "item": "quote:hours",
+          "evaluated": 3,
+          "modified": 0
+        }
+      ],
+      "hourChangeRates": [],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-052",
+      "receivedAt": "2026-10-14",
+      "answeredAt": null,
+      "operator": "工場長 森",
+      "workMinutes": null,
+      "aiUsed": true,
+      "aiCostJpy": 156,
+      "aiProcessingMs": 55231,
+      "aiTokens": 35092,
+      "adoption": [],
+      "hourChangeRates": [],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-057",
+      "receivedAt": "2026-10-14",
+      "answeredAt": null,
+      "operator": "技術課 田村",
+      "workMinutes": null,
+      "aiUsed": true,
+      "aiCostJpy": 134,
+      "aiProcessingMs": 28169,
+      "aiTokens": 29583,
+      "adoption": [],
+      "hourChangeRates": [],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-053",
+      "receivedAt": "2026-10-15",
+      "answeredAt": null,
+      "operator": "代表取締役 白石",
+      "workMinutes": null,
+      "aiUsed": true,
+      "aiCostJpy": 145,
+      "aiProcessingMs": 52744,
+      "aiTokens": 31976,
+      "adoption": [],
+      "hourChangeRates": [],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-054",
+      "receivedAt": "2026-10-15",
+      "answeredAt": null,
+      "operator": "工場長 森",
+      "workMinutes": null,
+      "aiUsed": true,
+      "aiCostJpy": 201,
+      "aiProcessingMs": 46022,
+      "aiTokens": 46656,
+      "adoption": [],
+      "hourChangeRates": [],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    },
+    {
+      "id": "pilot-060",
+      "receivedAt": "2026-10-15",
+      "answeredAt": null,
+      "operator": "工場長 森",
+      "workMinutes": null,
+      "aiUsed": true,
+      "aiCostJpy": 102,
+      "aiProcessingMs": 50593,
+      "aiTokens": 21298,
+      "adoption": [],
+      "hourChangeRates": [],
+      "result": null,
+      "orderAmount": null,
+      "quotedCost": null,
+      "actualCost": null,
+      "reworkCount": null
+    }
+  ]
+}

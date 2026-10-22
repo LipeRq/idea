@@ -121,6 +121,54 @@ body {
 }
 
 @media print {
+  /* 印刷は、画面のライト/ダークに関わらず白地・黒文字の配色にする(html:root で、ダークの指定より優先させる) */
+  html:root,
+  html:root[data-theme="dark"] {
+    color-scheme: light;
+    --page: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f3f2ee;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #6b6964;
+    --border: rgba(11, 11, 11, 0.1);
+    --border-strong: #8a8880;
+    --grid: #e1e0d9;
+    --accent: #2a78d6;
+    --accent-strong: #1c5cab;
+    --accent-soft: #e6effb;
+    --accent-ink: #1c5cab;
+    --series-1: #2a78d6;
+    --series-1-hover: #1c5cab;
+    --track: #cde2fb;
+    --good: #006300;
+    --critical: #d03b3b;
+    --critical-ink: #a32222;
+    --critical-soft: #fbeaea;
+    --warning: #8a5300;
+    --warning-soft: #fdf3e2;
+    --good-soft: #e6f4e6;
+  }
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  /* 報告書:ブロックの途中でページを分けない */
+  .report-block,
+  .report figure,
+  .report tr {
+    break-inside: avoid;
+  }
+  .report {
+    font-size: 12px;
+  }
+  /* 表は用紙の幅に収める(画面用の最小幅と横スクロールを外す) */
+  .report table {
+    min-width: 0 !important;
+  }
+  .report .overflow-x-auto {
+    overflow: visible !important;
+  }
   body {
     background: #ffffff;
     color: #0b0b0b;

@@ -1,3 +1,4 @@
+import type { Baseline } from "../domain/impact";
 import type { Inquiry } from "../domain/inquiry";
 
 // 保存先の差し替え点。MVPはファイルとメモリ。専用環境ではRDB(PostgreSQL / SQL Server)と
@@ -30,10 +31,18 @@ export interface MockCrmRepository {
   add(record: MockCrmRecord): Promise<void>;
 }
 
+/** 効果測定のベースライン(導入前の記録シート)。1社に1つ */
+export interface ImpactRepository {
+  getBaseline(): Promise<Baseline | null>;
+  saveBaseline(baseline: Baseline): Promise<void>;
+  deleteBaseline(): Promise<void>;
+}
+
 export type Storage = {
   inquiries: InquiryRepository;
   blobs: BlobStore;
   mockCrm: MockCrmRepository;
+  impact: ImpactRepository;
 };
 
 /** パスに使うidの検査(ディレクトリをさかのぼる指定を防ぐ) */
