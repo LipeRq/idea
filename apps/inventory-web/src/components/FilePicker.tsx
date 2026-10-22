@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { formatFileSize, MAX_FILE_BYTES } from "@/lib/browser-limits";
+import { formatFileSize, MAX_FILE_BYTES, MAX_FILES, MAX_TOTAL_BYTES } from "@/lib/browser-limits";
 import { ACCEPT_ATTRIBUTE, SUPPORTED_FORMATS_TEXT } from "@/lib/file-types";
 import { buttonPrimary } from "./ui";
 
@@ -38,6 +38,7 @@ export function FilePicker({ onFiles, disabled = false }: { onFiles: (files: Fil
     >
       <input
         type="file"
+        multiple
         accept={ACCEPT_ATTRIBUTE}
         className="sr-only"
         disabled={disabled}
@@ -52,7 +53,7 @@ export function FilePicker({ onFiles, disabled = false }: { onFiles: (files: Fil
       <span className="text-sm text-ink-2">または</span>
       <span className={buttonPrimary}>ファイルを選ぶ</span>
       <span id="file-picker-help" className="max-w-xl text-sm text-ink-2">
-        対応: {SUPPORTED_FORMATS_TEXT}。1ファイル{formatFileSize(MAX_FILE_BYTES)}まで、一度に1ファイルずつ解析します。
+        対応: {SUPPORTED_FORMATS_TEXT}。1ファイル{formatFileSize(MAX_FILE_BYTES)}まで、一度に{MAX_FILES}ファイル(合計{formatFileSize(MAX_TOTAL_BYTES)})まで選べます。複数のファイルは「棚卸し一覧」で比べられます。
         パスワード付きの Access と、開くときにパスワードが必要なブックは解析できません。
       </span>
     </label>

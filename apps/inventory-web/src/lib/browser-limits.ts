@@ -7,6 +7,10 @@ const MiB = 1024 * 1024;
 /** 選べる1ファイルの大きさ(選択時に File.size で判定し、読み込まない) */
 export const MAX_FILE_BYTES = 200 * MiB;
 
+/** 一度に選べるファイルの数と、その合計の大きさ(結果にソースを含むため、メモリを使い切らないように) */
+export const MAX_FILES = 10;
+export const MAX_TOTAL_BYTES = 500 * MiB;
+
 /** エンジンの協調的な制限時間 */
 export const ENGINE_TIME_LIMIT_MS = 60_000;
 

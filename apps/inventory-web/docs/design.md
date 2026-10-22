@@ -7,6 +7,8 @@
 - 読み手は、ITに詳しくない中小企業の経営者・担当者と、それを支援するコンサルタント。画面の文言はすべて日本語。
 - 構成・UIトークン・テストの書き方は `apps/diagnosis` / `apps/quote-assist` にそろえる(**読むだけ。編集・import はしない**。必要な小さいヘルパーはコピーする)。
 
+> **段階2の実装(2026-10-22)**: 複数ファイル(10件)と棚卸し一覧・ファイル間の関係図・一覧の保存(HTML/CSV/Markdown)・詳細タブ(モジュール・プロシージャ / 依存関係 / シート / Access)を実装した。本文の「【段階2】」が実装時に決めた点。残りは §8 の「未実装」。
+>
 > **実装の状況(2026-10-21 更新)**: 設計レビュー(`docs/design-critique.json`、指摘 F01〜F19)を反映し、レビューの段階分けの提案(F18)に沿って**段階1(公開できる最小)**を実装した。本文中の「【段階1】」「【反映 Fxx】」が実装時に変えた点。段階2以降に回したもの(複数ファイルと棚卸し一覧・詳細タブ・送信内容の全文タブ表示・ダーク時の図の描き直しなど)は §8 に「未実装」として明記した。指摘ごとの採用・不採用と理由は末尾の「付録D 設計レビューへの対応」。
 
 ---
@@ -59,7 +61,7 @@ stateDiagram-v2
 
 - ヘッダー: サービス名「マクロ棚卸し」、右に「仕組みとデータの扱い」リンク。
 - ヒーロー: 見出し「辞めた人が作ったマクロ、中身を見える化します」+ 3つの約束(アイコン付きの短文)。
-- **ドロップゾーン**: 【段階1】1ファイルずつ(`multiple` なし。複数ファイルは段階2)。【反映 F14】ページのどこに落としても解析し、ブラウザがファイルを開いて結果が消えることを防ぐ(`window` の dragover / drop の既定動作を止める)。`<label>` で包んだ `<input type="file" multiple accept=".xlsm,.xlsb,.xls,.xlsx,.xlam,.xltm,.accdb,.mdb">`。キーボードで フォーカス → Enter/Space で選択ダイアログ。ドラッグ中は枠を強調(`--accent`)。説明文: 対応形式、上限(1ファイル200MB・一度に10ファイル)、「パスワード付きの Access と、開くときにパスワードが必要なブックは解析できません」。
+- **ドロップゾーン**: 【段階2】`multiple` で最大10ファイル。【段階1】1ファイルずつ(`multiple` なし)。【反映 F14】ページのどこに落としても解析し、ブラウザがファイルを開いて結果が消えることを防ぐ(`window` の dragover / drop の既定動作を止める)。`<label>` で包んだ `<input type="file" multiple accept=".xlsm,.xlsb,.xls,.xlsx,.xlam,.xltm,.accdb,.mdb">`。キーボードで フォーカス → Enter/Space で選択ダイアログ。ドラッグ中は枠を強調(`--accent`)。説明文: 対応形式、上限(1ファイル200MB・一度に10ファイル)、「パスワード付きの Access と、開くときにパスワードが必要なブックは解析できません」。
 - **サンプルで試す**: `src/generated/samples.json`(§6)からカードを並べる。カード = title、description、highlights(チップ最大6個)、ボタン「このサンプルで試す」。押すと `/samples/<file>` を GET → `File` にして通常と同じ流れへ。マニフェストが空なら節ごと出さない。
 - フッター: エンジンのバージョン(`ai-inventory 0.1.0`)、相談リンク(設定時)。
 
@@ -71,9 +73,11 @@ stateDiagram-v2
 | 1ファイル > 200MB | 「ファイルが大きすぎます(上限200MB)」→ 除外 |
 | 11ファイル以上 / 合計 > 500MB | 「一度に解析できるのは10ファイル・合計500MBまでです」→ 何も始めない |
 
+【段階2】複数のときは、対応外・0バイト・200MB 超のファイルだけを「対象外」として一覧に残し(理由つき)、他は解析する。解析できるものが1つも無ければ、全部の理由を選択画面に出す。1ファイルだけ選んだときの動きは段階1のまま(選択画面に理由、解析に失敗すればエラー画面)。実装は `src/lib/file-types.ts` の `precheckFiles`(`{ ok: true, entries: { file, problem }[] }`)。
+
 ### 2.2 解析中
 
-- 「売上管理.xlsm を解析しています(2/5 件目)」、段階表示「読み込み → 解析 → 仕様書の作成」(Worker から `phase` を受けて進める。エンジンは同期処理で進捗率が取れないため、段階+経過秒数で表示)、「最大60秒ほどかかることがあります」。
+- 【段階2】「売上管理.xlsm を解析しています(2/5 件目)」(「対象外」を除いた件数)、段階表示「読み込み → 解析 → 仕様書の作成」(Worker から `phase` を受けて進める。エンジンは同期処理で進捗率が取れないため、段階+経過秒数で表示)、「最大60秒ほどかかることがあります」。
 - 「中止」ボタン: Worker を `terminate()` し、未処理のファイルも取りやめて選択画面へ。複数ファイルで既に終わった分は残して結果画面へ進む。
 - 常時表示のバッジ: 「このブラウザの中で解析しています(ファイルは送信しません)」。
 - `role="status"` + `aria-live="polite"`。
@@ -97,10 +101,10 @@ stateDiagram-v2
 
 ### 2.4 結果画面
 
-【段階1】タブは「概要」「リスク」「処理の流れ」「仕様書(全文)」の4つ(+AI 版の作成後に「AIによる解説」)。詳細タブ(モジュール・依存関係・シート・Access)は仕様書タブと内容が重なるため段階2。【反映 F14】保存の主ボタンは「レポートを保存(HTML。ブラウザで開けます)」と「印刷・PDF」、Markdown と抽出結果(JSON)は「技術者向けの形式で保存」に畳む(JSON にはソースコードと作成者名が含まれる旨を表示)。SHA-256 は「詳細(技術者向け)」へ。結果があるときは再読み込み・タブを閉じる・同じタブでのサイト内の移動の前に確認する。外部リンクは新しいタブで開く。AI 版のボタンは、ページ表示時に取得した利用可否(ファイル由来の情報を含まない GET)が `available: true` のときだけ出す。
+【段階2】タブは「概要」「リスク」「処理の流れ」「モジュール・処理(N)」「依存関係」「シート(N)」(Excel)「Access」(Access)「仕様書(全文)」(+AI 版の作成後に「AIによる解説」)。該当データが無いタブは出さない。複数ファイルのときは、先に「棚卸し一覧」(下の「上部」)を出し、行の「詳しく見る」でそのファイルのこれらのタブに切り替える(「棚卸し一覧に戻る」で戻る)。1ファイルだけのときは一覧を出さず、従来どおり結果を直接表示する。AI 版・保存(HTML・印刷・Markdown・JSON)はファイルごと(詳細の画面)。【段階1】タブは「概要」「リスク」「処理の流れ」「仕様書(全文)」の4つ(+AI 版の作成後に「AIによる解説」)。詳細タブ(モジュール・依存関係・シート・Access)は仕様書タブと内容が重なるため段階2とした。【反映 F14】保存の主ボタンは「レポートを保存(HTML。ブラウザで開けます)」と「印刷・PDF」、Markdown と抽出結果(JSON)は「技術者向けの形式で保存」に畳む(JSON にはソースコードと作成者名が含まれる旨を表示)。SHA-256 は「詳細(技術者向け)」へ。結果があるときは再読み込み・タブを閉じる・同じタブでのサイト内の移動の前に確認する。外部リンクは新しいタブで開く。AI 版のボタンは、ページ表示時に取得した利用可否(ファイル由来の情報を含まない GET)が `available: true` のときだけ出す。
 
 **上部**
-- 複数ファイル時: 「棚卸し一覧」表(ファイル名/形式/モジュール/コード行/テーブル/クエリ/リスク高/移行難易度/状態)。行を押すとそのファイルの詳細に切り替わる。1ファイルのときは出さない。
+- 複数ファイル時: 「棚卸し一覧」表(ファイル名/形式/規模/モジュール/コード行/シート・数式 または テーブル・クエリ/リスク高・中・低/移行難易度/外部依存/操作)。行の「詳しく見る」でそのファイルの詳細に切り替わる。1ファイルのときは出さない。【段階2】実装は `components/result/InventoryListView.tsx`。上に全体のまとめ(解析できた数・リスク高の合計・移行が難しいファイル数・外部への参照があるファイル数)、下に「ファイル間のつながり」の関係図(下記)。エラー・対象外の行は理由を出す。保存は「一覧を保存(HTML)」「表計算ソフト用に保存(CSV)」「技術者向け: Markdown」(`棚卸し一覧.html/.csv/.md`)。AI 版は一覧からは開かず、ファイルを選んだ詳細から開く。
 - アクションバー: 「仕様書を保存(Markdown)」「HTMLで保存」「印刷」「抽出結果(JSON)」「AIで詳しい仕様書を作る」、右側に「別のファイルを解析」「結果を消去」。スマホでは「保存」メニューに畳む。
 - 注記: 「結果はこのタブを閉じると消えます。必要なら保存してください。」
 
@@ -111,6 +115,7 @@ stateDiagram-v2
 | 概要 | ファイル情報(名前・形式・サイズ・作成/更新日時・作成者・最終更新者・SHA-256 先頭12桁)、規模のタイル(シート/数式/モジュール/プロシージャ/コード行/テーブル/クエリ/外部依存)、移行難易度(`estimateComplexity` の 低/中/高 と理由)、リスク件数(高/中/低)、起動のきっかけ上位5件、`warnings`(解析の制約) |
 | リスク | `findings` を重要度順に。重要度バッジ、タイトル、説明、件数、場所(先頭5件+「ほかN件」を開閉) |
 | 処理の流れ | 呼び出し関係図(`callFlowDiagram`。省略数があれば「起動のきっかけに近い60個を表示」と注記)、起動のきっかけ一覧、呼び出し関係の一覧(図の代替テキストを兼ねる) |
+| 【段階2の実装メモ】 | 詳細タブは `components/result/{ModulesTab,DependenciesTab,SheetsTab,AccessTab}.tsx`。画面はエンジンの実行コードを持たないため、ラベル(モジュール種別・プロシージャ種別・クエリ種別)・依存関係のまとめ(`groupDependencies`)・外部への参照を Worker の `derive` が `Derived`(`labels` / `dependencyGroups` / `externalRefs`)に入れて返す。すべての一覧は共通の `ShowMore`(200件ずつ)で、モジュールの中身(処理の表)・ソース(2,000行ずつ)・SQL・列は `<details>` を開いたときに初めて描く(`LazyDetails`)。表は枠の中で横スクロールし、ページ全体は広がらない |
 | モジュール・プロシージャ | モジュール表(名前・種別・行数・Option Explicit)。行を開くとプロシージャ表(名前・種類・公開範囲・行範囲・行数・引数・エラー処理・呼び出し元/先)と Declare。「ソースを表示」で `<pre>` を遅延描画(伏せ字済み)。200行を超える一覧は「さらに表示」で分割 |
 | 依存関係 | `groupDependencies` の種類ごとの表(対象・件数・場所)、参照設定ライブラリ |
 | シート(Excel) | シート表(名前・コード名・種類・表示状態・使用範囲・数式数・#REF!)、名前定義、外部リンク、データ接続(伏せ字済み)、ボタンに登録されたマクロ |
@@ -380,6 +385,12 @@ const { svg } = await mermaid.render(`mmd-${id}`, code);
 - その後プレースホルダーに SVG を差し込む(画面は現在のテーマ、印刷とHTML保存は常にライトテーマで描く)。
 - 単体HTML: `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" …><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:"><title>棚卸しレポート: …</title><style>(印刷向けの最小CSS)</style><body><main>…</main>`。スクリプトなし。開いても外部に何も読みに行かない。
 
+### 5.4 【段階2】ファイル間の関係図と外部依存(`src/lib/external-refs.ts`)
+
+- 外部依存の取り出し: `extractExternalRefs(dependencies)`(エンジンの実行コードに依存しない純粋な関数。Worker の `derive` が `Derived.externalRefs` に入れる)。対象は `workbook`(Workbooks.Open など)・`externalLink`(数式のリンク。DDE・OLE は除く)・`filePath`・`linkedTable`・`connectionString`・`dataConnection`。パスのファイル名の拡張子で、他のブック(.xls 系)と Access(.mdb・.accdb 系)に分け、接続文字列は `Data Source` / `DBQ` / `Database` のファイル、無ければ `Server` / `DSN` などを DB の接続先とする。csv・txt・URL・COM は対象外。このブック自身への接続(`$Workbook$`)は除く。同じ参照先は1つにまとめ、参照の形(マクロで開く・数式のリンク・パスを記載・リンクテーブル・DB接続・データ接続)と件数を持つ。
+- 関係図: `buildFileGraph`。解析したファイルをノードにし、各ファイルの参照先をファイル名(大文字小文字を区別しない)で照らし合わせる。一致すれば解析済みのファイルへ、一致しなければ「(未解析)」のノードにつなぐ。参照も被参照もないファイルは図に出さない。自分自身への参照は除く。ノードは60個まで(解析したファイルを先に入れ、超えた参照先は省略して数を注記)。矩形=解析したブック、丸みのある四角=解析していないブック、円柱=Access・DB。図は `MermaidDiagram`(§5.2)でそのまま描き、図の下に「参照関係の一覧」(代替テキスト)。参照が1つも無ければ「見つかりませんでした」。
+- 一覧の保存(`src/lib/inventory-list.ts`): CSV は BOM 付き UTF-8・CRLF、`= + - @` などで始まる文字列には `'` を付ける(表計算ソフトの式の実行を防ぐ)。HTML は §5.3 の単体 HTML と同じ枠(CSP の meta・スクリプトなし)に、表と図の SVG を入れる(一覧を表示した後に用意しておき、押したらすぐ保存)。Markdown は表・エラー・外部への参照・図(Mermaid のコードブロック)。
+
 ---
 
 ## 6. デモ用サンプルとの契約
@@ -458,6 +469,8 @@ const { svg } = await mermaid.render(`mmd-${id}`, code);
 
 【反映 F17・実装時の変更】追加・変更した確認: ①**ビルド済み・minify 済みの Worker バンドルそのもの**を Node で動かす単体テスト(`scripts/build-worker.test.ts`。壊れたファイル → `corrupt`、パスワード付き .accdb → `encryptedAccess`、解析中に `new Function` を一度も試さない、通信の API が使えない、1MB 未満)②通常の操作(解析・図・保存・AI 同意)の間、画面と Worker の `securitypolicyviolation` が0件(Worker の違反は lockdown が画面に知らせ、`main[data-csp-violations]` に出る。検知の仕組みそのものも E2E で確かめる)③読み込みの失敗・Worker の起動失敗・ドロップゾーンの外へのドロップ・0バイトや拡張子なし ④AI: 画面の事前判定とサーバーの 413 が同じ計算、JSON でない応答、`done` の検証、古い同意の版、サーバーログ(webServer の出力をファイルに取る)⑤スマホ幅は 390px。Playwright のブラウザは Chromium だけなので、Safari 等は手動確認(README の公開前チェック)。未実施: 大きなファイルでの計測(F09)、大きな結果で画面が固まらないことの E2E(F11)、図の `maxEdges` 超えの表示の確認(F16)。
 
+【段階2】追加した確認: 単体テスト(`file-types`: 10件・500MB の境界と対象外の扱い、`external-refs`: 参照の取り出し・関係図・ノード上限、`inventory-list`: 一覧の行・CSV・Markdown・HTML、`handle`: 詳細・一覧に使う値)。E2E: `multi.spec.ts`(5ファイル=解析済み3・エラー1・対象外1の一覧、関係図、HTML/CSV/Markdown の保存、詳細タブ4種、11ファイルの拒否、**モジュール300・処理4,500の大きな結果で「さらに表示」と応答性(F11)**)、`privacy.spec.ts`(複数ファイル・一覧・詳細・保存・オフラインで、リクエストが同一オリジンの GET だけ・URL にファイル名なし・解析後の新しい URL 0件・CSP 違反0件)、`responsive.spec.ts`(一覧・詳細タブのスマホ幅とダーク/ライト)。
+
 **目安**: サンプル1件の選択から結果表示まで5秒以内(E2E のタイムアウトで担保)。Worker バンドル 1MB 以下(圧縮前)。
 
 ---
@@ -465,7 +478,8 @@ const { svg } = await mermaid.render(`mmd-${id}`, code);
 ## 8. MVP でやること / やらないこと
 
 【段階1の境界(反映 F18)】段階1(実装済み): 1ファイルずつの解析、タブ4つ(概要・リスク・処理の流れ・仕様書の全文)、保存(HTML・印刷・Markdown・JSON)、オフライン動作とネットワークの E2E、図は常にライトの配色、AI 版は mock と claude(アクセスコード必須が既定)で、同意画面は要約・要注意文字列の一覧・送信内容の保存・ソースを送らない選択。
-**段階2(未実装)**: 複数ファイル(10件)と棚卸し一覧、詳細タブ(モジュール・プロシージャ / 依存関係 / シート / Access)、同意画面での送信内容の全文のタブ表示、ダーク時の図の描き直し、図の「拡大して見る」、大きなファイルでの計測と上限の見直し(F09)、大きな結果(モジュール300・依存5,000件程度)で画面が固まらないことの E2E(F11)。匿名で使える AI 版は環境変数で切り替えられるが、既定は無効。
+**段階2(実装済み・2026-10-22)**: 複数ファイル(10件)と棚卸し一覧、ファイル間の関係図、一覧の保存(HTML・CSV・Markdown)、詳細タブ(モジュール・プロシージャ / 依存関係 / シート / Access)、大きな結果(モジュール300・処理4,500)で画面が固まらないことの E2E(F11)。
+**未実装**: 複数ファイルをまとめた AI 版(AI 版は1ファイル単位)、一覧への後からの追加投入、同意画面での送信内容の全文のタブ表示、ダーク時の図の描き直し、図の「拡大して見る」、大きなファイルでの計測と上限の見直し(F09。10ファイルを続けて解析したときのメモリの計測を含む)。匿名で使える AI 版は環境変数で切り替えられるが、既定は無効。
 
 以下は元の設計の「やること」(段階1・段階2を含む)。
 
@@ -487,7 +501,7 @@ const { svg } = await mermaid.render(`mmd-${id}`, code);
 - 相談の申し込みフォーム・CRM 連携(当面は外部の相談ページへのリンク)
 - アカウント・履歴・共有リンク・サーバーへの保存
 - Turnstile などのボット対策(外部オリジンが増えるため。回数制限・1日上限・アクセスコードで代用)
-- 棚卸し一覧の CSV、複数ファイルの ZIP 一括保存
+- 複数ファイルの ZIP 一括保存(棚卸し一覧の CSV は段階2で実装済み)
 - AI に送るモジュールを個別に選ぶ機能、AI の文章の編集
 - 計測(ファネル分析)。必要になったら、ファイル由来の情報を一切含まない形でサーバー側の集計として別途設計する
 - Word / PowerPoint のマクロ、フォルダごとの投入
@@ -518,15 +532,15 @@ apps/inventory-web/
     components/
       InventoryApp.tsx(状態管理)  FilePicker.tsx  SampleList.tsx  AnalyzingView.tsx  ErrorView.tsx  PrivacyBadge.tsx
       MermaidDiagram.tsx  AiConsentDialog.tsx  AiPayloadPreview.tsx
-      result/ ResultView.tsx  InventoryTable.tsx  OverviewTab.tsx  RisksTab.tsx  FlowTab.tsx  ModulesTab.tsx
+      result/ ResultView.tsx  InventoryListView.tsx  InventoryExportActions.tsx  parts.tsx  OverviewTab.tsx  RisksTab.tsx  FlowTab.tsx  ModulesTab.tsx
               DependenciesTab.tsx  SheetsTab.tsx  AccessTab.tsx  DocumentTab.tsx  AiTab.tsx  ExportActions.tsx
     worker/   engine.worker.ts  handle.ts  protocol.ts
     lib/
-      analysis-controller.ts  browser-limits.ts  file-types.ts  errors.ts  export.ts  markdown-html.ts
+      analysis-controller.ts  browser-limits.ts  file-types.ts  errors.ts  export.ts  markdown-html.ts  external-refs.ts  inventory-list.ts
       ai-json.ts  ai-consent.ts(CONSENT_VERSION と文言。画面とサーバーで共有)  ai-client.ts  samples.ts  security-headers.ts
       server/  ai-document.ts  mock-client.ts  rate-limit.ts  ai-quota.ts  kv.ts  http.ts  log.ts(数え方・Upstash・本文の読み取り・例外の種類は packages/shared)
     generated/  engine-asset.json  samples.json   (生成物)
-  e2e/  global-setup.ts  helpers.ts  analyze.spec.ts  errors.spec.ts  privacy.spec.ts  responsive.spec.ts  ai.spec.ts  ai-guard.spec.ts
+  e2e/  global-setup.ts  helpers.ts  analyze.spec.ts  multi.spec.ts  errors.spec.ts  privacy.spec.ts  responsive.spec.ts  ai.spec.ts  ai-guard.spec.ts
 ```
 
 ## 付録B `next.config.ts` の要点
@@ -580,7 +594,7 @@ apps/inventory-web/
 | F08 | medium | 採用 | 監視タイマーは `phase: analyzing` から。読み込み失敗の専用文言。Web Crypto の SHA-256 をエンジンに渡す |
 | F09 | medium | 一部採用 | 上限は根拠なく下げず、エンジンの既定に戻した。上限超過の文言から「zip 爆弾」を除き、データの行を消したコピーを案内。**大きなファイルでの計測は未実施**(合成ファイルの作成と計測に時間がかかるため段階2。README と §8 に未実装と記載)。VBA だけを解析するモードはエンジン側の今後の課題 |
 | F10 | medium | 採用 | 起動前のエラーは「解析プログラムを読み込めませんでした。ページを再読み込みしてください」。Worker はスクリプトを1回取得して Blob URL から起動(案 b)。`worker-src` に `blob:` を追加 |
-| F11 | medium | 一部採用 | markdown-it の変換を Worker に移し、プレビューは 2MB まで(超えたら保存を案内)、一覧は共通の「さらに表示」(200件ずつ)。大きな結果の E2E は未実施(段階2) |
+| F11 | medium | 一部採用 | markdown-it の変換を Worker に移し、プレビューは 2MB まで(超えたら保存を案内)、一覧は共通の「さらに表示」(200件ずつ)。大きな結果の E2E は段階2で追加(`multi.spec.ts`。モジュール300・処理4,500) |
 | F12 | medium | 採用 | CSP の説明を「fetch などによる第三者のサーバーへの通信はブラウザが止める」に弱め、外部リンクは2つだけと E2E で確認。Worker の通信 API を消す。禁止リスト(エラー監視SDK・useOffline・Vercel Toolbar 等)を追加し、計測・エラー監視のライブラリは ESLint で禁止 |
 | F13 | medium | 採用 | 送信先の国(米国)と保持の扱い・「個人情報を含むコードは送らないでください」を同意画面と /how-it-works に表示。顧客許可のチェックを「このファイルの持ち主(自社または顧客)から…了承を得ています」の1文に。法務確認を README の公開前チェックに追加。運営者サーバーの所在地は「Vercel。リージョンは運営者の設定による」と書き、具体的な地域は公開時に運営者が決める |
 | F14 | medium | 採用 | 保存の主ボタンを HTML と印刷に、Markdown・JSON は「技術者向け」に畳む。専門語に言い換え(プロシージャ=マクロの処理の単位 等)、SHA-256 は詳細へ。ページ全体のドロップを止める。beforeunload と同じタブでのサイト内移動の確認。外部リンクは新しいタブ。AI が使えない環境ではボタンを出さない。JSON 保存時の注意書き |

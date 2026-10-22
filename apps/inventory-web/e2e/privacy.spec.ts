@@ -1,11 +1,12 @@
 // 「ファイルはブラウザの外に出ない」ことの確認(docs/design.md §4.1・§7.2)
 import { expect, test, type Page } from "@playwright/test";
-import { FIXTURES, MARKER } from "./constants";
+import { FIXTURES, fixturePath, MARKER } from "./constants";
 import {
   analyzeFixture,
   backToSelect,
   downloadBy,
   expectNoCspViolations,
+  fileInput,
   installCspRecorder,
   openTab,
   openTechnicalExports,
@@ -76,6 +77,60 @@ test("解析から保存までの間、ファイルの中身・ファイル名�
   }
   // 解析を始めてからの通信は、解析の前に読み込んだものと完全に同じ URL(予備の解析 Worker の作り直しなど)だけ。
   // 新しい URL(クエリ付きの要求を含む)は1件も無い
+  const loadedBefore = new Set(requests.slice(0, beforeAnalysis).map((r) => r.url));
+  const isDownloadBlob = (u: string) => new RegExp(`^blob:${origin}/[0-9a-f-]{36}$`).test(u);
+  const after = requests.slice(beforeAnalysis).filter((r) => !loadedBefore.has(r.url) && !isDownloadBlob(r.url));
+  expect(after.map((r) => r.url)).toEqual([]);
+  await expectNoCspViolations(page);
+});
+
+test("複数ファイルの解析・棚卸し一覧・詳細・保存の間も、ファイルの中身・ファイル名を送信しない(通信0件・CSP 違反0件)", async ({ page, context, baseURL }) => {
+  const requests = recordRequests(context);
+  await installCspRecorder(page);
+  await page.goto("/");
+  await waitForReady(page);
+  const beforeAnalysis = requests.length;
+
+  // 目印を含むファイル・参照しあうファイル・壊れたファイル・Access・対応外の形式を一度に入れる
+  const names = [FIXTURES.secret, FIXTURES.linker, FIXTURES.second, FIXTURES.access, FIXTURES.truncated, FIXTURES.docx];
+  await fileInput(page).setInputFiles(names.map(fixturePath));
+  await expect(page.locator('main[data-view="result"]')).toBeAttached({ timeout: 60_000 });
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("棚卸し一覧(6 ファイル)");
+  await expect(page.locator('figure[data-diagram-status="done"] svg').first()).toBeVisible({ timeout: 20_000 });
+
+  // 一覧の保存(HTML・CSV・Markdown)
+  await saveHtmlReport(page, /^一覧を保存/);
+  const csv = await downloadBy(page, () => page.getByRole("button", { name: /^表計算ソフト用に保存/ }).click());
+  // 一覧には、目印のソースもダミーのパスワードも入らない(規模・件数・参照先だけ)
+  expect(csv.text).not.toContain(MARKER.source);
+  expect(csv.text).not.toContain(MARKER.password);
+  await openTechnicalExports(page);
+  await downloadBy(page, () => page.getByRole("button", { name: "一覧(Markdown)" }).click());
+
+  // 各ファイルの詳細タブ(ソースコードの表示を含む)
+  await page.getByRole("button", { name: `${FIXTURES.secret}の詳細を見る` }).click();
+  await openTab(page, /^モジュール・処理/);
+  await page.locator("details > summary", { hasText: /^通知連携/ }).first().click();
+  await page.getByText("ソースコードを表示").first().click();
+  await expect(page.locator("pre").first()).toContainText(MARKER.source);
+  await expect(page.locator("pre").first()).not.toContainText(MARKER.password);
+  await openTab(page, "依存関係");
+  await openTab(page, /^シート/);
+  await page.getByRole("button", { name: "棚卸し一覧に戻る" }).click();
+  await page.getByRole("button", { name: `${FIXTURES.access}の詳細を見る` }).click();
+  await openTab(page, "Access");
+  await openTab(page, "処理の流れ");
+  await expect(page.getByRole("tabpanel").locator('figure[data-diagram-status="done"] svg').first()).toBeVisible({ timeout: 20_000 });
+
+  const origin = new URL(baseURL!).origin;
+  const forbidden = [MARKER.source, MARKER.password, MARKER.apiKey, ...names.flatMap((n) => [n, encodeURIComponent(n)]), "顧客台帳", "連携元", "月次集計"];
+  for (const r of requests) {
+    expect(new URL(r.url).origin, `外部への通信: ${r.url}`).toBe(origin);
+    expect(r.method, `GET 以外の通信: ${r.method} ${r.url}`).toBe("GET");
+    expect(r.postData, `本文付きの通信: ${r.url}`).toBeNull();
+    for (const word of forbidden) expect(decodeURIComponent(r.url), `URL にファイル由来の文字列: ${r.url}`).not.toContain(word);
+  }
+  // 解析を始めてからの通信は、解析の前に読み込んだものと完全に同じ URL だけ(ダウンロード用の blob: を除く)。何件解析しても増えない
   const loadedBefore = new Set(requests.slice(0, beforeAnalysis).map((r) => r.url));
   const isDownloadBlob = (u: string) => new RegExp(`^blob:${origin}/[0-9a-f-]{36}$`).test(u);
   const after = requests.slice(beforeAnalysis).filter((r) => !loadedBefore.has(r.url) && !isDownloadBlob(r.url));
@@ -235,6 +290,14 @@ test("ページを開いた後はネットワークを切っても、解析・�
     // 2件目(予備の Worker の作り直しもオフラインでできる)
     await backToSelect(page);
     await analyzeFixture(page, FIXTURES.second);
+
+    // 複数ファイルの一覧・関係図・一覧の保存もオフラインでできる
+    await backToSelect(page);
+    await fileInput(page).setInputFiles([fixturePath(FIXTURES.linker), fixturePath(FIXTURES.second), fixturePath(FIXTURES.access)]);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("棚卸し一覧(3 ファイル)", { timeout: 60_000 });
+    await expect(page.locator('figure[data-diagram-status="done"] svg').first()).toBeVisible({ timeout: 20_000 });
+    const list = await saveHtmlReport(page, /^一覧を保存/);
+    expect(list.text).toContain("<svg");
   } finally {
     await context.setOffline(false);
   }

@@ -16,6 +16,9 @@ describe("保存するファイルの名前", () => {
     expect(exportFileName("売上管理.xlsm", "json")).toBe("売上管理_抽出結果.json");
     expect(exportFileName("売上管理.xlsm", "aiMarkdown")).toBe("売上管理_仕様書_AI.md");
     expect(exportFileName("売上管理.xlsm", "aiPayload")).toBe("売上管理_AI送信内容.json");
+    expect(exportFileName("", "listCsv")).toBe("棚卸し一覧.csv");
+    expect(exportFileName("", "listHtml")).toBe("棚卸し一覧.html");
+    expect(exportFileName("", "listMarkdown")).toBe("棚卸し一覧.md");
   });
 });
 

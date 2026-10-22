@@ -10,9 +10,13 @@ export function safeFileStem(name: string): string {
   return cleaned.slice(0, 120) || "ファイル";
 }
 
-export type ExportKind = "html" | "markdown" | "json" | "aiHtml" | "aiMarkdown" | "aiPayload";
+export type ExportKind = "html" | "markdown" | "json" | "aiHtml" | "aiMarkdown" | "aiPayload" | "listHtml" | "listMarkdown" | "listCsv";
 
 export function exportFileName(sourceName: string, kind: ExportKind): string {
+  // 棚卸し一覧は元のファイル名を持たない
+  if (kind === "listHtml") return "棚卸し一覧.html";
+  if (kind === "listMarkdown") return "棚卸し一覧.md";
+  if (kind === "listCsv") return "棚卸し一覧.csv";
   const stem = safeFileStem(sourceName);
   switch (kind) {
     case "html":
@@ -27,6 +31,8 @@ export function exportFileName(sourceName: string, kind: ExportKind): string {
       return `${stem}_仕様書_AI.md`;
     case "aiPayload":
       return `${stem}_AI送信内容.json`;
+    default:
+      return stem;
   }
 }
 

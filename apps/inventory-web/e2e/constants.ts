@@ -23,6 +23,10 @@ export const MARKER = {
 export const FIXTURES = {
   secret: "顧客台帳_e2e.xlsm",
   second: "売上管理_e2e.xlsm",
+  /** 他のブック・Access・DB を参照するブック(複数ファイルの関係図の確認用。second・access と名前が一致する) */
+  linker: "連携元_e2e.xlsm",
+  /** モジュール300・処理4,500ほどの大きな結果(画面が固まらないことの確認用) */
+  large: "大規模_e2e.xlsm",
   truncated: "壊れたブック.xlsm",
   random: "ランダム.xlsm",
   docx: "議事録.docx",

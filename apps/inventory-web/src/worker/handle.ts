@@ -5,6 +5,9 @@ import {
   ENTRY_POINT_KIND_LABEL,
   InventoryError,
   LimitExceededError,
+  MODULE_TYPE_LABEL,
+  PROCEDURE_KIND_LABEL,
+  QUERY_TYPE_LABEL,
   PasswordError,
   renderMarkdown,
   SEVERITY_LABEL,
@@ -13,8 +16,9 @@ import {
   type AnalysisLimits,
   type InventoryReport,
 } from "@engine/browser";
-import { estimateComplexity, FORMAT_LABEL, formatLocation } from "@engine/doc/facts";
+import { estimateComplexity, FORMAT_LABEL, formatLocation, groupDependencies } from "@engine/doc/facts";
 import { businessFlowDiagram, callFlowDiagram, MAX_GRAPH_NODES, queryDiagram, relationshipDiagram } from "@engine/doc/mermaid";
+import { extractExternalRefs } from "@/lib/external-refs";
 import { jsonToAiDocument, type AiDocumentJson } from "@/lib/ai-json";
 import { estimateAiRequest } from "@/shared/ai-estimate";
 import { redactForAi } from "@/shared/ai-redact";
@@ -79,6 +83,13 @@ export function derive(r: InventoryReport): Derived {
     callEdges: r.callGraph.map((e) => ({ from: e.from, to: e.to, kindLabel: EDGE_KIND_LABEL[e.kind] })),
     diagrams: { callFlow: callFlowDiagram(r), queries: queryDiagram(r), relationships },
     maxGraphNodes: MAX_GRAPH_NODES,
+    dependencyGroups: groupDependencies(r.dependencies).map((g) => ({
+      kind: g.kind,
+      label: g.label,
+      items: g.items.map((i) => ({ target: i.target, category: i.category, count: i.count, locations: i.locations.map(formatLocation).filter(Boolean) })),
+    })),
+    externalRefs: extractExternalRefs(r.dependencies),
+    labels: { moduleType: MODULE_TYPE_LABEL, procedureKind: PROCEDURE_KIND_LABEL, queryType: QUERY_TYPE_LABEL },
     maskedCredentials: r.findings.find((f) => f.ruleId === "CRED-HARDCODED")?.count ?? 0,
   };
 }

@@ -9,15 +9,17 @@ import { ENGINE_LIMITS, RENDER_WATCHDOG_MS, WATCHDOG_MS } from "@/lib/browser-li
 import { browserWorkerFactory } from "@/lib/engine-loader";
 import type { Failure } from "@/lib/errors";
 import { precheckFiles } from "@/lib/file-types";
+import { type InventoryItem } from "@/lib/inventory-list";
 import { warmUpMermaid } from "@/lib/mermaid-render";
 import { serialMemo } from "@/lib/serial-memo";
 import { fetchSampleFile, type SampleEntry } from "@/lib/samples";
-import type { AiPayload, AnalysisResult, Phase } from "@/worker/protocol";
+import type { AiPayload, Phase } from "@/worker/protocol";
 import { AiConsentDialog } from "./AiConsentDialog";
 import { AnalyzingView } from "./AnalyzingView";
 import { ErrorView } from "./ErrorView";
 import { FilePicker } from "./FilePicker";
 import { PrivacyBadge } from "./PrivacyBadge";
+import { InventoryListView } from "./result/InventoryListView";
 import { ResultView } from "./result/ResultView";
 import type { AiResult } from "./result/types";
 import { SampleList } from "./SampleList";
@@ -25,9 +27,10 @@ import { Notice } from "./ui";
 
 type View =
   | { kind: "select"; notice?: string }
-  | { kind: "analyzing"; fileName: string; phase: Phase | "waiting"; startedAt: number }
+  | { kind: "analyzing"; fileName: string; phase: Phase | "waiting"; startedAt: number; index: number; total: number }
   | { kind: "error"; fileName: string; failure: Failure }
-  | { kind: "result"; fileName: string; result: AnalysisResult; ai: AiResult | null };
+  /** items が1件なら、そのファイルの結果をそのまま表示。複数なら棚卸し一覧(selectedId のファイルを選ぶとその詳細) */
+  | { kind: "result"; items: InventoryItem[]; selectedId: string | null };
 
 const onIdle = (fn: () => void) => {
   const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number };
@@ -64,6 +67,7 @@ export function InventoryApp({
   const [diagramReady, setDiagramReady] = useState(false);
   const [cspViolations, setCspViolations] = useState(0);
   const controllerRef = useRef<AnalysisController | null>(null);
+  const cancelledRef = useRef(false);
   const viewRef = useRef(view);
   useEffect(() => {
     viewRef.current = view;
@@ -95,6 +99,7 @@ export function InventoryApp({
     };
   }, [workerUrl]);
 
+  /** 選ばれたファイル(最大10件)を、1件ずつ順番に解析する。1件が失敗しても、残りは続ける */
   const analyze = useCallback(async (files: File[]) => {
     const controller = controllerRef.current;
     if (!controller || controller.busy) return;
@@ -104,18 +109,45 @@ export function InventoryApp({
       setView({ kind: "select", notice: check.message });
       return;
     }
-    const file = check.file;
-    setView({ kind: "analyzing", fileName: file.name, phase: "waiting", startedAt: Date.now() });
-    try {
-      const result = await controller.analyze(file, ENGINE_LIMITS, (phase) =>
-        setView((v) => (v.kind === "analyzing" ? { ...v, phase } : v)),
-      );
-      setTab("overview");
-      setView({ kind: "result", fileName: file.name, result, ai: null });
-    } catch (e) {
-      if (e instanceof CancelledError) setView({ kind: "select" });
-      else setView({ kind: "error", fileName: file.name, failure: e instanceof AnalysisFailure ? e.failure : { code: "internal" } });
+    const total = check.entries.filter((e) => e.problem === null).length;
+    cancelledRef.current = false;
+    const items: InventoryItem[] = [];
+    let index = 0;
+    let cancelled = false;
+    for (const [i, { file, problem }] of check.entries.entries()) {
+      const id = `file-${i + 1}`;
+      if (problem !== null) {
+        items.push({ id, fileName: file.name, outcome: "skipped", reason: problem });
+        continue;
+      }
+      if (cancelledRef.current) {
+        cancelled = true;
+        break;
+      }
+      index++;
+      setView({ kind: "analyzing", fileName: file.name, phase: "waiting", startedAt: Date.now(), index, total });
+      try {
+        const result = await controller.analyze(file, ENGINE_LIMITS, (phase) => setView((v) => (v.kind === "analyzing" ? { ...v, phase } : v)));
+        items.push({ id, fileName: file.name, outcome: "done", result, ai: null });
+      } catch (e) {
+        if (e instanceof CancelledError) {
+          cancelled = true;
+          break;
+        }
+        items.push({ id, fileName: file.name, outcome: "failed", failure: e instanceof AnalysisFailure ? e.failure : { code: "internal" } });
+      }
     }
+    // 中止したときは、終わった分だけ残す(1件も終わっていなければ選択画面に戻る)
+    if (cancelled && !items.some((i) => i.outcome === "done")) {
+      setView({ kind: "select" });
+      return;
+    }
+    if (items.length === 1 && items[0].outcome === "failed") {
+      setView({ kind: "error", fileName: items[0].fileName, failure: items[0].failure });
+      return;
+    }
+    setTab("overview");
+    setView({ kind: "result", items, selectedId: null });
   }, []);
 
   const trySample = useCallback(
@@ -177,17 +209,31 @@ export function InventoryApp({
     };
   }, [view.kind]);
 
-  const onGenerated = useCallback(async (json: AiDocumentJson) => {
-    const controller = controllerRef.current;
-    const current = viewRef.current;
-    if (!controller || current.kind !== "result") return;
-    const rendered = await controller.render(current.result.report, json);
-    setView((v) => (v.kind === "result" && v.result === current.result ? { ...v, ai: { json, ...rendered, mock: aiStatus?.mode === "mock" } } : v));
-    setAiOpen(false);
-    setTab("ai");
-  }, [aiStatus]);
+  // いま詳細を見ているファイル(1件だけの解析なら、そのファイル)
+  const currentItem =
+    view.kind === "result" ? (view.items.length === 1 ? view.items[0] : (view.items.find((i) => i.id === view.selectedId) ?? null)) : null;
+  const current = currentItem?.outcome === "done" ? currentItem : null;
+  const currentId = current?.id ?? null;
 
-  const resultReport = view.kind === "result" ? view.result.report : null;
+  const onGenerated = useCallback(
+    async (json: AiDocumentJson) => {
+      const controller = controllerRef.current;
+      const shown = viewRef.current;
+      if (!controller || shown.kind !== "result" || !currentId) return;
+      const target = shown.items.find((i) => i.id === currentId);
+      if (!target || target.outcome !== "done") return;
+      const rendered = await controller.render(target.result.report, json);
+      const ai: AiResult = { json, ...rendered, mock: aiStatus?.mode === "mock" };
+      setView((v) =>
+        v.kind === "result" ? { ...v, items: v.items.map((i) => (i.id === currentId && i.outcome === "done" && i.result === target.result ? { ...i, ai } : i)) } : v,
+      );
+      setAiOpen(false);
+      setTab("ai");
+    },
+    [aiStatus, currentId],
+  );
+
+  const resultReport = current?.result.report ?? null;
   // 解析結果ごとに作り直す。同じ選択肢の依頼は使い回し、別の選択肢は前の依頼の後に続けて実行する
   const payloadMemoRef = useRef<{ report: NonNullable<typeof resultReport>; build: (includeSource: boolean) => Promise<AiPayload> } | null>(null);
   const buildAiPayload = useCallback(
@@ -208,6 +254,14 @@ export function InventoryApp({
   );
 
   const backToSelect = () => setView({ kind: "select" });
+  const selectFile = (id: string | null) => {
+    setAiOpen(false);
+    setTab("overview");
+    setView((v) => (v.kind === "result" ? { ...v, selectedId: id } : v));
+  };
+  const confirmAnalyzeAnother = () => {
+    if (window.confirm("いまの解析結果は消えます。よろしいですか?(必要なら先に保存してください)")) backToSelect();
+  };
 
   return (
     <main
@@ -245,7 +299,7 @@ export function InventoryApp({
             {view.notice && (
               <div className="mb-3">
                 <Notice level="critical" role="alert">
-                  {view.notice}
+                  <span className="whitespace-pre-line">{view.notice}</span>
                 </Notice>
               </div>
             )}
@@ -255,31 +309,51 @@ export function InventoryApp({
         </>
       )}
       {view.kind === "analyzing" && (
-        <AnalyzingView fileName={view.fileName} phase={view.phase} startedAt={view.startedAt} onCancel={() => controllerRef.current?.cancel()} />
+        <AnalyzingView
+          fileName={view.fileName}
+          phase={view.phase}
+          startedAt={view.startedAt}
+          index={view.index}
+          total={view.total}
+          onCancel={() => {
+            cancelledRef.current = true;
+            controllerRef.current?.cancel();
+          }}
+        />
       )}
       {view.kind === "error" && <ErrorView fileName={view.fileName} failure={view.failure} onBack={backToSelect} />}
       {view.kind === "result" && (
         <>
-          <ResultView
-            fileName={view.fileName}
-            result={view.result}
-            ai={view.ai}
-            aiAvailable={Boolean(aiStatus?.available)}
-            selectedTab={tab}
-            onSelectTab={setTab}
-            onOpenAi={() => setAiOpen(true)}
-            contactUrl={contactUrl}
-            diagnosisUrl={diagnosisUrl}
-            onAnalyzeAnother={() => {
-              if (window.confirm("いまの解析結果は消えます。よろしいですか?(必要なら先に保存してください)")) backToSelect();
-            }}
-          />
-          {aiStatus?.available && aiOpen && (
+          {!currentItem && (
+            <InventoryListView
+              items={view.items}
+              onSelect={selectFile}
+              onAnalyzeAnother={confirmAnalyzeAnother}
+              contactUrl={contactUrl}
+              diagnosisUrl={diagnosisUrl}
+            />
+          )}
+          {current && (
+            <ResultView
+              fileName={current.fileName}
+              result={current.result}
+              ai={current.ai}
+              aiAvailable={Boolean(aiStatus?.available)}
+              selectedTab={tab}
+              onSelectTab={setTab}
+              onOpenAi={() => setAiOpen(true)}
+              contactUrl={contactUrl}
+              diagnosisUrl={diagnosisUrl}
+              onBackToList={view.items.length > 1 ? () => selectFile(null) : undefined}
+              onAnalyzeAnother={confirmAnalyzeAnother}
+            />
+          )}
+          {current && aiStatus?.available && aiOpen && (
             <AiConsentDialog
               open={aiOpen}
               onClose={() => setAiOpen(false)}
-              format={view.result.report.file.format}
-              fileName={view.fileName}
+              format={current.result.report.file.format}
+              fileName={current.fileName}
               status={aiStatus}
               buildPayload={buildAiPayload}
               privacyUrl={privacyUrl}

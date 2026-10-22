@@ -4,6 +4,7 @@ import type { AnalysisLimits, InventoryReport, LimitKind, Severity } from "@engi
 import type { Complexity } from "@engine/doc/facts";
 import type { Diagram } from "@engine/doc/mermaid";
 import type { AiDocumentJson } from "@/lib/ai-json";
+import type { ExternalRef } from "@/lib/external-refs";
 import type { SensitiveHit } from "@/shared/sensitive-scan";
 
 /**
@@ -77,6 +78,20 @@ export interface CallEdgeView {
   kindLabel: string;
 }
 
+/** 依存関係(種類ごと・対象ごとにまとめたもの。場所は読める文字列にしてある) */
+export interface DependencyGroupView {
+  kind: string;
+  label: string;
+  items: { target: string; category: string | null; count: number; locations: string[] }[];
+}
+
+/** エンジンの表示用ラベル(画面はエンジンの実行コードを持たないため、Worker から受け取る) */
+export interface DerivedLabels {
+  moduleType: Record<string, string>;
+  procedureKind: Record<string, string>;
+  queryType: Record<string, string>;
+}
+
 /** 画面に必要な、エンジンの関数で計算した値(画面はエンジンの実行コードを持たないため) */
 export interface Derived {
   formatLabel: string;
@@ -91,6 +106,10 @@ export interface Derived {
     relationships: string | null;
   };
   maxGraphNodes: number;
+  dependencyGroups: DependencyGroupView[];
+  /** 他のブック・Access・DB への参照(棚卸し一覧とファイル間の関係図に使う) */
+  externalRefs: ExternalRef[];
+  labels: DerivedLabels;
   /** 伏せ字にしたパスワードの箇所数(CRED-HARDCODED の件数) */
   maskedCredentials: number;
 }

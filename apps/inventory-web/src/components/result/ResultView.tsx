@@ -5,12 +5,16 @@ import { DocumentView } from "../DocumentView";
 import { PrivacyBadge } from "../PrivacyBadge";
 import { Tabs, type TabDef } from "../Tabs";
 import { buttonPrimary, buttonSecondary } from "../ui";
+import { AccessTab } from "./AccessTab";
 import { AiTab } from "./AiTab";
+import { DependenciesTab } from "./DependenciesTab";
 import { ExportActions } from "./ExportActions";
 import { FlowTab } from "./FlowTab";
 import { NextStepLinks } from "./NextStepLinks";
+import { ModulesTab } from "./ModulesTab";
 import { OverviewTab } from "./OverviewTab";
 import { RisksTab } from "./RisksTab";
+import { SheetsTab } from "./SheetsTab";
 import type { AiResult } from "./types";
 
 export function ResultView({
@@ -22,6 +26,7 @@ export function ResultView({
   onSelectTab,
   onOpenAi,
   onAnalyzeAnother,
+  onBackToList,
   contactUrl,
   diagnosisUrl,
 }: {
@@ -33,10 +38,14 @@ export function ResultView({
   onSelectTab: (id: string) => void;
   onOpenAi: () => void;
   onAnalyzeAnother: () => void;
+  /** 複数ファイルのときだけ。棚卸し一覧に戻る */
+  onBackToList?: () => void;
   contactUrl: string | null;
   diagnosisUrl: string | null;
 }) {
-  const { derived } = result;
+  const { derived, report } = result;
+  const moduleCount = report.vba?.modules.length ?? 0;
+  const dependencyCount = derived.dependencyGroups.filter((g) => g.kind !== "reference").length + (report.vba?.references.length ? 1 : 0);
   const tabs: TabDef[] = [
     { id: "overview", label: "概要", content: <OverviewTab result={result} onShowRisks={() => onSelectTab("risks")} /> },
     {
@@ -45,6 +54,16 @@ export function ResultView({
       content: <RisksTab findings={derived.findings} />,
     },
     { id: "flow", label: "処理の流れ", content: <FlowTab result={result} /> },
+  ];
+  if (moduleCount > 0) {
+    tabs.push({ id: "modules", label: `モジュール・処理(${moduleCount})`, content: <ModulesTab result={result} /> });
+  }
+  if (dependencyCount > 0) {
+    tabs.push({ id: "dependencies", label: "依存関係", content: <DependenciesTab result={result} /> });
+  }
+  if (report.excel) tabs.push({ id: "sheets", label: `シート(${report.excel.sheets.length})`, content: <SheetsTab result={result} /> });
+  if (report.access) tabs.push({ id: "access", label: "Access", content: <AccessTab result={result} /> });
+  tabs.push(
     {
       id: "document",
       label: "仕様書(全文)",
@@ -54,7 +73,7 @@ export function ResultView({
         </div>
       ),
     },
-  ];
+  );
   if (ai) {
     tabs.push({
       id: "ai",
@@ -74,9 +93,16 @@ export function ResultView({
             </h1>
             <p className="mt-1 text-sm text-ink-2">結果はこのタブの中だけにあり、タブを閉じると消えます。必要なら保存してください。</p>
           </div>
-          <button type="button" className={buttonSecondary} onClick={onAnalyzeAnother}>
-            別のファイルを解析
-          </button>
+          <div className="flex flex-wrap gap-2">
+            {onBackToList && (
+              <button type="button" className={buttonSecondary} onClick={onBackToList}>
+                棚卸し一覧に戻る
+              </button>
+            )}
+            <button type="button" className={buttonSecondary} onClick={onAnalyzeAnother}>
+              {onBackToList ? "別のファイルを解析(結果を消去)" : "別のファイルを解析"}
+            </button>
+          </div>
         </div>
         <div className="mt-3">
           <PrivacyBadge />

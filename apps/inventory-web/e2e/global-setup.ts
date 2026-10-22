@@ -26,6 +26,45 @@ Public Sub 通知を送る()
 End Sub`,
 };
 
+/** 他のブック(売上管理_e2e.xlsm)・Access(queryTestV2010.accdb)・DB・解析しない月次集計.xlsx を参照するモジュール */
+const bs = (...parts: string[]) => parts.join("\\");
+const LINK_MODULE: TestModule = {
+  name: "連携",
+  type: "standard",
+  code: [
+    "Option Explicit",
+    "Public Sub データを集める()",
+    `    Workbooks.Open "${bs("", "", "fileserver", "共有", FIXTURES.second)}"`,
+    `    Workbooks.Open "${bs("C:", "月次", "月次集計.xlsx")}"`,
+    "    Dim cn As Object",
+    '    Set cn = CreateObject("ADODB.Connection")',
+    `    cn.Open "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=${bs("", "", "fileserver", "共有", FIXTURES.access)};"`,
+    '    cn.Open "Provider=SQLOLEDB;Server=sql-e2e01;Database=sales;Trusted_Connection=yes;"',
+    "End Sub",
+  ].join("\n"),
+};
+
+/** モジュール300個(処理4,500個)の大きなブック。結果の一覧が大きくても画面が固まらないことを確かめる */
+const LARGE_MODULES: TestModule[] = Array.from({ length: 300 }, (_, m) => ({
+  name: `モジュール${String(m + 1).padStart(3, "0")}`,
+  type: "standard",
+  code: [
+    "Option Explicit",
+    ...Array.from({ length: 15 }, (_, p) =>
+      [
+        `Public Sub 処理${String(p + 1).padStart(2, "0")}(ByVal 値 As Long)`,
+        "    On Error GoTo ErrHandler",
+        `    Dim x As Long: x = 値 * ${m + 1}`,
+        p > 0 ? `    処理${String(p).padStart(2, "0")} x` : "    Debug.Print x",
+        "    Exit Sub",
+        "ErrHandler:",
+        "    MsgBox Err.Description",
+        "End Sub",
+      ].join("\n"),
+    ),
+  ].join("\n"),
+}));
+
 export default function globalSetup() {
   rmSync(FIXTURE_DIR, { recursive: true, force: true });
   mkdirSync(FIXTURE_DIR, { recursive: true });
@@ -34,6 +73,8 @@ export default function globalSetup() {
   writeFileSync(join(FIXTURE_DIR, FIXTURES.secret), good);
   // 2件続けて解析するとき用(同じ中身・別の名前)
   writeFileSync(join(FIXTURE_DIR, FIXTURES.second), buildXlsm(SAMPLE_PROJECT));
+  writeFileSync(join(FIXTURE_DIR, FIXTURES.linker), buildXlsm({ modules: [...SAMPLE_PROJECT.modules, LINK_MODULE] }));
+  writeFileSync(join(FIXTURE_DIR, FIXTURES.large), buildXlsm({ modules: LARGE_MODULES }));
   // 途中で切れた .xlsm(zip の中央ディレクトリが無い)
   writeFileSync(join(FIXTURE_DIR, FIXTURES.truncated), good.slice(0, Math.floor(good.length / 2)));
   // 拡張子だけ .xlsm のランダムなバイト列(乱数の種を固定)

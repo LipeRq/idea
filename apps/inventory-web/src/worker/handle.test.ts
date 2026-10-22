@@ -25,6 +25,17 @@ describe("analyzeFile", () => {
     expect(document.previewable).toBe(true);
   });
 
+  it("詳細タブと一覧に使う値(依存関係のまとめ・ラベル・外部への参照)を返す", async () => {
+    const { derived, report } = await analyzeFile(fakeFile(plainWorkbook(), "売上管理.xlsm"), {}, () => undefined, now);
+    expect(derived.labels.moduleType.standard).toBe("標準モジュール");
+    expect(derived.labels.procedureKind.sub).toBe("Sub");
+    expect(derived.labels.queryType.select).toBe("選択");
+    expect(derived.dependencyGroups.reduce((sum, g) => sum + g.items.reduce((s, i) => s + i.count, 0), 0)).toBe(report.dependencies.length);
+    expect(Array.isArray(derived.externalRefs)).toBe(true);
+    const access = await analyzeFile(fakeFile(accessFixture("queryTestV2010.accdb"), "a.accdb"), {}, () => undefined, now);
+    expect(access.derived.labels.queryType.update).toBe("更新");
+  });
+
   it("ダミーのパスワードは解析の段階で伏せ字になる", async () => {
     const { report, document } = await analyzeFile(fakeFile(secretWorkbook(), "顧客台帳.xlsm"), {}, () => undefined, now);
     expect(JSON.stringify(report)).not.toContain(MARKER.password);
