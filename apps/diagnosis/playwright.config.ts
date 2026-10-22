@@ -40,7 +40,8 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   forbidOnly: Boolean(process.env.CI),
-  reporter: [["list"]],
+  // CI では失敗の内容を GitHub の注釈にも出す(ログを開かなくても原因が分かるように)
+  reporter: process.env.CI ? [["github"], ["list"]] : [["list"]],
   timeout: 60_000,
   use: {
     locale: "ja-JP",
