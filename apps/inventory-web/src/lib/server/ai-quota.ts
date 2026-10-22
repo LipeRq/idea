@@ -1,19 +1,12 @@
-import { incrementWithExpiry, upstashConfigFromEnv } from "./kv/upstash";
+import { createDailyCounter, jstDay } from "@idea/shared/daily-counter";
+import { kvConfigFromEnv } from "./kv";
 import type { LimitDecision } from "./rate-limit";
 
 // AI 版の1日の上限(サイト全体)。回数(INVENTORY_AI_DAILY_LIMIT)と推定入力トークン(INVENTORY_AI_DAILY_INPUT_TOKENS)の両方で数える。
-// 入力の検証の後、Claude を呼ぶ前に数える(失敗した依頼も数える)。日付は日本時間で区切る。
+// 入力の検証の後、Claude を呼ぶ前に数える(失敗した依頼も数える)。日付は日本時間で区切る(数え方は packages/shared の daily-counter.ts)。
 // 共有ストアが設定されているのに接続できないときは受け付けない(フェイルクローズ)。
 
-const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
-const KEY_TTL_MS = 2 * 24 * 60 * 60 * 1000;
-
-let memory = { day: "", count: 0, tokens: 0 };
-
-/** 日本時間の日付(YYYY-MM-DD) */
-export function jstDay(now: Date): string {
-  return new Date(now.getTime() + JST_OFFSET_MS).toISOString().slice(0, 10);
-}
+const counter = createDailyCounter();
 
 export async function reserveDailyAi(
   estimatedTokens: number,
@@ -26,15 +19,9 @@ export async function reserveDailyAi(
   let count: number;
   let tokens: number;
   try {
-    const config = upstashConfigFromEnv(env);
-    if (config) {
-      count = await incrementWithExpiry(config, `ai-daily:count:${day}`, KEY_TTL_MS);
-      tokens = await incrementWithExpiry(config, `ai-daily:tokens:${day}`, KEY_TTL_MS, estimatedTokens);
-    } else {
-      if (memory.day !== day) memory = { day, count: 0, tokens: 0 };
-      count = ++memory.count;
-      tokens = memory.tokens += estimatedTokens;
-    }
+    const config = kvConfigFromEnv(env);
+    count = await counter.add(config, "ai-daily:count", day);
+    tokens = await counter.add(config, "ai-daily:tokens", day, estimatedTokens);
   } catch (error) {
     console.error(`AI版の1日の利用量を数えられなかったため、依頼を受け付けませんでした: ${error instanceof Error ? error.message : String(error)}`);
     return "unavailable";
@@ -48,5 +35,5 @@ export async function reserveDailyAi(
 
 /** テスト用 */
 export function resetAiQuotaForTest(): void {
-  memory = { day: "", count: 0, tokens: 0 };
+  counter.reset();
 }

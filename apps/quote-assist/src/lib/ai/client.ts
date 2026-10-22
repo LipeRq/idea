@@ -1,5 +1,4 @@
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
-import type { BetaContentBlock } from "@anthropic-ai/sdk/resources/beta/messages/messages";
 import type { z } from "zod";
 import type { Usage } from "../domain/inquiry";
 
@@ -64,27 +63,8 @@ export function jsonSchemaFormat(schema: z.ZodType) {
 
 /**
  * 応答の本文から構造化出力(JSON)を取り出し、zod で検証する。取り出せなければ null。
- *
- * 生成の途中でフォールバックが起きると、content は [途中までの text, fallback, 切り替え後の text] になる
- * (ストリーミングでは途中までの文も残る)。切り替え後のモデルは途中までの文を続きの文脈として受け取るので、
- * 最後の fallback より後の text だけで完結する場合を優先し、次に前の区切りからつなげた場合を試す。
+ * 生成の途中でフォールバックが起きた応答の扱いは packages/shared の structured-output.ts(apps/diagnosis・apps/inventory と同じ)。
  */
-export function parseStructuredOutput<T>(content: BetaContentBlock[], schema: z.ZodType<T>): T | null {
-  // 最後の fallback の直後 → その前の fallback の直後 → … → 先頭、の順に、そこから後ろの text をつなげて試す
-  const starts = [...content.flatMap((b, i) => (b.type === "fallback" ? [i + 1] : [])).reverse(), 0];
-  const textFrom = (start: number) =>
-    content.slice(start).flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
-  for (const text of new Set(starts.map(textFrom))) {
-    let json: unknown;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      continue;
-    }
-    const parsed = schema.safeParse(json);
-    if (parsed.success) return parsed.data;
-  }
-  return null;
-}
+export { parseStructuredOutput } from "@idea/shared/structured-output";
 
 export class AiOutputError extends Error {}

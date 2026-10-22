@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { aiDailyLimit, jstDay, reserveAiCall, resetAiQuotaForTest } from "./ai-quota";
+import { aiDailyLimit, reserveAiCall, resetAiQuotaForTest } from "./ai-quota";
 
 const env = (values: Record<string, string>): NodeJS.ProcessEnv => ({ NODE_ENV: "test", ...values });
 const noon = new Date("2026-10-18T03:00:00Z"); // 日本時間 12:00
@@ -26,13 +26,6 @@ describe("aiDailyLimit", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(aiDailyLimit(env({ AI_DAILY_LIMIT: value }))).toEqual({ kind: "limited", limit: 0 });
     expect(consoleError).toHaveBeenCalledWith(expect.stringContaining("AI_DAILY_LIMIT"));
-  });
-});
-
-describe("jstDay", () => {
-  it("日本時間で日付を区切る", () => {
-    expect(jstDay(new Date("2026-10-18T14:59:59Z"))).toBe("2026-10-18");
-    expect(jstDay(new Date("2026-10-18T15:00:00Z"))).toBe("2026-10-19");
   });
 });
 

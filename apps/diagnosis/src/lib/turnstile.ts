@@ -1,4 +1,5 @@
-import { clientKey, SHARED_CLIENT_KEY } from "./http";
+import { SHARED_CLIENT_KEY } from "@idea/shared/http";
+import { clientKey } from "./http";
 
 // Cloudflare Turnstile(ボット対策)のサーバー側の検証。
 // サイトキー(NEXT_PUBLIC_TURNSTILE_SITE_KEY)とシークレット(TURNSTILE_SECRET_KEY)の両方があるときだけ有効。

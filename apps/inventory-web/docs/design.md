@@ -335,7 +335,7 @@ interface Derived {
 ```
 仕様書の Markdown はサーバーでは作らない(作成者名などを含む完全な report は手元にしかないため、画面の Worker で `renderMarkdown(report, { ai })` する)。
 
-**回数の数え方**: `apps/diagnosis` の `rate-limit.ts` / `ai-quota.ts` / `kv/upstash.ts` を**コピー**して名前と環境変数を変える(Upstash があればインスタンス共通、なければメモリ)。サーバーレスでは Upstash を必須とする旨を README に書く。
+**回数の数え方**: `apps/diagnosis` と共通の部品(リポジトリ直下の `packages/shared` の `rate-limit.ts` / `daily-counter.ts` / `kv/upstash.ts`)を使い、名前・環境変数・Upstash のキーの接頭辞・共有ストアに接続できないときの扱い(受け付けない)だけをこのアプリで決める(Upstash があればインスタンス共通、なければメモリ。当初は diagnosis からのコピーだった)。サーバーレスでは Upstash を必須とする旨を README に書く。
 
 **ログの方針**(`src/lib/server/log.ts`): 1リクエスト1行の JSON だけを `console.info` で出す。
 - 出す: 時刻、`outcome`(ok / disabled / forbidden / rate_limited / invalid / too_large / daily_limit / ai_error / aborted)、処理時間、本文のバイト数、モジュール数、プロシージャ数、推定トークン、依頼回数、`mode`、AI エラーのクラス名と HTTP ステータス。
@@ -524,14 +524,14 @@ apps/inventory-web/
     lib/
       analysis-controller.ts  browser-limits.ts  file-types.ts  errors.ts  export.ts  markdown-html.ts
       ai-json.ts  ai-consent.ts(CONSENT_VERSION と文言。画面とサーバーで共有)  ai-client.ts  samples.ts  security-headers.ts
-      server/  ai-document.ts  mock-client.ts  rate-limit.ts  ai-quota.ts  kv/upstash.ts  http.ts  log.ts
+      server/  ai-document.ts  mock-client.ts  rate-limit.ts  ai-quota.ts  kv.ts  http.ts  log.ts(数え方・Upstash・本文の読み取り・例外の種類は packages/shared)
     generated/  engine-asset.json  samples.json   (生成物)
   e2e/  global-setup.ts  helpers.ts  analyze.spec.ts  errors.spec.ts  privacy.spec.ts  responsive.spec.ts  ai.spec.ts  ai-guard.spec.ts
 ```
 
 ## 付録B `next.config.ts` の要点
 
-- `turbopack.root` と `outputFileTracingRoot` を**どちらも** `path.join(__dirname, "..")`(= `apps/`)にする。サーバーの AI ルートが `../inventory/src` を import し、その依存(`@anthropic-ai/sdk`・`zod`)を `apps/inventory/node_modules` から解決するため(`node_modules/next/dist/docs/01-app/03-api-reference/05-config/01-next-config-js/turbopack.md`「Root directory」、`output.md` の `outputFileTracingRoot`)。`next.config.ts` は CommonJS に変換して読み込まれるので `__dirname` が使える。広すぎる root は監視が重くなるため `apps/` より上にはしない。開発時に重い場合は `experimental.turbopackAdditionalRoots` + シンボリックリンクを検討。
+- `turbopack.root` と `outputFileTracingRoot` を**どちらも** `path.join(__dirname, "../..")`(= リポジトリのルート)にする。サーバーの AI ルートが `../inventory/src` を import し、その依存(`@anthropic-ai/sdk`・`zod`)を `apps/inventory/node_modules` から解決するため、また共通の部品(`packages/shared`、別名 `@idea/shared/*`)を取り込むため(`node_modules/next/dist/docs/01-app/03-api-reference/05-config/01-next-config-js/turbopack.md`「Root directory」、`output.md` の `outputFileTracingRoot`)。`next.config.ts` は CommonJS に変換して読み込まれるので `__dirname` が使える。広すぎる root は監視が重くなるが、リポジトリのルートの下は `apps/`・`packages/`・`docs/` だけなので、これより上にはしない(当初は `apps/` だった)。開発時に重い場合は `experimental.turbopackAdditionalRoots` + シンボリックリンクを検討。
 - 画面側はエンジンを型でしか import しないので、クライアントのバンドルにはエンジンが入らない(Worker は esbuild で別に作る)。
 - `cacheComponents: true`、`partialPrefetching: true`、`poweredByHeader: false`、`turbopack.rules` の Tailwind 設定は兄弟アプリと同じ。
 - `headers()`: 全パスに §4.1 のヘッダー、`/engine/:path*` に immutable の Cache-Control、`/api/:path*` に `no-store`。

@@ -6,7 +6,7 @@
 //   (サーバーレスではインスタンスごとのメモリで数えても上限にならないため)
 // - 1日の回数と、1日の推定入力トークンの両方に上限を持つ。読み取れない値は「使わない」側に倒す
 import { CONSENT_VERSION } from "@/lib/ai-consent";
-import { upstashConfigFromEnv } from "./kv/upstash";
+import { kvConfigFromEnv } from "./kv";
 
 export type AiMode = "off" | "claude" | "mock";
 
@@ -74,7 +74,7 @@ export function aiConfigFromEnv(env: NodeJS.ProcessEnv = process.env): AiServerC
   let hasSharedStore = false;
   let storeInvalid = false;
   try {
-    hasSharedStore = upstashConfigFromEnv(env) !== null;
+    hasSharedStore = kvConfigFromEnv(env) !== null;
   } catch {
     storeInvalid = true;
   }

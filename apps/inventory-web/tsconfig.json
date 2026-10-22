@@ -21,7 +21,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@engine/*": ["../inventory/src/*"],
-      "@engine-test/*": ["../inventory/test/*"]
+      "@engine-test/*": ["../inventory/test/*"],
+      "@idea/shared/*": ["../../packages/shared/src/*"]
     }
   },
   "include": [

@@ -6,8 +6,8 @@ import type { DiagnosisResult } from "./calculate";
 import { READINESS_LEVEL_LABEL } from "./calculate";
 import { AiReportSchema, type AiReport, type DiagnosisInput } from "./schema";
 import { fallbackRecommendation } from "./fallback";
+import { parseStructuredOutput } from "@idea/shared/structured-output";
 import { formatYen } from "../format";
-import { parseJson } from "../http";
 
 const MODEL = "claude-opus-5-5";
 
@@ -79,25 +79,11 @@ export async function generateAiReport(
 
 /**
  * 応答の本文からレポートを取り出して検証する。取り出せなければ null。
- *
- * 生成の途中でサーバー側フォールバックが起きると、content は
- * [途中までの text, fallback, 切り替え後の text] になる(ストリーミングでは途中までの文も残る)。
- * 切り替え後のモデルは途中までの文を続きの文脈として受け取るので、
- * 切り替え後の text だけで完結している場合と、全体をつなげて完結する場合の両方を試す。
+ * 生成の途中でサーバー側フォールバックが起きた応答([途中までの text, fallback, 切り替え後の text])の扱いは
+ * packages/shared の structured-output.ts(apps/quote-assist・apps/inventory と同じ)。
  */
 export function extractReport(content: BetaContentBlock[]): AiReport | null {
-  const lastFallback = content.findLastIndex((b) => b.type === "fallback");
-  const joinText = (blocks: BetaContentBlock[]) =>
-    blocks.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
-
-  const candidates = [joinText(content.slice(lastFallback + 1))];
-  if (lastFallback >= 0) candidates.push(joinText(content));
-
-  for (const text of candidates) {
-    const parsed = AiReportSchema.safeParse(parseJson(text));
-    if (parsed.success) return parsed.data;
-  }
-  return null;
+  return parseStructuredOutput(content, AiReportSchema);
 }
 
 // 施策は計算上の上位業務と同じ順番・同じ業務にそろえる。抜けがあれば標準文面で補う。

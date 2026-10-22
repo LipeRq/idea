@@ -1,5 +1,6 @@
 import { calculateDiagnosis } from "@/lib/diagnosis/calculate";
-import { clientKey, errorResponse, parseJson, readBodyText } from "@/lib/http";
+import { parseJson, readBodyText } from "@idea/shared/http";
+import { clientKey, errorResponse } from "@/lib/http";
 import { deliverLead } from "@/lib/lead/deliver";
 import { LeadRequestSchema, leadFieldErrors } from "@/lib/lead/schema";
 import { summarizeDiagnosis } from "@/lib/lead/summary";

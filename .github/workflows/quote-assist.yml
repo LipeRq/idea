@@ -1,5 +1,5 @@
 # 見積アシスト(apps/quote-assist)の型チェック・リント・単体テスト・ビルド・E2E。
-# アプリか、その業務設計・技術設計(docs/manufacturing)が変わったときに動く。
+# アプリか、その業務設計・技術設計(docs/manufacturing)、共通の部品(packages/shared)が変わったときに動く。
 # 外部サービスには接続しない(AI はデモモード、Salesforce はモック。APIキー・CRMの認証情報は渡さない)。
 name: quote-assist
 
@@ -8,11 +8,13 @@ on:
     branches: [main]
     paths:
       - "apps/quote-assist/**"
+      - "packages/shared/**"
       - "docs/manufacturing/**"
       - ".github/workflows/quote-assist.yml"
   pull_request:
     paths:
       - "apps/quote-assist/**"
+      - "packages/shared/**"
       - "docs/manufacturing/**"
       - ".github/workflows/quote-assist.yml"
   workflow_dispatch:

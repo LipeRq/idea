@@ -141,7 +141,7 @@ CSP で止まらないもの(正直に書いておく): ブラウザの拡張機
 
 ### Vercel
 
-1. プロジェクトのルートディレクトリを `apps/inventory-web` にし、「ルートディレクトリ外のファイルをビルドに含める」を有効にする(解析エンジン `apps/inventory` を使うため。`next.config.ts` で Turbopack とファイルトレースのルートを `apps/` にしています)。
+1. プロジェクトのルートディレクトリを `apps/inventory-web` にし、「ルートディレクトリ外のファイルをビルドに含める」を有効にする(解析エンジン `apps/inventory` と共通の部品 `packages/shared` を使うため。`next.config.ts` で Turbopack とファイルトレースのルートをリポジトリのルートにしています)。
 2. インストールコマンド: `npm ci && npm ci --prefix ../inventory`。ビルドコマンドは既定(`npm run build`。前処理で Worker のバンドルとサンプルを用意)。
 3. 環境変数を設定する(上の表)。AI 版を使うなら `INVENTORY_AI_MODE=claude`・`ANTHROPIC_API_KEY`・`INVENTORY_AI_ACCESS_CODE`・Upstash を設定。`NEXT_PUBLIC_*` を変えたらビルドし直す。
 4. `maxDuration` は 300 秒にしています(`src/app/api/ai-document/route.ts`)。生成全体はその手前の 280 秒(`AI_DEADLINE_MS`)、1回の依頼は 240 秒(`AI_REQUEST_TIMEOUT_MS`)で打ち切り、画面に理由を返します(`src/lib/server/ai-document.ts`)。大きなファイルで統合に時間がかかる場合は、プランの上限に合わせて3つをそろえて調整する。
@@ -177,7 +177,9 @@ src/
   components/               画面(InventoryApp が状態を持つ)・result/(結果のタブ)・AiConsentDialog
   worker/                   解析 Worker(engine.worker.ts は配線だけ、処理は handle.ts。lockdown.ts が通信の API を消す)
   lib/                      Worker の管理・上限・エラーの文言・保存・Markdown の無害化・図・AI の送信と応答の読み取り
-  lib/server/               AI ルートの中身(設定・回数制限・1日の上限・mock・ログ)
+  lib/server/               AI ルートの中身(設定・回数制限・1日の上限・mock・ログ。共通の部品を使うところは、このアプリ用の設定だけを置く)
   shared/                   Worker とサーバーで共有する処理(送らない項目の除外・大きさの見積もり・要注意文字列の検出)
 e2e/                        Playwright のテスト
 ```
+
+ほかのアプリと共通の部品(セキュリティヘッダー・送信元の判定と本文の読み取り・回数制限・1日の上限の数え方・Upstash・例外の種類の取り出し)は、リポジトリ直下の `packages/shared` を `tsconfig.json` の別名 `@idea/shared/*` で取り込んでいます(ビルド不要)。アプリごとの値(`INVENTORY_TRUST_PROXY`・Upstash のキーの接頭辞 `ai-inventory:`(`src/lib/server/kv.ts`)・共有ストアに接続できないときに受け付けないこと・CSP の `worker-src 'self'` と Worker 用の CSP)はこのアプリに置いています。画面側のコードからは `@idea/shared/security-headers` 以外を import できません(ESLint)。共通の部品自体のテストは `packages/shared` で `npm test`。

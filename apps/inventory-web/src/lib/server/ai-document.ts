@@ -7,14 +7,16 @@ import { aiDocumentToJson, describeAiError } from "@engine/doc/document";
 import { InventoryReportSchema, type InventoryReport } from "@engine/schema";
 import { z } from "zod";
 import { CONSENT_VERSION } from "@/lib/ai-consent";
+import { parseJson, readBodyText } from "@idea/shared/http";
+import { errorClassOf } from "@idea/shared/log";
 import { estimateAiRequest } from "@/shared/ai-estimate";
 import { redactForAi } from "@/shared/ai-redact";
 import { accessCodeMatches, readAccessCode } from "./access-code";
 import { accessCodeLocked, recordAccessCodeFailure } from "./access-guard";
 import { aiConfigFromEnv, type AiServerConfig } from "./ai-config";
 import { reserveDailyAi } from "./ai-quota";
-import { clientKey, errorResponse, NO_STORE, parseJson, readBodyText } from "./http";
-import { errorClassOf, logAiRequest, type AiLogEntry } from "./log";
+import { clientKey, errorResponse, NO_STORE } from "./http";
+import { logAiRequest, type AiLogEntry } from "./log";
 import { createMockClient } from "./mock-client";
 import { checkHourlyLimit } from "./rate-limit";
 

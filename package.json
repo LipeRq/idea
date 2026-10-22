@@ -8,6 +8,8 @@
     "test:diagnosis": "npm test --prefix apps/diagnosis",
     "test:inventory": "npm test --prefix apps/inventory",
     "test:inventory-web": "npm test --prefix apps/inventory-web",
-    "test:quote-assist": "npm test --prefix apps/quote-assist"
+    "test:quote-assist": "npm test --prefix apps/quote-assist",
+    "test:shared": "npm test --prefix packages/shared",
+    "typecheck:shared": "npm run typecheck --prefix packages/shared"
   }
 }

@@ -3,17 +3,19 @@ import type { NextConfig } from "next";
 import { securityHeaders, WORKER_SCRIPT_CSP } from "./src/lib/security-headers";
 
 // サーバーの AI ルートが解析エンジン(../inventory/src)を import し、その依存(@anthropic-ai/sdk・zod)を
-// apps/inventory/node_modules から解決するため、Turbopack のルートとファイルトレースのルートを apps/ にする。
+// apps/inventory/node_modules から解決する。また共通の部品(リポジトリ直下の packages/shared。tsconfig の "@idea/shared/*")を
+// TypeScript のソースのまま取り込む。両方を含むよう、Turbopack のルートとファイルトレースのルートをリポジトリのルートにする
+// (ルートの外のファイルは解決されない。リポジトリ直下には apps/・packages/・docs/ しかないので、監視は重くならない)。
 // (画面側はエンジンを型としてだけ参照するので、ブラウザのバンドルにエンジンは入らない。Worker は esbuild で別に作る)
-// next.config.ts は CommonJS に変換して読み込まれるので __dirname が使える。監視が重くならないよう apps/ より上にはしない。
-const appsRoot = path.join(__dirname, "..");
+// next.config.ts は CommonJS に変換して読み込まれるので __dirname が使える。
+const repoRoot = path.join(__dirname, "../..");
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
   turbopack: {
-    root: appsRoot,
+    root: repoRoot,
     rules: {
       "*.css": {
         loaders: ["@tailwindcss/turbopack"],
@@ -21,7 +23,7 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  outputFileTracingRoot: appsRoot,
+  outputFileTracingRoot: repoRoot,
   async headers() {
     return [
       {

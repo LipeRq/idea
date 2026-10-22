@@ -86,7 +86,7 @@ AI導入診断を Vercel で公開するまでの手順です。上から順に�
 2. 「Configure Project」で次のように設定する
    - Project Name:`ai-diagnosis`(`ai-diagnosis.vercel.app` のURLになる)
    - Framework Preset:**Next.js**(自動で選ばれる)
-   - Root Directory:「Edit」を押して **`apps/diagnosis`** を選ぶ(このリポジトリには他のアプリもあるため)
+   - Root Directory:「Edit」を押して **`apps/diagnosis`** を選ぶ(このリポジトリには他のアプリもあるため)。その下の「Include source files outside of the Root Directory in the Build Step」は**有効のまま**にする(既定で有効。共通の部品 `packages/shared` をビルドに使うため)
    - Build and Output Settings:変えない(`npm install` → `next build`)
    - Environment Variables:ここでは入れなくてよい(手順 5 でまとめて登録する)
 3. 「Deploy」を押す。数分で `https://ai-diagnosis.vercel.app` が表示される(この時点では環境変数がないので、標準レポートで動き、申し込みは受け付けない状態)
@@ -97,10 +97,10 @@ AI導入診断を Vercel で公開するまでの手順です。上から順に�
 
 ### 他のアプリだけを変えたときにデプロイしない(任意)
 
-「Settings → Git(または Build and Deployment)→ Ignored Build Step」で「Custom」を選び、次のコマンドを入れると、`apps/diagnosis` が変わっていない push ではビルドを省きます(終了コード0で省略)。
+「Settings → Git(または Build and Deployment)→ Ignored Build Step」で「Custom」を選び、次のコマンドを入れると、`apps/diagnosis` と共通の部品(`packages/shared`)が変わっていない push ではビルドを省きます(終了コード0で省略)。
 
 ```bash
-git diff --quiet ${VERCEL_GIT_PREVIOUS_SHA:-HEAD^} HEAD -- .
+git diff --quiet ${VERCEL_GIT_PREVIOUS_SHA:-HEAD^} HEAD -- . ../../packages/shared
 ```
 
 ## 3. 関数(サーバー側の処理)の設定

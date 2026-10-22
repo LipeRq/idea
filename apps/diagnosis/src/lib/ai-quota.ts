@@ -1,14 +1,12 @@
-import { incrementWithExpiry, upstashConfigFromEnv } from "./kv/upstash";
+import { createDailyCounter, jstDay } from "@idea/shared/daily-counter";
+import { kvConfigFromEnv } from "./kv";
 
 // Claude API の1日あたりの呼び出し上限(サイト全体)。AI_DAILY_LIMIT で設定する。
 // 呼び出す前に1回数え、上限を超えたら呼ばずに標準レポートにする(失敗した呼び出しも数える)。
-// 日付は日本時間で区切る。Upstash Redis があればインスタンスをまたいで数え、なければインスタンス内のメモリで数える。
+// 日付は日本時間で区切る。Upstash Redis があればインスタンスをまたいで数え、なければインスタンス内のメモリで数える
+// (数え方は packages/shared の daily-counter.ts)。
 
-const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
-// 日付が変わった後も前日のキーが残るので、2日で消す
-const KEY_TTL_MS = 2 * 24 * 60 * 60 * 1000;
-
-let memoryCount: { day: string; count: number } = { day: "", count: 0 };
+const counter = createDailyCounter();
 
 export type AiDailyLimit =
   | { kind: "unlimited" }
@@ -29,11 +27,6 @@ export function aiDailyLimit(env: NodeJS.ProcessEnv = process.env): AiDailyLimit
   return { kind: "limited", limit: 0 };
 }
 
-/** 日本時間の日付(YYYY-MM-DD) */
-export function jstDay(now: Date): string {
-  return new Date(now.getTime() + JST_OFFSET_MS).toISOString().slice(0, 10);
-}
-
 /**
  * AIを1回呼んでよいかを確かめ、よければ回数に数える。上限に達していれば false。
  * 共有ストアに接続できないときは、費用が膨らまないよう false(標準レポート)にする。
@@ -49,13 +42,7 @@ export async function reserveAiCall(
   const day = jstDay(now);
   let count: number;
   try {
-    const config = upstashConfigFromEnv(env);
-    if (config) {
-      count = await incrementWithExpiry(config, `ai-daily:${day}`, KEY_TTL_MS);
-    } else {
-      if (memoryCount.day !== day) memoryCount = { day, count: 0 };
-      count = ++memoryCount.count;
-    }
+    count = await counter.add(kvConfigFromEnv(env), "ai-daily", day);
   } catch (error) {
     console.error(
       "AIの呼び出し回数を数えられなかったため、標準レポートで返します",
@@ -74,5 +61,5 @@ export async function reserveAiCall(
 
 /** テスト用:メモリで数えた回数を消す */
 export function resetAiQuotaForTest(): void {
-  memoryCount = { day: "", count: 0 };
+  counter.reset();
 }

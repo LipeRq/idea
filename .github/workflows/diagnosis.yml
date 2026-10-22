@@ -1,5 +1,5 @@
 # AI導入診断(apps/diagnosis)の型チェック・リント・単体テスト・ビルド・E2E。
-# apps/diagnosis 配下(とこのファイル)が変わったときだけ動く。外部サービスには接続しない(テストはすべてモック)。
+# apps/diagnosis 配下・共通の部品(packages/shared)・このファイルが変わったときだけ動く。外部サービスには接続しない(テストはすべてモック)。
 name: diagnosis
 
 on:
@@ -7,10 +7,12 @@ on:
     branches: [main]
     paths:
       - "apps/diagnosis/**"
+      - "packages/shared/**"
       - ".github/workflows/diagnosis.yml"
   pull_request:
     paths:
       - "apps/diagnosis/**"
+      - "packages/shared/**"
       - ".github/workflows/diagnosis.yml"
   workflow_dispatch:
 

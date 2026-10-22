@@ -1,5 +1,5 @@
 # Excel/VBA・Access 棚卸しツールの解析エンジン・CLI(apps/inventory)の型チェック・単体テスト・ブラウザでの動作確認。
-# apps/inventory 配下(とこのファイル)が変わったときだけ動く。外部サービスには接続しない(Claude API はテストでモック)。
+# apps/inventory 配下・共通の部品(packages/shared。構造化出力の検証を使う)・このファイルが変わったときだけ動く。外部サービスには接続しない(Claude API はテストでモック)。
 name: inventory
 
 on:
@@ -7,10 +7,12 @@ on:
     branches: [main]
     paths:
       - "apps/inventory/**"
+      - "packages/shared/**"
       - ".github/workflows/inventory.yml"
   pull_request:
     paths:
       - "apps/inventory/**"
+      - "packages/shared/**"
       - ".github/workflows/inventory.yml"
   workflow_dispatch:
 

@@ -1,4 +1,12 @@
-// すべての応答に付けるセキュリティヘッダー(next.config.ts の headers() から使う)。
+import {
+  contentSecurityPolicy as buildContentSecurityPolicy,
+  securityHeaders as buildSecurityHeaders,
+  type Header,
+} from "../../../../packages/shared/src/security-headers";
+// ↑ next.config.ts から読み込まれるファイルなので、別名(@idea/shared)ではなく相対パスにする
+//   (next.config.ts の読み込みでは、src/ の下のファイルの別名がアプリのルートからの相対パスに書き換わり、解決できない)
+
+// すべての応答に付けるセキュリティヘッダー(next.config.ts の headers() から使う。共通の部分は packages/shared)。
 // apps/diagnosis と同じく、ページは静的に生成する(Cache Components)ので nonce ではなく固定の CSP を付ける。
 // Next.js がページに埋め込むインラインのスクリプトのため、script-src に 'unsafe-inline' が必要。
 // 外部のオリジンは1つも許可しない。connect-src 'self' なので、fetch などによる第三者のサーバーへの通信はブラウザが止める
@@ -12,23 +20,8 @@ export type SecurityHeaderOptions = {
 };
 
 export function contentSecurityPolicy({ isDev }: SecurityHeaderOptions): string {
-  const script = ["'self'", "'unsafe-inline'"];
-  if (isDev) script.push("'unsafe-eval'");
-  return [
-    "default-src 'self'",
-    `script-src ${script.join(" ")}`,
-    // React の style 属性と、mermaid の SVG の中の <style> のため
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
-    "font-src 'self'",
-    "connect-src 'self'",
-    "worker-src 'self'",
-    "frame-src 'none'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'none'",
-  ].join("; ");
+  // 共通の CSP(packages/shared の security-headers.ts)に、解析 Worker(同じオリジンのスクリプト)の許可だけを足す
+  return buildContentSecurityPolicy({ isDev, workerSrc: ["'self'"] });
 }
 
 /**
@@ -45,15 +38,7 @@ export const WORKER_SCRIPT_CSP = [
   "frame-ancestors 'none'",
 ].join("; ");
 
-export function securityHeaders(options: SecurityHeaderOptions): { key: string; value: string }[] {
-  return [
-    { key: "Content-Security-Policy", value: contentSecurityPolicy(options) },
-    { key: "X-Content-Type-Options", value: "nosniff" },
-    { key: "X-Frame-Options", value: "DENY" },
-    { key: "Referrer-Policy", value: "no-referrer" },
-    { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
-    { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-    // HTTPS で配信したときだけブラウザが従う(localhost の http では無視される)
-    { key: "Strict-Transport-Security", value: "max-age=63072000" },
-  ];
+export function securityHeaders(options: SecurityHeaderOptions): Header[] {
+  // 参照元を送らない(no-referrer)・支払いや USB も止める、は共通の既定のまま
+  return buildSecurityHeaders({ csp: contentSecurityPolicy(options) });
 }

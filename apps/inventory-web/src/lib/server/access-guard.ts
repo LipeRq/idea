@@ -1,5 +1,6 @@
-import { createHash } from "node:crypto";
-import { incrementWithExpiry, upstashConfigFromEnv } from "./kv/upstash";
+import { incrementWithExpiry } from "@idea/shared/kv/upstash";
+import { hashClientKey as hashKey } from "@idea/shared/rate-limit";
+import { kvConfigFromEnv } from "./kv";
 import type { LimitDecision } from "./rate-limit";
 
 // アクセスコードの総当たり対策。誤ったコードの試行を、送信元ごとと、サイト全体で1時間ごとに数え、
@@ -9,7 +10,6 @@ import type { LimitDecision } from "./rate-limit";
 const WINDOW_MS = 60 * 60 * 1000;
 const failures = new Map<string, number[]>();
 
-const hashKey = (key: string) => createHash("sha256").update(key).digest("base64url").slice(0, 22);
 
 function memoryCount(key: string, now: number, add: boolean): number {
   const recent = (failures.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
@@ -20,7 +20,7 @@ function memoryCount(key: string, now: number, add: boolean): number {
 }
 
 async function count(key: string, now: number, env: NodeJS.ProcessEnv, add: boolean): Promise<number> {
-  const config = upstashConfigFromEnv(env);
+  const config = kvConfigFromEnv(env);
   if (!config) return memoryCount(key, now, add);
   // amount 0 は「今の値を読む」(キーが無ければ期限付きの0を置く)
   return incrementWithExpiry(config, `ai-access-fail:${key}`, WINDOW_MS, add ? 1 : 0);

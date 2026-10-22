@@ -1,0 +1,22 @@
+{
+  "name": "@idea/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "apps/ の Next.js アプリ(diagnosis・inventory-web・quote-assist)と解析エンジン(inventory)が共通で使う部品。TypeScript のソースのまま各アプリが取り込む(ビルドしない)",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5"
+  }
+}

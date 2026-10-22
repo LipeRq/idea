@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { clientKey, SHARED_CLIENT_KEY } from "./http";
+import { SHARED_CLIENT_KEY } from "@idea/shared/http";
+import { clientKey } from "./http";
 
 const request = (headers: Record<string, string>) => new Request("http://localhost/api/diagnose", { headers });
 

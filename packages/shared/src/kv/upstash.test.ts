@@ -1,32 +1,26 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { incrementWithExpiry, upstashConfigFromEnv, upstashTransaction } from "./upstash";
 
-const config = { url: "https://example-123.upstash.io", token: "token-abc" };
+const config = { url: "https://example-123.upstash.io", token: "token-abc", keyPrefix: "ai-app:" };
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
 
 function mockFetch(body: unknown, status = 200) {
-  return vi
-    .spyOn(globalThis, "fetch")
-    .mockResolvedValue(new Response(JSON.stringify(body), { status }));
+  return vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(body), { status }));
 }
 
 describe("upstashConfigFromEnv", () => {
   it("URLとトークンの両方がなければ使わない(null)", () => {
-    expect(upstashConfigFromEnv({ NODE_ENV: "test" })).toBeNull();
-    expect(
-      upstashConfigFromEnv({ NODE_ENV: "test", UPSTASH_REDIS_REST_URL: config.url }),
-    ).toBeNull();
-    expect(
-      upstashConfigFromEnv({ NODE_ENV: "test", UPSTASH_REDIS_REST_TOKEN: config.token }),
-    ).toBeNull();
+    expect(upstashConfigFromEnv("ai-app:", { NODE_ENV: "test" })).toBeNull();
+    expect(upstashConfigFromEnv("ai-app:", { NODE_ENV: "test", UPSTASH_REDIS_REST_URL: config.url })).toBeNull();
+    expect(upstashConfigFromEnv("ai-app:", { NODE_ENV: "test", UPSTASH_REDIS_REST_TOKEN: config.token })).toBeNull();
   });
 
-  it("UPSTASH_REDIS_REST_* を読み、末尾のスラッシュは取る", () => {
+  it("UPSTASH_REDIS_REST_* を読み、末尾のスラッシュは取る。キーの接頭辞はアプリが渡す", () => {
     expect(
-      upstashConfigFromEnv({
+      upstashConfigFromEnv("ai-app:", {
         NODE_ENV: "test",
         UPSTASH_REDIS_REST_URL: ` ${config.url}/ `,
         UPSTASH_REDIS_REST_TOKEN: config.token,
@@ -36,17 +30,13 @@ describe("upstashConfigFromEnv", () => {
 
   it("Vercel の Marketplace が設定する KV_REST_API_* でもよい", () => {
     expect(
-      upstashConfigFromEnv({
-        NODE_ENV: "test",
-        KV_REST_API_URL: config.url,
-        KV_REST_API_TOKEN: config.token,
-      }),
+      upstashConfigFromEnv("ai-app:", { NODE_ENV: "test", KV_REST_API_URL: config.url, KV_REST_API_TOKEN: config.token }),
     ).toEqual(config);
   });
 
   it("https でないURLは設定の誤りとして例外にする", () => {
     expect(() =>
-      upstashConfigFromEnv({
+      upstashConfigFromEnv("ai-app:", {
         NODE_ENV: "test",
         UPSTASH_REDIS_REST_URL: "http://example.upstash.io",
         UPSTASH_REDIS_REST_TOKEN: config.token,
@@ -98,17 +88,28 @@ describe("upstashTransaction", () => {
 });
 
 describe("incrementWithExpiry", () => {
-  it("期限付きで0を置いて(NX)から1増やし、増やした後の値を返す。キーには接頭辞を付ける", async () => {
+  it("期限付きで0を置いて(NX)から1増やし(INCR)、増やした後の値を返す。キーには接頭辞を付ける", async () => {
     const fetchMock = mockFetch([{ result: null }, { result: 6 }]);
 
     expect(await incrementWithExpiry(config, "rl:diagnose:abc", 3_600_000)).toBe(6);
     expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual([
-      ["SET", "ai-diagnosis:rl:diagnose:abc", "0", "PX", "3600000", "NX"],
-      ["INCR", "ai-diagnosis:rl:diagnose:abc"],
+      ["SET", "ai-app:rl:diagnose:abc", "0", "PX", "3600000", "NX"],
+      ["INCR", "ai-app:rl:diagnose:abc"],
     ]);
   });
 
-  it("INCR の結果が数値でなければ例外にする", async () => {
+  it.each([
+    [1200, "1200"],
+    [2.7, "2"],
+    [-5, "0"],
+    [0, "0"],
+  ])("量(%s)を指定すると INCRBY で増やす(0以上の整数に切り捨て。0 は今の値を読むだけ)", async (amount, sent) => {
+    const fetchMock = mockFetch([{ result: null }, { result: 1 }]);
+    await incrementWithExpiry(config, "k", 1000, amount);
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))[1]).toEqual(["INCRBY", "ai-app:k", sent]);
+  });
+
+  it("増やした結果が数値でなければ例外にする", async () => {
     mockFetch([{ result: "OK" }, { result: "x" }]);
     await expect(incrementWithExpiry(config, "k", 1000)).rejects.toThrow("数値ではありません");
   });

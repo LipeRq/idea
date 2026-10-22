@@ -19,21 +19,10 @@ describe("logError", () => {
   });
 });
 
+// 名前の取り出し方そのものは packages/shared の log.test.ts で確かめる。ここはこのアプリの SDK で照合できることを確かめる
 describe("errorTypeOf", () => {
   it("Claude SDK の例外はクラスで照合し、決まった名前を返す", () => {
     expect(errorTypeOf(new Anthropic.APIConnectionTimeoutError())).toBe("APIConnectionTimeoutError");
     expect(errorTypeOf(new Anthropic.APIUserAbortError())).toBe("APIUserAbortError");
-  });
-
-  it("本番ビルドで潰れたクラス名(例:s)は使わず Error にする", () => {
-    class s extends Error {}
-    const minified = new s("x");
-    minified.name = s.name;
-    expect(errorTypeOf(minified)).toBe("Error");
-  });
-
-  it("潰れない組み込みの名前はそのまま使う", () => {
-    expect(errorTypeOf(new DOMException("x", "AbortError"))).toBe("AbortError");
-    expect(errorTypeOf(null)).toBe("object");
   });
 });

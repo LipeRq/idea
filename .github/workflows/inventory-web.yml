@@ -1,5 +1,5 @@
 # 棚卸しツールの画面(apps/inventory-web)の型チェック・リント・単体テスト・ビルド・E2E。
-# 画面アプリは解析エンジン(apps/inventory)を取り込むので、どちらかが変わったときに動く。
+# 画面アプリは解析エンジン(apps/inventory)と共通の部品(packages/shared)を取り込むので、どれかが変わったときに動く。
 # 外部サービスには接続しない(AI 版は E2E でモックの文章を使い、APIキーは渡さない)。
 name: inventory-web
 
@@ -9,11 +9,13 @@ on:
     paths:
       - "apps/inventory/**"
       - "apps/inventory-web/**"
+      - "packages/shared/**"
       - ".github/workflows/inventory-web.yml"
   pull_request:
     paths:
       - "apps/inventory/**"
       - "apps/inventory-web/**"
+      - "packages/shared/**"
       - ".github/workflows/inventory-web.yml"
   workflow_dispatch:
 

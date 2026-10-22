@@ -5,6 +5,7 @@
 - 数値は決まった計算式で出し、文章だけをClaudeが書きます(`docs/diagnosis-logic.md`)
 - PDFレポートと申し込みの設計は `docs/lead-and-report.md`
 - 公開(Vercel)の手順、環境変数の登録、公開後の確認、計測のファネルの見方は `docs/deploy.md`
+- ほかのアプリと共通の部品(セキュリティヘッダー・送信元の判定と本文の読み取り・回数制限・1日の上限の数え方・Upstash・例外の種類・構造化出力の検証)は、リポジトリ直下の `packages/shared` を `tsconfig.json` の別名 `@idea/shared/*` で取り込んでいます(ビルド不要。`src/lib` にはこのアプリ用の設定だけを置く)。そのため `next.config.ts` で Turbopack とファイルトレースのルートをリポジトリのルートにしています。共通の部品自体のテストは `packages/shared` で `npm test`
 
 ## 動かし方
 
@@ -51,7 +52,7 @@ GitHub Actions(リポジトリの `.github/workflows/diagnosis.yml`)が、`apps/
 | `NEXT_PUBLIC_ANALYTICS_PROVIDER` | 計測の送り先。`ga4` / `vercel` / `debug`(ページの変数とコンソールに出すだけ。手元とE2Eの確認用) | 計測しない |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 の測定ID(`G-` で始まる) | GA4 を使わない |
 
-送信元は、Vercel 上では `x-vercel-forwarded-for`、`DIAGNOSIS_TRUST_PROXY=true`(信頼できるリバースプロキシを1段手前に置いたとき)では `x-forwarded-for` の末尾で判断します。どちらでもないときは、偽装できるヘッダーを使わず全員で1つの枠を共有します(`src/lib/http.ts` の `clientKey`)。
+送信元は、Vercel 上では `x-vercel-forwarded-for`、`DIAGNOSIS_TRUST_PROXY=true`(信頼できるリバースプロキシを1段手前に置いたとき)では `x-forwarded-for` の末尾で判断します。どちらでもないときは、偽装できるヘッダーを使わず全員で1つの枠を共有します(`src/lib/http.ts` の `clientKey`。仕組みは `packages/shared` の `http.ts`)。
 
 ## 無料相談の申し込みの送信先
 
@@ -124,9 +125,9 @@ Web-to-Lead は取り込みに失敗しても HTTP 200 を返すことがあり�
 
 - ハニーポット(画面外の欄。入力があれば送ったふりをして破棄)
 - 本文の大きさの上限と、各欄の文字数の上限(サーバー側で zod により検証)
-- 送信元ごとの回数制限(上記の環境変数で変更可)。Upstash があれば全インスタンス共通に数える(`src/lib/rate-limit.ts`)。キーにはIPアドレスをそのまま置かず、ハッシュにする。Upstash に接続できないときはメモリで数える
+- 送信元ごとの回数制限(上記の環境変数で変更可)。Upstash があれば全インスタンス共通に数える(`src/lib/rate-limit.ts`。数え方は `packages/shared` の `rate-limit.ts`、Upstash のキーの接頭辞 `ai-diagnosis:` は `src/lib/kv.ts`)。キーにはIPアドレスをそのまま置かず、ハッシュにする。Upstash に接続できないときはメモリで数える
 - ボット対策(Cloudflare Turnstile、`src/lib/turnstile.ts`)。トークンは `X-Turnstile-Token` ヘッダーで送り、入力の検証のあと・AIを呼ぶ前に確かめる。確認できなければ 403。Cloudflare に接続できないとき(通信エラー・5xx)は利用者を締め出さないよう通す
-- AIの1日の呼び出し上限(`AI_DAILY_LIMIT`、`src/lib/ai-quota.ts`)。呼ぶ前に数え(失敗した呼び出しも数える)、超えたら標準レポートで返す(応答に `fallbackReason: "daily_limit"`)。回数を数えられないときは費用を優先してAIを呼ばない
+- AIの1日の呼び出し上限(`AI_DAILY_LIMIT`、`src/lib/ai-quota.ts`。日本時間の1日ごとの数え方は `packages/shared` の `daily-counter.ts`)。呼ぶ前に数え(失敗した呼び出しも数える)、超えたら標準レポートで返す(応答に `fallbackReason: "daily_limit"`)。回数を数えられないときは費用を優先してAIを呼ばない
 
 外部への接続は単体テストですべて fetch をモックして確かめています。
 
@@ -136,7 +137,7 @@ Web-to-Lead は取り込みに失敗しても HTTP 200 を返すことがあり�
 - OGP画像(1200×630)は `src/app/opengraph-image.tsx` と `twitter-image.tsx`。PDFと同じ Noto Sans JP でビルド時に作る(`src/lib/og-image.tsx`)
 - `robots.txt`・`sitemap.xml` は `src/app/robots.ts`・`sitemap.ts`。Vercel のプレビュー環境(`VERCEL_ENV=preview`)では検索エンジンに載せない
 - アイコンは `src/app/favicon.ico`・`icon.svg`・`apple-icon.tsx`、404ページは `src/app/not-found.tsx`
-- セキュリティヘッダー(CSP、`X-Frame-Options`、`X-Content-Type-Options`、`Referrer-Policy`、`Permissions-Policy`、HSTS)は `next.config.ts` から付ける(`src/lib/security-headers.ts`)。ページを静的に生成しているので nonce は使わず、`script-src` に `'unsafe-inline'` を許可している。Turnstile と GA4 の送信先は、その設定でビルドしたときだけ許可する。zod は eval を試すとCSPの違反が報告されるので、eval を使わない設定にしている(`src/lib/zod-setup.ts`)
+- セキュリティヘッダー(CSP、`X-Frame-Options`、`X-Content-Type-Options`、`Referrer-Policy`、`Permissions-Policy`、HSTS)は `next.config.ts` から付ける(`src/lib/security-headers.ts`。共通の部分は `packages/shared` の `security-headers.ts`。このアプリだけ `Referrer-Policy` は `strict-origin-when-cross-origin`、`Permissions-Policy` は camera・microphone・geolocation のみ)。ページを静的に生成しているので nonce は使わず、`script-src` に `'unsafe-inline'` を許可している。Turnstile と GA4 の送信先は、その設定でビルドしたときだけ許可する。zod は eval を試すとCSPの違反が報告されるので、eval を使わない設定にしている(`src/lib/zod-setup.ts`)
 
 ## 計測
 

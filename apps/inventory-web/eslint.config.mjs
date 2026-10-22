@@ -28,6 +28,8 @@ const CLIENT_RESTRICTED_IMPORTS = {
   patterns: [
     { group: ["@engine/*"], message: "画面からはエンジンを型としてだけ参照してください(import type)", allowTypeImports: true },
     { group: ["@/lib/server/*"], message: "サーバー専用のモジュールです" },
+    // 共通の部品(packages/shared)は、セキュリティヘッダー(next.config.ts から使う)以外はサーバー専用
+    { group: ["@idea/shared/*", "!@idea/shared/security-headers"], message: "サーバー専用のモジュールです(src/lib/server・API で使ってください)" },
     { group: ["@sentry/*", "@datadog/*", "@vercel/toolbar", "posthog-*", "@google-analytics/*"], message: "外部に送信するライブラリは入れません(docs/design.md §4.1)" },
   ],
 };
