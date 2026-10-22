@@ -1,0 +1,31 @@
+# 依存パッケージの更新を週1回まとめて提案する。
+# 小さな更新(マイナー・パッチ)はアプリごとに1つのPRにまとめ、メジャー更新は個別に出す。
+# Next.js は学習データより新しい版を使っているため、メジャー更新は各アプリの AGENTS.md の注意どおり、ドキュメントを確認してから取り込む。
+version: 2
+updates:
+  - package-ecosystem: npm
+    directories:
+      - /apps/diagnosis
+      - /apps/inventory
+      - /apps/inventory-web
+      - /apps/quote-assist
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 8
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    labels: [dependencies]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      timezone: Asia/Tokyo
+    groups:
+      actions:
+        patterns: ["*"]
+    labels: [dependencies]
