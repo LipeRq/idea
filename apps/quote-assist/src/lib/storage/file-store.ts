@@ -1,5 +1,6 @@
 import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { BaselineSchema } from "../domain/impact";
 import { InquirySchema, type Inquiry } from "../domain/inquiry";
 import { SAFE_ID, type MockCrmRecord, type Storage } from "./types";
 
@@ -31,6 +32,7 @@ export function createFileStorage(root: string): Storage {
   const inquiryDir = path.join(root, "inquiries");
   const blobDir = path.join(root, "blobs");
   const crmFile = path.join(root, "mock-crm.json");
+  const baselineFile = path.join(root, "impact-baseline.json");
 
   const readCrm = async (): Promise<MockCrmRecord[]> => {
     const buf = await readOrNull(crmFile);
@@ -93,6 +95,20 @@ export function createFileStorage(root: string): Storage {
         const records = await readCrm();
         records.push(record);
         await writeAtomic(crmFile, JSON.stringify(records, null, 2));
+      },
+    },
+    impact: {
+      async getBaseline() {
+        const buf = await readOrNull(baselineFile);
+        if (!buf) return null;
+        const parsed = BaselineSchema.safeParse(JSON.parse(buf.toString("utf8")));
+        return parsed.success ? parsed.data : null;
+      },
+      async saveBaseline(baseline) {
+        await writeAtomic(baselineFile, JSON.stringify(BaselineSchema.parse(baseline), null, 2));
+      },
+      async deleteBaseline() {
+        await rm(/*turbopackIgnore: true*/ baselineFile, { force: true });
       },
     },
   };

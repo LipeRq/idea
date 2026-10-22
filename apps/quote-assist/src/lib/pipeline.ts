@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import {
   type Inquiry,
+  type Outcome,
   type ReviewLogEntry,
   type StepMetric,
   type StepName,
@@ -132,7 +133,7 @@ function reserveAi(deps: Deps, step: "extract" | "estimate", now: Date): boolean
 
 export async function registerInquiry(
   deps: Deps,
-  input: { email: { from: string; subject: string; body: string }; files: UploadedFile[] },
+  input: { email: { from: string; subject: string; body: string }; files: UploadedFile[]; operator?: string | null },
 ): Promise<Inquiry> {
   const email = {
     from: input.email.from.trim().slice(0, 200),
@@ -225,6 +226,8 @@ export async function registerInquiry(
     approved: null,
     reviewLog: [],
     metrics: [extractMetric, rulesMetric],
+    operator: input.operator?.trim().slice(0, 50) || null,
+    outcome: null,
     crm: null,
   };
   await deps.storage.inquiries.save(inquiry);
@@ -606,6 +609,30 @@ async function registerToCrmNow(deps: Deps, id: string): Promise<Inquiry> {
   };
   await deps.storage.inquiries.save(updated);
   logEvent("crm.registered", { inquiryId: id, provider: deps.crm.provider });
+  return updated;
+}
+
+export type OutcomeInput = Pick<Outcome, "result" | "actualCost" | "reworkCount">;
+
+/** 受注・失注、実績原価、手戻りの件数を記録する(効果測定用)。承認した見積だけが対象。null を渡すと記録を消す */
+export function recordOutcome(deps: Deps, id: string, outcome: OutcomeInput | null): Promise<Inquiry> {
+  return withInquiryLock(id, () => recordOutcomeNow(deps, id, outcome));
+}
+
+async function recordOutcomeNow(deps: Deps, id: string, outcome: OutcomeInput | null): Promise<Inquiry> {
+  const inquiry = await load(deps, id);
+  if (!inquiry.approved) throw new PipelineError("見積を承認してから、結果を記録してください", 409);
+  if (outcome && outcome.result === "lost" && (outcome.actualCost !== null || outcome.reworkCount !== null)) {
+    throw new PipelineError("失注の案件には、実績原価・手戻りを記録できません", 400);
+  }
+  const now = deps.now();
+  const updated: Inquiry = {
+    ...inquiry,
+    outcome: outcome ? { ...outcome, recordedAt: now.toISOString() } : null,
+    updatedAt: now.toISOString(),
+  };
+  await deps.storage.inquiries.save(updated);
+  logEvent("inquiry.outcome", { inquiryId: id, result: outcome?.result ?? "cleared" });
   return updated;
 }
 

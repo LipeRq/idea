@@ -29,6 +29,7 @@ export async function POST(request: Request) {
     const inquiry = await registerInquiry(deps, {
       email: { from: text("from"), subject: text("subject"), body: text("body") },
       files,
+      operator: text("operator"),
     });
     return Response.json({ id: inquiry.id }, { status: 201 });
   });

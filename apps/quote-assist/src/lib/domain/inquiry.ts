@@ -153,6 +153,20 @@ export const ProcessRationaleSchema = z.object({
   rationale: z.string(),
 });
 
+/**
+ * 受注後に人が記録する結果(効果測定の「受注率」「見積と実績の差」「手戻り」に使う)。
+ * 受注・失注の正本はSalesforceなどの側にあり、ここは効果測定のための控え。
+ */
+export const OutcomeSchema = z.object({
+  result: z.enum(["won", "lost"]),
+  // 実績原価(税抜・円)。受注して製作が終わったあとに入れる
+  actualCost: z.number().int().min(0).max(1_000_000_000).nullable(),
+  // 受注後の仕様確認・手戻りの件数
+  reworkCount: z.number().int().min(0).max(999).nullable(),
+  recordedAt: z.iso.datetime(),
+});
+export type Outcome = z.infer<typeof OutcomeSchema>;
+
 export const InquirySchema = z.object({
   id: z.uuid(),
   createdAt: z.iso.datetime(),
@@ -214,6 +228,10 @@ export const InquirySchema = z.object({
     .nullable(),
   reviewLog: z.array(ReviewLogEntrySchema),
   metrics: z.array(StepMetricSchema),
+  // 登録した人(効果測定の「見積担当者以外が作成した割合」に使う)。古いデータには無い
+  operator: z.string().max(50).nullable().optional(),
+  // 受注・失注、実績原価、手戻りの記録(効果測定)。古いデータには無い
+  outcome: OutcomeSchema.nullable().optional(),
   crm: z
     .object({
       provider: z.enum(["mock", "salesforce"]),

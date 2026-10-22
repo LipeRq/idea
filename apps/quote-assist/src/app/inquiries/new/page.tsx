@@ -2,7 +2,8 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { RegisterForm } from "@/components/RegisterForm";
 import { Loading } from "@/components/ui";
-import { aiModeFromEnv } from "@/lib/deps";
+import { aiModeFromEnv, getDeps } from "@/lib/deps";
+import { operatorOptions } from "@/lib/impact/operators";
 
 export default function NewInquiryPage() {
   return (
@@ -22,5 +23,6 @@ export default function NewInquiryPage() {
 
 async function Form() {
   await connection();
-  return <RegisterForm aiMode={aiModeFromEnv()} />;
+  const { company } = await getDeps().reference();
+  return <RegisterForm aiMode={aiModeFromEnv()} operators={operatorOptions(company)} />;
 }

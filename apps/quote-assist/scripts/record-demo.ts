@@ -695,12 +695,22 @@ async function runScenario(d: Director) {
   await d.point(page.getByRole("table", { name: "修正の記録" }).getByRole("row", { name: /マシニング加工の1個あたり時間/ }), 2500);
   await d.until(287);
   await d.scrollTop();
-  await d.click(page.getByRole("navigation", { name: "メイン" }).getByRole("link", { name: "見積待ち一覧" }));
-  await page.waitForURL((url) => url.pathname === "/");
-  await expect(page.getByRole("row", { name: /センサブラケット MS-24017/ })).toContainText("CRM登録済み");
-  await d.scene(11, "一覧に戻る", "処理した引き合いが一覧に並ぶ。過去案件から出した導入前の値と、導入後の記録を比べる材料になる");
-  await d.shot("dashboard-after", 2500);
-  await d.point(page.getByRole("row", { name: /センサブラケット MS-24017/ }), 3000);
+  await d.click(page.getByRole("navigation", { name: "メイン" }).getByRole("link", { name: "効果測定" }));
+  await page.waitForURL((url) => url.pathname === "/dashboard");
+  await d.scene(11, "効果測定ダッシュボード", "導入前(ベースライン)と導入後を指標ごとに比べる。件数が少ない値は「参考値」。効果は断定せず、試験導入期間の実測値として見せる(数字はすべて架空のデモデータ)");
+  // 台本の数値(デモ用の架空の記録から計算した、画面の値)と合っているか確かめる
+  await expect(page.getByTestId("kpi-leadTime")).toContainText("3営業日");
+  await expect(page.getByTestId("kpi-leadTime")).toContainText("導入前 4営業日");
+  await expect(page.getByTestId("kpi-workMinutes")).toContainText("41分");
+  await expect(page.getByTestId("kpi-deficit")).toContainText("参考値");
+  await d.shot("impact-dashboard", 2500);
+  await d.point(page.getByTestId("kpi-deficit"), 1800);
+  await d.scrollTo(page.getByRole("heading", { name: /^推移/ }), 16);
+  await d.shot("impact-trend", 2500);
+  await d.scrollTop();
+  await d.click(page.getByRole("link", { name: "このアプリの実際の記録" }));
+  await expect(page.getByTestId("impact-context")).toContainText("このアプリで処理した実際の記録");
+  await d.shot("impact-app", 2500);
   await d.until(300);
 }
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { CrmRegisterButton } from "@/components/CrmRegisterButton";
 import { InquiryFrame } from "@/components/InquiryFrame";
+import { OutcomeForm } from "@/components/impact/OutcomeForm";
 import { Card, Loading, Notice, StatTile } from "@/components/ui";
 import { usdToJpy } from "@/lib/ai/client";
 import { salesforceOptionsFromEnv } from "@/lib/crm";
@@ -168,6 +169,22 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
           </div>
         )}
       </Card>
+
+      {inquiry.approved && (
+        <Card className="space-y-3">
+          <h2 className="text-lg font-bold">結果の記録(効果測定用)</h2>
+          <OutcomeForm
+            inquiryId={inquiry.id}
+            initial={inquiry.outcome ? { result: inquiry.outcome.result, actualCost: inquiry.outcome.actualCost, reworkCount: inquiry.outcome.reworkCount } : null}
+            orderAmount={inquiry.approved.total}
+          />
+          <p className="text-sm">
+            <Link href="/dashboard?source=app" className="text-accent-ink hover:underline">
+              効果測定ダッシュボードで集計を見る
+            </Link>
+          </p>
+        </Card>
+      )}
     </InquiryFrame>
   );
 }
