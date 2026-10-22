@@ -2,7 +2,7 @@
 // 受け付ける順番: 有効か → アクセスコード → 送信元ごとの回数 → Content-Type → 本文の大きさ → 形式と同意の版 →
 // 送らない項目をサーバーでも外す → 依頼の大きさ → 1日の上限 → 生成(NDJSON で進捗を返す)。
 // データはリクエストの処理中のメモリだけに置き、保存しない。ログは log.ts の方針(件数だけ)に従う。
-import { AiGenerationError, createClaudeClient, generateAiDocument, type StructuredClient } from "@engine/doc/ai";
+import { AiGenerationError, ClaudeSdk, createClaudeClient, generateAiDocument, type StructuredClient } from "@engine/doc/ai";
 import { aiDocumentToJson, describeAiError } from "@engine/doc/document";
 import { InventoryReportSchema, type InventoryReport } from "@engine/schema";
 import { z } from "zod";
@@ -81,6 +81,7 @@ export async function handleAiDocumentPost(request: Request, deps: AiRouteDeps =
 
   try {
     if (!config.available) {
+      if (config.reason) log.reason = config.reason;
       return finish(errorResponse(503, "disabled", "この環境ではAI版は利用できません。"), "disabled");
     }
     const env = deps.env ?? process.env;
@@ -209,7 +210,8 @@ function streamGeneration(
           done("aborted");
         } else {
           send({ type: "error", message: safeAiErrorMessage(e) });
-          done("ai_error", errorClassOf(e));
+          // SDK の例外はエンジンと同じ SDK のクラスで照合する(本番ビルドではクラス名が潰れて "Error" になるため)
+          done("ai_error", errorClassOf(e, ClaudeSdk));
         }
       } finally {
         clearInterval(heartbeat);

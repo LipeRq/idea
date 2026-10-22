@@ -38,6 +38,28 @@ function statTile(page: Page, label: string) {
   return page.locator("div.rounded-xl", { has: page.getByText(label, { exact: true }) });
 }
 
+test("自由記述欄に外部のAIへの送信と注意が結び付き、フッターに利用規約・プライバシーポリシーのリンクが出る", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const challenges = page.getByLabel("いま困っていること(任意)");
+  await expect(challenges).toHaveAccessibleDescription(/Anthropic 社\(米国\)に送信します/);
+  await expect(challenges).toHaveAccessibleDescription(/個人情報\(氏名・連絡先など\)や機密情報は書かないでください/);
+  const note = page.locator("#diagnosis-challenges-note");
+  await expect(note.getByRole("link", { name: /プライバシーポリシー/ })).toHaveAttribute(
+    "href",
+    "https://example.com/privacy",
+  );
+
+  // フッターは main の中にあるので contentinfo の役割を持たない
+  const footer = page.locator("footer");
+  await expect(footer.getByRole("link", { name: "利用規約" })).toHaveAttribute("href", "https://example.com/terms");
+  await expect(footer.getByRole("link", { name: "プライバシーポリシー" })).toHaveAttribute(
+    "href",
+    "https://example.com/privacy",
+  );
+});
+
 test("ステップごとの入力チェック、戻る/次へで入力が残る", async ({ page }) => {
   await page.goto("/");
   await expect(currentStep(page)).toContainText("会社情報");

@@ -43,11 +43,15 @@ export function InventoryApp({
   workerUrl,
   contactUrl,
   privacyUrl,
+  termsUrl,
+  operatorName,
 }: {
   samples: SampleEntry[];
   workerUrl: string;
   contactUrl: string | null;
   privacyUrl: string | null;
+  termsUrl: string | null;
+  operatorName: string | null;
 }) {
   const [view, setView] = useState<View>({ kind: "select" });
   const [tab, setTab] = useState("overview");
@@ -264,6 +268,8 @@ export function InventoryApp({
               status={aiStatus}
               buildPayload={buildAiPayload}
               privacyUrl={privacyUrl}
+              termsUrl={termsUrl}
+              operatorName={operatorName}
               contactUrl={contactUrl}
               onGenerated={onGenerated}
             />

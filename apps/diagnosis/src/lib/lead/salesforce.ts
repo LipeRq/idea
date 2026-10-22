@@ -3,7 +3,8 @@ import type { Lead, LeadAdapter } from "./types";
 
 // Salesforce の Web-to-Lead へ、フォームと同じ形式(application/x-www-form-urlencoded)で送る。
 // Web-to-Lead は失敗しても HTTP 200 を返すことがあるため、取り込みの確認は Salesforce 側で行う
-// (SALESFORCE_DEBUG_EMAIL を設定すると、Salesforce から受信内容のメールが届く)。
+// (SALESFORCE_DEBUG_EMAIL を設定すると、Salesforce から受信内容のメールが届く。設定の確認用なので、
+// 本番(NODE_ENV=production かつ VERCEL_ENV=production)では警告を出して使わない)。
 
 const DEFAULT_ENDPOINT = "https://webto.salesforce.com/servlet/servlet.WebToLead";
 const ORG_ID = /^00D[A-Za-z0-9]{12}(?:[A-Za-z0-9]{3})?$/;
@@ -57,8 +58,27 @@ export function salesforceConfigFromEnv(env: NodeJS.ProcessEnv): SalesforceConfi
     endpoint,
     leadSource: env.SALESFORCE_LEAD_SOURCE?.trim() || undefined,
     fieldMap: parseFieldMap(env.SALESFORCE_FIELD_MAP),
-    debugEmail: env.SALESFORCE_DEBUG_EMAIL?.trim() || undefined,
+    debugEmail: debugEmailFromEnv(env),
   };
+}
+
+/** 本番の環境か(Vercel の本番。Vercel 以外で動かすときは VERCEL_ENV=production を設定すると同じ扱いになる) */
+function isProductionDeployment(env: NodeJS.ProcessEnv): boolean {
+  return env.NODE_ENV === "production" && env.VERCEL_ENV === "production";
+}
+
+/**
+ * SALESFORCE_DEBUG_EMAIL(設定の確認用)。本番では使わない:
+ * 設定したままだと、申し込みの個人情報が Salesforce からメールで届き続けるため
+ */
+function debugEmailFromEnv(env: NodeJS.ProcessEnv): string | undefined {
+  const email = env.SALESFORCE_DEBUG_EMAIL?.trim();
+  if (!email) return undefined;
+  if (isProductionDeployment(env)) {
+    console.warn("SALESFORCE_DEBUG_EMAIL は本番では使いません(無視しました)。設定の確認が済んだら環境変数から外してください");
+    return undefined;
+  }
+  return email;
 }
 
 function parseFieldMap(raw: string | undefined): SalesforceConfig["fieldMap"] {

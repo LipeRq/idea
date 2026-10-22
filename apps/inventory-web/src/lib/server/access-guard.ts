@@ -1,15 +1,19 @@
 import { incrementWithExpiry } from "@idea/shared/kv/upstash";
-import { hashClientKey as hashKey } from "@idea/shared/rate-limit";
+import { clientKeySecretFromEnv, hashClientKey } from "@idea/shared/rate-limit";
 import { kvConfigFromEnv } from "./kv";
-import type { LimitDecision } from "./rate-limit";
+import { RATE_LIMIT_HASH_SECRET_ENV, type LimitDecision } from "./rate-limit";
 
 // アクセスコードの総当たり対策。誤ったコードの試行を、送信元ごとと、サイト全体で1時間ごとに数え、
 // 上限に達したら(正しいコードでも)しばらく受け付けない。Upstash があればインスタンスをまたいで数える。
 // 共有ストアに接続できないときは受け付けない(フェイルクローズ)。
+// 送信元(IPアドレス)は、回数制限と同じ INVENTORY_RATE_LIMIT_HASH_SECRET を鍵にした HMAC にしてからキーに置く。
 
 const WINDOW_MS = 60 * 60 * 1000;
 const failures = new Map<string, number[]>();
 
+function sourceKey(source: string, env: NodeJS.ProcessEnv): string {
+  return `src:${hashClientKey(source, clientKeySecretFromEnv(RATE_LIMIT_HASH_SECRET_ENV, env))}`;
+}
 
 function memoryCount(key: string, now: number, add: boolean): number {
   const recent = (failures.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
@@ -39,7 +43,7 @@ export async function accessCodeLocked(
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<LimitDecision> {
   try {
-    const [mine, site] = await Promise.all([count(`src:${hashKey(source)}`, now, env, false), count("site", now, env, false)]);
+    const [mine, site] = await Promise.all([count(sourceKey(source, env), now, env, false), count("site", now, env, false)]);
     return mine >= limits.perSource || site >= limits.site ? "limited" : "ok";
   } catch {
     return "unavailable";
@@ -49,7 +53,7 @@ export async function accessCodeLocked(
 /** 誤ったコードの試行を1回数える */
 export async function recordAccessCodeFailure(source: string, now: number = Date.now(), env: NodeJS.ProcessEnv = process.env): Promise<void> {
   try {
-    await Promise.all([count(`src:${hashKey(source)}`, now, env, true), count("site", now, env, true)]);
+    await Promise.all([count(sourceKey(source, env), now, env, true), count("site", now, env, true)]);
   } catch {
     // 数えられなくても、次の確認(accessCodeLocked)が共有ストアの障害で受け付けない
   }

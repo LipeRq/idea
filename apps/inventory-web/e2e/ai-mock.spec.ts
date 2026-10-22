@@ -64,6 +64,10 @@ test("同意画面は「そのまま送るもの」を正しく伝え、同意�
   await expect(hits).toContainText("hooks.slack.com");
   await expect(hits).toContainText("通知連携");
   await expect(dialog).toContainText("Anthropic 社(米国)");
+  // 運営者名と、プライバシーポリシー・利用規約へのリンク
+  await expect(dialog).toContainText("運営者: E2E運営株式会社");
+  await expect(dialog.getByRole("link", { name: /プライバシーポリシー/ })).toHaveAttribute("href", "https://example.com/privacy");
+  await expect(dialog.getByRole("link", { name: /利用規約/ })).toHaveAttribute("href", "https://example.com/terms");
   // 伏せ字になったパスワードは、画面のどこにも出ない
   await expect(page.locator("body")).not.toContainText(MARKER.password);
 

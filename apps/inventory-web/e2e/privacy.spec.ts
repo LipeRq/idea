@@ -98,7 +98,7 @@ test("CSP で外部への通信が止まり、外部の読み込みもない", a
   const violations = await page.evaluate(() => (window as unknown as { __cspViolations: string[] }).__cspViolations);
   expect(violations.some((v) => v.startsWith("connect-src"))).toBe(true);
 
-  // 外部のスクリプト・スタイルを読まない。外部へのリンクは相談ページとプライバシーポリシーだけ
+  // 外部のスクリプト・スタイルを読まない。外部へのリンクは相談ページ・プライバシーポリシー・利用規約だけ
   const external = await page.evaluate(() => {
     const here = location.origin;
     const srcs = [...document.querySelectorAll<HTMLScriptElement>("script[src]")].map((s) => s.src);
@@ -110,7 +110,13 @@ test("CSP で外部への通信が止まり、外部の読み込みもない", a
     };
   });
   expect(external.resources).toEqual([]);
-  expect(external.anchors.sort()).toEqual(["https://example.com/contact", "https://example.com/privacy"]);
+  expect(external.anchors.sort()).toEqual(["https://example.com/contact", "https://example.com/privacy", "https://example.com/terms"]);
+
+  // フッターに運営者名と利用規約・プライバシーポリシーのリンクを出す(NEXT_PUBLIC_OPERATOR_NAME・NEXT_PUBLIC_TERMS_URL)
+  const footer = page.getByRole("contentinfo");
+  await expect(footer).toContainText("運営:E2E運営株式会社");
+  await expect(footer.getByRole("link", { name: /利用規約/ })).toHaveAttribute("href", "https://example.com/terms");
+  await expect(footer.getByRole("link", { name: /プライバシーポリシー/ })).toHaveAttribute("href", "https://example.com/privacy");
 });
 
 test("解析 Worker の中からは、抜け道(プロトタイプの fetch・入れ子の Worker・import()・Cache API)を使っても通信できない", async ({ page, context, baseURL }) => {

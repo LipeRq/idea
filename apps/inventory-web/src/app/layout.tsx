@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { ExternalLink } from "@/components/ExternalLink";
 import { engineAsset } from "@/lib/generated";
-import { contactUrl, privacyPolicyUrl, SERVICE_NAME, SITE_DESCRIPTION } from "@/lib/site";
+import { contactUrl, operatorName, privacyPolicyUrl, SERVICE_NAME, SITE_DESCRIPTION, termsUrl } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,6 +23,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const contact = contactUrl();
   const privacy = privacyPolicyUrl();
+  const terms = termsUrl();
+  const operator = operatorName();
   const { engineVersion } = engineAsset();
   return (
     <html lang="ja" className="h-full antialiased">
@@ -39,8 +41,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </header>
         <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:py-8">{children}</div>
         <footer className="no-print mx-auto flex w-full max-w-6xl flex-wrap gap-x-4 gap-y-1 px-4 pb-8 text-xs text-muted">
+          {operator && <span>運営:{operator}</span>}
           <span>解析エンジン ai-inventory {engineVersion}</span>
           {contact && <ExternalLink href={contact}>移行・改修の相談</ExternalLink>}
+          {terms && <ExternalLink href={terms}>利用規約</ExternalLink>}
           {privacy && <ExternalLink href={privacy}>プライバシーポリシー</ExternalLink>}
         </footer>
       </body>

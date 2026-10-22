@@ -79,6 +79,9 @@ test("申し込みフォーム:エラーが欄に結び付き、直して送信�
   const policy = f.form.getByRole("link", { name: /個人情報の取り扱い/ });
   await expect(policy).toHaveAttribute("href", "https://example.com/privacy");
   await expect(policy).toHaveAttribute("target", "_blank");
+  const terms = f.form.getByRole("link", { name: /利用規約/ });
+  await expect(terms).toHaveAttribute("href", "https://example.com/terms");
+  await expect(terms).toHaveAttribute("target", "_blank");
 
   // 空のまま送ると、各欄にエラーが付き、最初のエラーの欄にフォーカスが移る
   await f.companyName.fill("");

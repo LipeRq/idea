@@ -40,6 +40,7 @@ AI導入診断を Vercel で公開するまでの手順です。上から順に�
 1. https://console.anthropic.com にログインし、「Settings → Billing」でクレジットを購入する(前払い)
 2. 「API Keys → Create Key」で本番用のキーを作る(名前の例:`ai-diagnosis-production`)。表示されたキーは一度しか見られないので、そのまま Vercel に登録する(手順 5)
 3. 「Settings → Limits」で、このキーのワークスペースの月の利用上限を設定する。想定を超えた請求を防ぐ最後の歯止めになる
+4. 推論を米国内に限る場合は、ワークスペースの設定で `default_inference_geo` を `"us"` にする(既定の `"global"` では米国外で処理されることもある)。画面の注記とプライバシーポリシーは送信先を「Anthropic 社(米国)」と表示しているため、どちらにするかをプライバシーポリシーの記載(`docs/legal/README.md`)と合わせる
 
 ### 1-3. Upstash(Redis)
 
@@ -136,6 +137,8 @@ Vercel の「Settings → Environment Variables」で登録します。秘密の
 | `NEXT_PUBLIC_SITE_URL` | 必須 | `https://shindan.example.co.jp`(独自ドメインを付けるまでは `https://ai-diagnosis.vercel.app`)。OGP・canonical・robots・sitemap に使う |
 | `REPORT_SIGNING_SECRET` | 必須 | 手元で `openssl rand -hex 32` を実行して出た値(Sensitive) |
 | `NEXT_PUBLIC_PRIVACY_POLICY_URL` | 必須 | 自社のプライバシーポリシーのURL |
+| `NEXT_PUBLIC_TERMS_URL` | 推奨 | 自社の利用規約のURL。フッターと申し込みフォームにリンクが出る |
+| `DIAGNOSIS_RATE_LIMIT_HASH_SECRET` | 必須 | 手元で `openssl rand -hex 32` を実行して出た値(Sensitive)。`REPORT_SIGNING_SECRET` とは別の値にする。回数制限で Upstash のキーに置く送信元(IPアドレス)の HMAC の鍵。設定・変更するとキーが変わり、その時点の回数は数え直しになる |
 | `SALESFORCE_ORG_ID` または `LEAD_WEBHOOK_URL` | どちらか必須 | 申し込みの送信先(README の「無料相談の申し込みの送信先」) |
 | `ANTHROPIC_API_KEY` | AIを使うなら必須 | 手順 1-2 のキー(Sensitive) |
 | `AI_DAILY_LIMIT` | AIを使うなら必須 | 手順 4 で決めた回数(例:`50`)。未設定だと上限なし |
@@ -150,6 +153,8 @@ Vercel の「Settings → Environment Variables」で登録します。秘密の
 
 `LEAD_LOG_ONLY` は本番には入れません(入れると申し込みがログに出るだけで、どこにも届きません)。
 
+`SALESFORCE_DEBUG_EMAIL`(Salesforce から受信内容のメールが届く設定の確認用)も本番には入れません。入れても本番(`VERCEL_ENV=production`)では警告をログに出して無視します(申し込みの個人情報がメールで届き続けるのを防ぐため)。確認はプレビュー環境で行います。
+
 ### プレビュー(Preview。プルリクエストごとのURL)
 
 プレビューは既定で Vercel のログインが必要な状態で公開され、検索エンジンにも載りません(`VERCEL_ENV=preview` のとき robots で拒否し、`noindex` を付けます)。本番の申し込み先やAIの上限を消費しないよう、本番とは別の値にします。
@@ -157,7 +162,7 @@ Vercel の「Settings → Environment Variables」で登録します。秘密の
 | 変数 | 値 |
 |---|---|
 | `REPORT_SIGNING_SECRET` | 本番とは別の乱数 |
-| `NEXT_PUBLIC_PRIVACY_POLICY_URL` | 本番と同じ |
+| `NEXT_PUBLIC_PRIVACY_POLICY_URL` / `NEXT_PUBLIC_TERMS_URL` | 本番と同じ |
 | `LEAD_LOG_ONLY` | `true`(申し込みは伏せた内容をログに出すだけ) |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | 手順 1-4 の「常に成功する」テスト用のキー |
 | `ANTHROPIC_API_KEY` | 入れない(標準レポートで確認する)。AIの文面を確かめたいときだけ入れ、`AI_DAILY_LIMIT` を `5` などにする |
@@ -256,7 +261,7 @@ Vercel の「Settings → Environment Variables」で登録します。秘密の
 ### 8-7. 計測・ログ
 
 - [ ] GA4 の「リアルタイム」(または Vercel の「Analytics → Events」)に、自分の操作のイベントが出る
-- [ ] Vercel の「Logs」に `REPORT_SIGNING_SECRET が未設定です`、`AI_DAILY_LIMIT の値…を読み取れない`、`Turnstile は … 両方を設定したときだけ有効` のような設定の警告が出ていない
+- [ ] Vercel の「Logs」に `REPORT_SIGNING_SECRET が未設定です`、`DIAGNOSIS_RATE_LIMIT_HASH_SECRET が未設定です`、`SALESFORCE_DEBUG_EMAIL は本番では使いません`、`AI_DAILY_LIMIT の値…を読み取れない`、`Turnstile は … 両方を設定したときだけ有効` のような設定の警告が出ていない
 
 ## 9. ファネルの見方
 

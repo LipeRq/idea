@@ -2,7 +2,9 @@ import { defineConfig, devices } from "@playwright/test";
 
 // 同じ本番ビルドを、環境変数だけを変えて3台起動する(docs/design.md §7.2)。
 //   3410: 既定(AI 版は無効)  3411: AI 版をモックで有効(アクセスコードあり)  3412: claude モード(接続できない宛先・1日1回)
-// NEXT_PUBLIC_* はビルド時に埋め込まれるため3台で同じ値になる(相談・プライバシーポリシーのリンクはビルド時の値)。
+// NEXT_PUBLIC_* はビルド時に埋め込まれるため3台で同じ値になる(相談・プライバシーポリシー・利用規約のリンクと運営者名はビルド時の値)。
+// claude モードはプライバシーポリシーの URL が無いと使わない(ai-config.ts)。判定もビルド時に埋め込まれた値で行うので、
+// 1台目のビルドに NEXT_PUBLIC_PRIVACY_POLICY_URL を入れておけば、3台目(claude)も AI 版が有効になる。
 const BASE_PORT = Number(process.env.E2E_PORT ?? 3410);
 const PORTS = { off: BASE_PORT, mock: BASE_PORT + 1, claude: BASE_PORT + 2 };
 
@@ -30,6 +32,8 @@ const isolatedEnv = {
   KV_REST_API_URL: "",
   KV_REST_API_TOKEN: "",
   VERCEL: "",
+  // 回数制限の送信元のハッシュの鍵(本番ビルドで未設定の警告を出さない)
+  INVENTORY_RATE_LIMIT_HASH_SECRET: "e2e-inventory-rate-limit-hash-secret",
 };
 
 // サーバーの標準出力・標準エラーをファイルに残し、ファイル由来の文字列がログに出ていないことを確かめる(e2e/ai.spec.ts)
@@ -85,6 +89,8 @@ export default defineConfig({
         ...isolatedEnv,
         NEXT_PUBLIC_CONTACT_URL: "https://example.com/contact",
         NEXT_PUBLIC_PRIVACY_POLICY_URL: "https://example.com/privacy",
+        NEXT_PUBLIC_TERMS_URL: "https://example.com/terms",
+        NEXT_PUBLIC_OPERATOR_NAME: "E2E運営株式会社",
       },
     },
     {

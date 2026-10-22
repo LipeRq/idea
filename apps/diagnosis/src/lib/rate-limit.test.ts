@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { hashClientKey } from "@idea/shared/rate-limit";
 import { isDiagnoseRateLimited, isLeadRateLimited, isReportRateLimited } from "./rate-limit";
 
 // 数え方そのものは packages/shared の rate-limit.test.ts で確かめる。ここはこのアプリの設定(環境変数名・既定の上限・
@@ -59,6 +60,17 @@ describe("回数制限(Upstash が設定されているとき)", () => {
     const keys = fetchMock.mock.calls.map((call) => (JSON.parse(String(call[1]?.body)) as string[][])[0][1]);
     expect(keys[0]).toMatch(/^ai-diagnosis:rl:diagnose:[\w-]{22}$/);
     expect(keys[2]).toMatch(/^ai-diagnosis:rl:lead:[\w-]{22}$/);
+  });
+
+  it("送信元は DIAGNOSIS_RATE_LIMIT_HASH_SECRET を鍵にした HMAC にする(他の秘密の値は使わない)", async () => {
+    vi.stubEnv("DIAGNOSIS_RATE_LIMIT_HASH_SECRET", "diagnosis-hash-secret");
+    vi.stubEnv("REPORT_SIGNING_SECRET", "report-signing-secret");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(upstashCount(1));
+
+    await isReportRateLimited("192.0.2.12");
+    const key = (JSON.parse(String(fetchMock.mock.calls[0][1]?.body)) as string[][])[0][1];
+    expect(key).toBe(`ai-diagnosis:rl:report:${hashClientKey("192.0.2.12", "diagnosis-hash-secret")}`);
+    expect(key).not.toContain("192.0.2.12");
   });
 
   it("共有ストアに接続できなければ、ログを出してメモリで数える(受付は止めない)", async () => {

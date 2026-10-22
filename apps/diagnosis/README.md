@@ -38,7 +38,8 @@ GitHub Actions(リポジトリの `.github/workflows/diagnosis.yml`)が、`apps/
 | `REPORT_SIGNING_SECRET` | AIの文章の署名。PDFに使う文章が改ざんされていないかを確かめる。**本番では設定**(例:`openssl rand -hex 32`) | プロセスごとの乱数。複数インスタンスや再起動後はPDFのAI文章が標準文面になる |
 | `REPORT_BRAND_NAME` | 運営者名。PDFの発行元、ページのタイトル・フッター、OGP画像に出す | PDFは「AI導入診断」、ページには出さない |
 | `NEXT_PUBLIC_SITE_URL` | 公開URL(例:`https://shindan.example.co.jp`)。OGP・canonical・robots.txt・sitemap.xml の絶対URLに使う | Vercel の本番ドメイン(`VERCEL_PROJECT_PRODUCTION_URL`)、それもなければ `http://localhost:3000` |
-| `NEXT_PUBLIC_PRIVACY_POLICY_URL` | 申し込みフォームの同意欄からリンクするプライバシーポリシー。**本番では設定** | リンクなしの文言 |
+| `NEXT_PUBLIC_PRIVACY_POLICY_URL` | プライバシーポリシー。フッター、申し込みフォームの同意欄、「いま困っていること」の注記(外部のAIへの送信)からリンクする。**本番では設定** | リンクなしの文言 |
+| `NEXT_PUBLIC_TERMS_URL` | 利用規約。フッターと申し込みフォーム(同意欄の説明)からリンクする。公開時は設定を推奨 | リンクを出さない |
 | `NEXT_PUBLIC_CONTACT_URL` | 外部の問い合わせ窓口。PDFの申し込み先と、フォームを送れなかったときの案内に使う | PDFには「診断結果画面のフォームから」と書く |
 | `SALESFORCE_ORG_ID` ほか | 申し込みを Salesforce に送る(下記) | 使わない |
 | `LEAD_WEBHOOK_URL` ほか | 申し込みを Slack などに送る(下記) | 使わない |
@@ -48,6 +49,7 @@ GitHub Actions(リポジトリの `.github/workflows/diagnosis.yml`)が、`apps/
 | `RATE_LIMIT_LEAD_PER_HOUR` | 申し込みの回数制限 | 5 |
 | `DIAGNOSIS_TRUST_PROXY` | `true` で `x-forwarded-for` の末尾を送信元にする(Vercel 以外で、信頼できるリバースプロキシの後ろに置くときだけ) | 使わない(Vercel 上は `x-vercel-forwarded-for`) |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | 回数制限とAIの1日の上限を Upstash Redis で数える(インスタンスをまたいで効く)。Vercel の Marketplace 経由の `KV_REST_API_URL` / `KV_REST_API_TOKEN` でもよい。**Vercel では設定** | インスタンス内のメモリで数える(サーバーレスではほとんど効かない) |
+| `DIAGNOSIS_RATE_LIMIT_HASH_SECRET` | 回数制限で Upstash のキーに置く送信元(IPアドレス)の HMAC-SHA256 の鍵。このための専用の値にする(`REPORT_SIGNING_SECRET` などを流用しない)。**本番では設定**(例:`openssl rand -hex 32`) | 鍵なしの SHA-256(IPv4 は総当たりで戻せる)。本番では警告を出す |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile のボット対策。**両方**あるときだけ、診断と申し込みの送信時に確認する | 確認しない(今までどおり) |
 | `NEXT_PUBLIC_ANALYTICS_PROVIDER` | 計測の送り先。`ga4` / `vercel` / `debug`(ページの変数とコンソールに出すだけ。手元とE2Eの確認用) | 計測しない |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 の測定ID(`G-` で始まる) | GA4 を使わない |
@@ -93,6 +95,8 @@ SALESFORCE_FIELD_MAP='{"industry":"00N5g00000AbCdE","employees":"00N5g00000AbCdF
 
 そのほか:`SALESFORCE_WEB_TO_LEAD_URL`(送信先URL。既定は `https://webto.salesforce.com/servlet/servlet.WebToLead`、`encoding=UTF-8` は自動で付く)、`SALESFORCE_DEBUG_EMAIL`(設定すると Salesforce から受信内容のメールが届く。設定の確認用)。
 
+`SALESFORCE_DEBUG_EMAIL` は、本番(`NODE_ENV=production` かつ `VERCEL_ENV=production`)では警告をログに出して**使いません**(設定したままだと、申し込みの個人情報がメールで届き続けるため)。確認はプレビュー環境か手元で行い、済んだら環境変数から外してください。Vercel 以外で本番を動かすときは `VERCEL_ENV=production` を設定すると同じ扱いになります。
+
 Web-to-Lead は取り込みに失敗しても HTTP 200 を返すことがあります。設定後は一度申し込んで、Salesforce にリードができることを確かめてください。1日に受け付けられる件数にも上限(既定500件)があります。
 
 ### Webhook(Slack など)
@@ -125,11 +129,15 @@ Web-to-Lead は取り込みに失敗しても HTTP 200 を返すことがあり�
 
 - ハニーポット(画面外の欄。入力があれば送ったふりをして破棄)
 - 本文の大きさの上限と、各欄の文字数の上限(サーバー側で zod により検証)
-- 送信元ごとの回数制限(上記の環境変数で変更可)。Upstash があれば全インスタンス共通に数える(`src/lib/rate-limit.ts`。数え方は `packages/shared` の `rate-limit.ts`、Upstash のキーの接頭辞 `ai-diagnosis:` は `src/lib/kv.ts`)。キーにはIPアドレスをそのまま置かず、ハッシュにする。Upstash に接続できないときはメモリで数える
+- 送信元ごとの回数制限(上記の環境変数で変更可)。Upstash があれば全インスタンス共通に数える(`src/lib/rate-limit.ts`。数え方は `packages/shared` の `rate-limit.ts`、Upstash のキーの接頭辞 `ai-diagnosis:` は `src/lib/kv.ts`)。キーにはIPアドレスをそのまま置かず、`DIAGNOSIS_RATE_LIMIT_HASH_SECRET` を鍵にした HMAC-SHA256 にする(未設定なら鍵なしの SHA-256。本番では警告)。Upstash に接続できないときはメモリで数える。**鍵を設定・変更すると Upstash のキー(`ai-diagnosis:rl:<名前>:<ハッシュ>`)が変わる**ため、その時点で各送信元の1時間の回数は数え直しになる(古いキーは1時間で消える。AIの1日の上限のキーは変わらない)
 - ボット対策(Cloudflare Turnstile、`src/lib/turnstile.ts`)。トークンは `X-Turnstile-Token` ヘッダーで送り、入力の検証のあと・AIを呼ぶ前に確かめる。確認できなければ 403。Cloudflare に接続できないとき(通信エラー・5xx)は利用者を締め出さないよう通す
 - AIの1日の呼び出し上限(`AI_DAILY_LIMIT`、`src/lib/ai-quota.ts`。日本時間の1日ごとの数え方は `packages/shared` の `daily-counter.ts`)。呼ぶ前に数え(失敗した呼び出しも数える)、超えたら標準レポートで返す(応答に `fallbackReason: "daily_limit"`)。回数を数えられないときは費用を優先してAIを呼ばない
 
 外部への接続は単体テストですべて fetch をモックして確かめています。
+
+## AIの処理の地域
+
+「いま困っていること」の注記(とプライバシーポリシー)では、送信先を「Anthropic 社(米国)」と表示しています。これは送信先の会社の所在国で、Claude API の推論が行われる地域は、既定(`default_inference_geo` が `"global"`)では米国外になることもあります。処理を米国内に限るには、Claude Console のワークスペースの設定で `default_inference_geo` を `"us"` にします(コードの変更は不要。料金が変わる場合があるので Console で確認する)。設定しない場合は、プライバシーポリシーの「外国にある第三者への提供」の書き方をそれに合わせてください(`docs/legal/README.md`)。
 
 ## 公開ページとしての設定
 

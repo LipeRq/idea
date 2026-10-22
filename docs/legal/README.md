@@ -43,7 +43,7 @@
 3. 委託と整理しても、外国(米国)にある第三者への提供なので法28条が適用される。次のどちらによるか。
    - A:本人の同意(法28条1項)+同意取得時の情報提供(同条2項、施行規則17条2項:国名、その国の制度、提供先の措置)。棚卸しツールは同意画面があるが、表示しているのは国名と規約へのリンクだけ。プライバシーポリシー7-2 にリンクすることで情報提供として足りるか。診断ツールには同意画面がない。
    - B:基準適合体制(施行規則16条)による提供+継続的な実施の確保の措置と、求めに応じた情報提供(法28条3項)。Anthropic の DPA 等で体制を確認できるか。
-4. 推論の地域が `"global"` のままだと、国名を特定できない。Claude Console のワークスペース設定 `default_inference_geo` を `"us"` にして米国に限るべきか(コード変更なしで可能。料金は上がる)。
+4. 推論の地域が `"global"` のままだと、国名を特定できない。Claude Console のワークスペース設定 `default_inference_geo` を `"us"` にして米国に限るべきか(コード変更なしで可能。料金は上がる)。両アプリの画面(棚卸しツールの同意画面、診断ツールの「いま困っていること」の注記)は送信先を「Anthropic 社(米国)」と表示している。これは提供先の会社の所在国で、`"us"` にすれば処理の場所とも一致する。`"global"` のままにするなら、画面の表記は会社の所在国として残し、プライバシーポリシー 7-2(1) で推論の地域が米国に限られない旨を書く(手順は各アプリの README「AIの処理の地域」/「同意画面で利用者に示すこと」、`apps/diagnosis/docs/deploy.md` 1-2)。
 5. 顧客から預かったファイルを利用者が解析する場合、ファイル中の個人情報について、利用者 → 当社 → Anthropic の流れを誰の提供・委託として整理するか。同意画面の「持ち主の了承を得ている」のチェックで足りるか。
 
 ### 論点2:無料相談の申し込みデータ(Salesforce / Slack)の扱い
@@ -52,7 +52,7 @@
 
 - 申し込み(会社名・氏名・メール・電話(任意)・相談内容と、診断結果の要約)は、当社のサーバーに保存せず、環境変数で設定した送信先に送る。Salesforce Web-to-Lead(`SALESFORCE_ORG_ID`)と Webhook(`LEAD_WEBHOOK_URL`。Slack の Incoming Webhook か、任意の URL に JSON)。両方設定すれば両方に送る(`apps/diagnosis/src/lib/lead/deliver.ts`)。
 - 同意欄は「個人情報の取り扱い(プライバシーポリシーへのリンク)に同意する」のチェック(必須)と、「ご入力いただいた情報は、無料相談に関するご連絡のために使用します。」の説明文(`apps/diagnosis/src/components/LeadForm.tsx`)。
-- `SALESFORCE_DEBUG_EMAIL` を設定すると、Salesforce から受信内容(個人情報を含む)のメールが届く。
+- `SALESFORCE_DEBUG_EMAIL` を設定すると、Salesforce から受信内容(個人情報を含む)のメールが届く。設定の確認用で、本番(`NODE_ENV=production` かつ `VERCEL_ENV=production`)では警告をログに出して使わない(`apps/diagnosis/src/lib/lead/salesforce.ts`)。
 
 **確認してほしいこと**
 
@@ -78,7 +78,7 @@
 
 ### 論点4:利用規約を契約の内容にする方法(定型約款)
 
-- 会員登録や「同意して開始」のボタンがない無料ツールで、利用規約を契約の内容とする(民法548条の2)には、どの画面に、どう表示すべきか。現状、**両アプリとも利用規約へのリンクがない**(後述の不整合2)。
+- 会員登録や「同意して開始」のボタンがない無料ツールで、利用規約を契約の内容とする(民法548条の2)には、どの画面に、どう表示すべきか。`NEXT_PUBLIC_TERMS_URL` を設定すると、両アプリのフッターと、送信・同意の画面(診断ツールの申し込みフォーム、棚卸しツールの AI版の同意画面)に「本サービスのご利用には利用規約が適用されます」の旨とリンクを出す(未設定なら出さない)。これで「定型約款を契約の内容とする旨の表示」(民法548条の2第1項2号)として足りるか、診断ツール本体(申し込みをしない利用)はフッターのリンクだけでよいか。
 - 利用者は主に事業者(中小企業)を想定するが個人もありうる。免責・責任制限(利用規約第12条)と消費者契約法8条・8条の3 との関係。上限額の要否。
 - AI出力の権利(Anthropic の規約では出力の権利は当社に譲渡される)を、利用者に「許諾」とするか「譲渡」とするか(利用規約第10条)。
 
@@ -95,12 +95,13 @@
 
 | 欄 | 使う場所 | 備考 |
 |---|---|---|
-| 【会社名】 | 両文書の前文、プライバシーポリシー第1項・第13項、利用規約末尾 | 登記上の商号 |
+| 【会社名】 | 両文書の前文、プライバシーポリシー第1項・第13項、利用規約末尾 | 登記上の商号。画面の運営者名(診断ツール `REPORT_BRAND_NAME`、棚卸しツール `NEXT_PUBLIC_OPERATOR_NAME`)と合わせる |
 | 【本店所在地】【住所】 | プライバシーポリシー第1項・第13項、利用規約末尾 | |
 | 【代表者の役職・氏名】 | プライバシーポリシー第1項、利用規約末尾 | |
 | 【メールアドレス】【電話番号】【受付時間】 | プライバシーポリシー第13項 | 個人情報の窓口 |
 | 【役職・氏名】(個人情報保護管理者) | プライバシーポリシー第13項 | 置かない場合は行を削除 |
-| 【URL】(プライバシーポリシー) | 利用規約第1条 | |
+| 【URL】(プライバシーポリシー) | 利用規約第1条 | `NEXT_PUBLIC_PRIVACY_POLICY_URL` と同じ |
+| (利用規約の公開URL) | 両アプリの画面 | `NEXT_PUBLIC_TERMS_URL` に設定する(文書中の差し込み欄ではない) |
 | 【問い合わせ窓口のURLまたはメールアドレス】 | 利用規約第17条 | `NEXT_PUBLIC_CONTACT_URL` と同じでよい |
 | 【YYYY年MM月DD日】 | 両文書の制定日・改定日 | |
 
@@ -115,7 +116,7 @@
 | 【米国】(Upstash の所在国) | 第6項 | 契約書で確認 |
 | 【使う場合】 | 第6項(Google、Salesforce、Slack)、第8項 | 使わないサービスの行は削除 |
 | 【A:…】【B:…】 | 7-1 | 論点1の結論 |
-| 【当社は、生成処理を米国内に限る設定をしています / …】 | 7-2(1) | `default_inference_geo` の設定 |
+| 【当社は、生成処理を米国内に限る設定をしています / …】 | 7-2(1) | Claude Console の `default_inference_geo` の設定(`"us"` で米国内に限れる。論点1-4) |
 | 【… 確認して記入】 | 7-2(3) | 各社の DPA・認証。Anthropic の OECD 8原則への対応 |
 | 【GA4 を使う場合に残す】ほか | 第8項 | 計測・Turnstile の採否 |
 | 【取扱規程】【定期的な研修】【就業規則等】【多要素認証】【実態に合わせて記入】ほか | 第9項 | 社内の実態 |
@@ -141,28 +142,40 @@
 | `apps/diagnosis` | `NEXT_PUBLIC_PRIVACY_POLICY_URL` | トップページのフッター、申し込みフォームの同意欄(別タブで開く) | **必須**(`docs/deploy.md`)。プレビュー環境も本番と同じ値 |
 | `apps/diagnosis` | `NEXT_PUBLIC_CONTACT_URL` | フッター、PDF の申し込み先、送信に失敗したときの案内 | 推奨 |
 | `apps/diagnosis` | `REPORT_BRAND_NAME` | PDF の発行元、ページのタイトル・フッター、OGP 画像 | 運営者を示すため設定を推奨(【会社名】またはブランド名) |
-| `apps/inventory-web` | `NEXT_PUBLIC_PRIVACY_POLICY_URL` | 画面のリンク、AI版の同意画面、「仕組みとデータの扱い」 | **AI版を有効にするなら必須**(同意画面から法28条の情報に案内するため。論点1) |
+| `apps/diagnosis` | `NEXT_PUBLIC_TERMS_URL` | フッター、申し込みフォーム(同意欄の説明。別タブで開く) | 推奨(論点4) |
+| `apps/inventory-web` | `NEXT_PUBLIC_PRIVACY_POLICY_URL` | フッター、AI版の同意画面、「仕組みとデータの扱い」 | **AI版(`INVENTORY_AI_MODE=claude`)では必須**。未設定なら AI版を無効にし、理由をサーバーログに出す(同意画面から法28条の情報に案内するため。論点1) |
+| `apps/inventory-web` | `NEXT_PUBLIC_TERMS_URL` | フッター、AI版の同意画面 | 推奨(論点4) |
+| `apps/inventory-web` | `NEXT_PUBLIC_OPERATOR_NAME` | フッター(「運営:…」)、AI版の同意画面(「運営者: …」) | 推奨(【会社名】またはブランド名) |
 | `apps/inventory-web` | `NEXT_PUBLIC_CONTACT_URL` | 相談リンク(画面・同意画面) | 任意 |
+
+回数制限のための秘密の値(画面には出ない。サーバーで実行時に読む):
+
+| アプリ | 変数 | 用途 | 本番 |
+|---|---|---|---|
+| `apps/diagnosis` | `DIAGNOSIS_RATE_LIMIT_HASH_SECRET` | Upstash に置く IP アドレスのハッシュの鍵(HMAC-SHA256) | **必須**(`openssl rand -hex 32`。`REPORT_SIGNING_SECRET` と別の値) |
+| `apps/inventory-web` | `INVENTORY_RATE_LIMIT_HASH_SECRET` | 同上(AI版の回数制限・アクセスコードの誤りの回数) | **AI版を有効にするなら必須** |
+
+未設定でも動く(鍵なしの SHA-256 になり、本番では警告をログに出す)。鍵を設定・変更すると Upstash のキーが変わり、その時点で送信元ごとの回数は数え直しになる(古いキーは1時間で消える)。
 
 Vercel での登録:プロジェクトの「Settings → Environment Variables」で Production(と Preview)に登録し、「Deployments」から再デプロイする。
 
-**利用規約の URL を入れる環境変数は、どちらのアプリにもまだありません**(不整合2)。追加するまでは、プライバシーポリシーのページや問い合わせ窓口のページから利用規約にリンクする、などで代替できますが、規約の組み入れとして足りるかは論点4で確認してください。
+利用規約の URL は `NEXT_PUBLIC_TERMS_URL`(両アプリ)に設定します。未設定ならリンクと「利用規約が適用されます」の表示を出しません。規約の組み入れとして足りるかは論点4で確認してください。
 
 棚卸しツールの同意画面の文言(`apps/inventory-web/src/lib/ai-consent.ts`)を変える場合は、同じファイルの `CONSENT_VERSION` も更新してください(サーバーが古い版の同意での送信を受け付けなくなる)。
 
 ## 5. 実装と照らして気づいた点(公開前に直したほうがよい点)
 
-文書の記述は現在の実装に合わせてあります。次の点は、文書ではなくアプリ側で対応を検討してください(本作業ではコードを変更していません)。
+文書の記述は現在の実装に合わせてあります。次の点は、アプリ側で対応を検討してください。**【対応済み】** と書いたものはアプリを直しました(2026-10-22)。文書の該当箇所(特に 3-1(3)・3-2(3) のハッシュの説明、7-2(1))は、公開前に実装と照らして見直してください。
 
-1. **診断ツールの「いま困っていること」に、外部 AI への送信の注記がない**(`apps/diagnosis/src/components/DiagnosisForm.tsx`)。自由記述が Anthropic(米国)に送られるのに、欄の近くにその説明も「個人情報・機密情報を書かないで」の注意もない。棚卸しツールの同意画面と比べて手薄。注記の追加を推奨(例:「入力内容は、AIによる分析のため Anthropic 社(米国)に送信します。個人情報や機密情報は書かないでください」)。
-2. **利用規約へのリンク・環境変数がない**(両アプリ)。`NEXT_PUBLIC_TERMS_URL` のような変数とフッターのリンクの追加を推奨。
-3. **推論の地域が `"global"`(既定)のまま**。棚卸しツールの同意画面は「Anthropic 社(米国)の API に送信」と表示しているが、既定では推論が米国外で行われうる。Claude Console で `default_inference_geo` を `"us"` にするか、表示とプライバシーポリシーの書き方を変える(論点1-4)。
-4. **IP アドレスのハッシュに鍵がない**(`apps/diagnosis/src/lib/rate-limit.ts`、`apps/inventory-web/src/lib/server/rate-limit.ts`・`access-guard.ts`)。SHA-256 を鍵なしで使っているため IPv4 は総当たりで復元できる。サーバーの秘密の値を鍵にした HMAC にすると、「元に戻せない形」と説明しやすくなる。
+1. **【対応済み】診断ツールの「いま困っていること」に、外部 AI への送信の注記がない**(`apps/diagnosis/src/components/DiagnosisForm.tsx`)。自由記述が Anthropic(米国)に送られるのに、欄の近くにその説明も「個人情報・機密情報を書かないで」の注意もない。棚卸しツールの同意画面と比べて手薄。注記の追加を推奨(例:「入力内容は、AIによる分析のため Anthropic 社(米国)に送信します。個人情報や機密情報は書かないでください」)。→ 欄の上にこの注記を出し、`aria-describedby` で欄に結び付けた。`NEXT_PUBLIC_PRIVACY_POLICY_URL` があればプライバシーポリシーへのリンク(別タブ)も出す。
+2. **【対応済み】利用規約へのリンク・環境変数がない**(両アプリ)。→ `NEXT_PUBLIC_TERMS_URL` を追加。フッターと、診断ツールの申し込みフォーム・棚卸しツールの AI版の同意画面にリンクを出す(未設定なら出さない)。
+3. **【手順を記載・設定は運用で決める】推論の地域が `"global"`(既定)のまま**。棚卸しツールの同意画面は「Anthropic 社(米国)の API に送信」と表示しているが、既定では推論が米国外で行われうる。Claude Console で `default_inference_geo` を `"us"` にするか、表示とプライバシーポリシーの書き方を変える(論点1-4)。→ コードは変えず、各アプリの README(`apps/diagnosis` は `docs/deploy.md` 1-2 も)に手順と、画面の「米国」表記との関係を書いた。設定は運用で決める。
+4. **【対応済み】IP アドレスのハッシュに鍵がない**(`apps/diagnosis/src/lib/rate-limit.ts`、`apps/inventory-web/src/lib/server/rate-limit.ts`・`access-guard.ts`)。SHA-256 を鍵なしで使っているため IPv4 は総当たりで復元できる。サーバーの秘密の値を鍵にした HMAC にすると、「元に戻せない形」と説明しやすくなる。→ `packages/shared` の `hashClientKey` を HMAC-SHA256 にし、鍵は各アプリ専用の `DIAGNOSIS_RATE_LIMIT_HASH_SECRET` / `INVENTORY_RATE_LIMIT_HASH_SECRET`(未設定なら鍵なしの SHA-256 のままで、本番では警告)。鍵を入れると Upstash のキーが変わる(回数は数え直し)。
 5. **棚卸しツールの同意画面の「Anthropic 社の規約」のリンク先**は Commercial Terms(定数名は `ANTHROPIC_PRIVACY_URL`)。同画面の「同社の規約に従って一定期間保持される場合があります」の根拠となる保持期間は、Commercial Terms ではなくプライバシーセンターの記事に書かれている。リンク先の見直しか、プライバシーポリシー7-2 へのリンクで補うことを検討。
-6. **棚卸しツールの同意画面は、`NEXT_PUBLIC_PRIVACY_POLICY_URL` が未設定だとプライバシーポリシーのリンクを出さない**。AI版(`INVENTORY_AI_MODE=claude`)を有効にするときは必須として運用する(できればビルド・起動時に警告)。
+6. **【対応済み】棚卸しツールの同意画面は、`NEXT_PUBLIC_PRIVACY_POLICY_URL` が未設定だとプライバシーポリシーのリンクを出さない**。→ `claude` モードでは未設定(http(s) の URL でない)なら AI版を無効にし、理由をサーバーログに出す(`apps/inventory-web/src/lib/server/ai-config.ts`。判定は画面と同じビルド時の値)。
 7. **申し込みフォームの説明文**(「無料相談に関するご連絡のために使用します」)は、プライバシーポリシーの利用目的より狭い。ご案内等に使うならフォームも直す(論点2-3)。
-8. **`SALESFORCE_DEBUG_EMAIL`** は設定確認用。本番で設定したままだと、申し込みの個人情報がメールで届き続ける。確認後は外す運用を推奨。
-9. **棚卸しツールには運営者名を表示する設定がない**(診断ツールの `REPORT_BRAND_NAME` に相当するもの)。運営者はプライバシーポリシーで示せるが、画面にも出すなら設定の追加を検討。
+8. **【対応済み】`SALESFORCE_DEBUG_EMAIL`** は設定確認用。本番で設定したままだと、申し込みの個人情報がメールで届き続ける。→ 本番(`NODE_ENV=production` かつ `VERCEL_ENV=production`)では警告をログに出して無視する。確認後に外す運用は引き続き推奨(README・`docs/deploy.md` に明記)。
+9. **【対応済み】棚卸しツールには運営者名を表示する設定がない**(診断ツールの `REPORT_BRAND_NAME` に相当するもの)。→ `NEXT_PUBLIC_OPERATOR_NAME` を追加。フッターと AI版の同意画面に出す。
 
 ## 6. 見直しのきっかけ
 
@@ -173,7 +186,8 @@ Vercel での登録:プロジェクトの「Settings → Environment Variables�
 | `apps/diagnosis/src/lib/diagnosis/ai.ts`(AI に送る項目) | プライバシーポリシー 3-1(1)、利用規約第6条 |
 | `apps/diagnosis/src/lib/lead/`(申し込みの項目・送信先) | プライバシーポリシー 3-1(2)、第6項、第10項 |
 | `apps/diagnosis/src/lib/analytics.ts`、`src/components/AnalyticsScripts.tsx`(計測) | プライバシーポリシー第8項 |
-| `apps/diagnosis/src/lib/turnstile.ts`、`rate-limit.ts`、`kv/upstash.ts` | プライバシーポリシー 3-1(3)、第10項 |
+| `apps/diagnosis/src/lib/turnstile.ts`、`rate-limit.ts`、`packages/shared/src/rate-limit.ts`(IP アドレスのハッシュ)、`kv/upstash.ts` | プライバシーポリシー 3-1(3)、3-2(3)、第10項 |
+| `apps/diagnosis/src/components/DiagnosisForm.tsx`(「いま困っていること」の注記)、両アプリのフッター・同意画面の利用規約のリンク | プライバシーポリシー 3-1(1)、第7項、利用規約第1条・第5条 |
 | `apps/inventory-web/src/lib/ai-consent.ts`、`src/components/AiConsentDialog.tsx`、`src/shared/`(送る・送らない項目) | プライバシーポリシー 3-2(2)、第7項 |
 | `apps/inventory-web/src/lib/server/`(ログ・回数制限・保存の有無) | プライバシーポリシー 3-2(2)(3)、第10項 |
 | 使う外部サービス、Vercel・Upstash のリージョン、Anthropic の `default_inference_geo` | プライバシーポリシー第6項・第7項 |

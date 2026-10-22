@@ -9,7 +9,7 @@ import {
   leadFieldErrors,
   type LeadField,
 } from "@/lib/lead/schema";
-import { CONTACT_URL, PRIVACY_POLICY_URL } from "@/lib/site";
+import { CONTACT_URL, PRIVACY_POLICY_URL, TERMS_URL } from "@/lib/site";
 import { inputClass } from "./DiagnosisForm";
 import {
   TURNSTILE_PENDING_MESSAGE,
@@ -282,6 +282,15 @@ export function LeadForm({ input }: Props) {
         </label>
         <p id="lead-consent-hint" className="pl-6 text-sm text-muted">
           ご入力いただいた情報は、無料相談に関するご連絡のために使用します。
+          {TERMS_URL && (
+            <>
+              お申し込みを含む本サービスのご利用には、
+              <a href={TERMS_URL} target="_blank" rel="noopener noreferrer" className="text-accent-ink underline">
+                利用規約(別タブで開きます)
+              </a>
+              が適用されます。
+            </>
+          )}
         </p>
         <FieldError field="consent" error={errors.consent} />
       </div>

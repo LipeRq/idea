@@ -1,5 +1,5 @@
 import { DiagnosisApp } from "@/components/DiagnosisApp";
-import { CONTACT_URL, PRIVACY_POLICY_URL, operatorName } from "@/lib/site";
+import { CONTACT_URL, PRIVACY_POLICY_URL, TERMS_URL, operatorName } from "@/lib/site";
 
 const POINTS = [
   {
@@ -44,9 +44,14 @@ export default function Home() {
         <p>
           入力内容は診断レポートの作成に使用します。無料相談をお申し込みいただいた場合に限り、診断結果の要約を担当者にお送りします。会社名や課題の記入は任意です。
         </p>
-        {(operator || PRIVACY_POLICY_URL || CONTACT_URL) && (
+        {(operator || PRIVACY_POLICY_URL || TERMS_URL || CONTACT_URL) && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {operator && <p>運営:{operator}</p>}
+            {TERMS_URL && (
+              <a href={TERMS_URL} className="underline hover:text-ink">
+                利用規約
+              </a>
+            )}
             {PRIVACY_POLICY_URL && (
               <a href={PRIVACY_POLICY_URL} className="underline hover:text-ink">
                 プライバシーポリシー

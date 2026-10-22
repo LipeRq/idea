@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createHourlyLimiter, createMemoryRateLimiter, HOUR_MS, limitFromEnv } from "./rate-limit";
+import { createHmac } from "node:crypto";
+import { clientKeySecretFromEnv, createHourlyLimiter, createMemoryRateLimiter, hashClientKey, HOUR_MS, limitFromEnv } from "./rate-limit";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -69,6 +70,30 @@ describe("limitFromEnv", () => {
   });
 });
 
+describe("hashClientKey・clientKeySecretFromEnv", () => {
+  it("鍵があれば HMAC-SHA256(鍵ごとに別の値)、なければ鍵なしの SHA-256。どちらも元のIPアドレスを含まない", () => {
+    const keyed = hashClientKey("192.0.2.1", "secret-a");
+    expect(keyed).toBe(createHmac("sha256", "secret-a").update("192.0.2.1").digest("base64url").slice(0, 22));
+    expect(hashClientKey("192.0.2.1", "secret-a")).toBe(keyed);
+    expect(hashClientKey("192.0.2.1", "secret-b")).not.toBe(keyed);
+    expect(hashClientKey("192.0.2.1")).not.toBe(keyed);
+    expect(hashClientKey("192.0.2.1", "")).toBe(hashClientKey("192.0.2.1"));
+    expect(keyed).toMatch(/^[\w-]{22}$/);
+  });
+
+  it("環境変数から鍵を読み、本番で未設定なら変数ごとに1回だけ警告する", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(clientKeySecretFromEnv("HASH_SECRET_A", { NODE_ENV: "production", HASH_SECRET_A: " s3cret " })).toBe("s3cret");
+    expect(clientKeySecretFromEnv("HASH_SECRET_B", { NODE_ENV: "test" })).toBeUndefined();
+    expect(warn).not.toHaveBeenCalled();
+
+    expect(clientKeySecretFromEnv("HASH_SECRET_C", { NODE_ENV: "production", HASH_SECRET_C: " " })).toBeUndefined();
+    expect(clientKeySecretFromEnv("HASH_SECRET_C", { NODE_ENV: "production" })).toBeUndefined();
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("HASH_SECRET_C が未設定です"));
+  });
+});
+
 describe("createHourlyLimiter", () => {
   const noStore: NodeJS.ProcessEnv = { NODE_ENV: "test" };
   const store: NodeJS.ProcessEnv = {
@@ -84,7 +109,7 @@ describe("createHourlyLimiter", () => {
 
   it.each(["memory", "unavailable"] as const)("Upstash が未設定なら外部に接続せず、メモリで数える(%s)", async (onStoreError) => {
     const fetchMock = vi.spyOn(globalThis, "fetch");
-    const check = createHourlyLimiter({ name: "test", keyPrefix: "ai-app:", onStoreError });
+    const check = createHourlyLimiter({ name: "test", keyPrefix: "ai-app:", onStoreError, hashSecretEnv: "TEST_HASH_SECRET" });
 
     expect(await check("192.0.2.1", 2, { env: noStore })).toBe("ok");
     expect(await check("192.0.2.1", 2, { env: noStore })).toBe("ok");
@@ -100,7 +125,7 @@ describe("createHourlyLimiter", () => {
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(upstashCount(3))
       .mockResolvedValueOnce(upstashCount(4));
-    const check = createHourlyLimiter({ name: "test", keyPrefix: "ai-app:", onStoreError: "memory" });
+    const check = createHourlyLimiter({ name: "test", keyPrefix: "ai-app:", onStoreError: "memory", hashSecretEnv: "TEST_HASH_SECRET" });
 
     expect(await check("192.0.2.10", 3, { env: store })).toBe("ok");
     expect(await check("192.0.2.10", 3, { env: store })).toBe("limited");
@@ -109,23 +134,37 @@ describe("createHourlyLimiter", () => {
 
   it("キーは接頭辞と名前で分け、IPアドレスはそのまま置かない(1時間で消える)", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(upstashCount(1));
-    await createHourlyLimiter({ name: "diagnose", keyPrefix: "ai-app:", onStoreError: "memory" })("192.0.2.10", 5, { env: store });
-    await createHourlyLimiter({ name: "lead", keyPrefix: "ai-app:", onStoreError: "memory" })("192.0.2.10", 5, { env: store });
+    await createHourlyLimiter({ name: "diagnose", keyPrefix: "ai-app:", onStoreError: "memory", hashSecretEnv: "TEST_HASH_SECRET" })("192.0.2.10", 5, { env: store });
+    await createHourlyLimiter({ name: "lead", keyPrefix: "ai-app:", onStoreError: "memory", hashSecretEnv: "TEST_HASH_SECRET" })("192.0.2.10", 5, { env: store });
 
     const [first, second] = fetchMock.mock.calls.map((call) => JSON.parse(String(call[1]?.body)) as string[][]);
     expect(first[0][1]).toMatch(/^ai-app:rl:diagnose:[\w-]{22}$/);
     expect(second[0][1]).toMatch(/^ai-app:rl:lead:[\w-]{22}$/);
     expect(first[0][1].split(":").at(-1)).toBe(second[0][1].split(":").at(-1));
+    // 鍵(hashSecretEnv の環境変数)が無いときは鍵なしの SHA-256
+    expect(first[0][1].split(":").at(-1)).toBe(hashClientKey("192.0.2.10"));
     expect(JSON.stringify([first, second])).not.toContain("192.0.2.10");
     expect(first[0]).toEqual(["SET", first[0][1], "0", "PX", String(HOUR_MS), "NX"]);
     expect(first[1]).toEqual(["INCR", first[0][1]]);
+  });
+
+  it("鍵が設定されていれば、送信元を鍵付きの HMAC にしてキーに置く(鍵を変えるとキーも変わる)", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(upstashCount(1));
+    const check = createHourlyLimiter({ name: "diagnose", keyPrefix: "ai-app:", onStoreError: "memory", hashSecretEnv: "TEST_HASH_SECRET" });
+    await check("192.0.2.11", 5, { env: { ...store, TEST_HASH_SECRET: "secret-a" } });
+    await check("192.0.2.11", 5, { env: { ...store, TEST_HASH_SECRET: "secret-b" } });
+
+    const [a, b] = fetchMock.mock.calls.map((call) => (JSON.parse(String(call[1]?.body)) as string[][])[0][1]);
+    expect(a).toBe(`ai-app:rl:diagnose:${hashClientKey("192.0.2.11", "secret-a")}`);
+    expect(b).toBe(`ai-app:rl:diagnose:${hashClientKey("192.0.2.11", "secret-b")}`);
+    expect(a).not.toBe(b);
   });
 
   describe("共有ストアに接続できない・設定に誤りがあるとき", () => {
     it("memory: ログを出してメモリで数える", async () => {
       const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
       vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("fetch failed"));
-      const check = createHourlyLimiter({ name: "test", keyPrefix: "ai-app:", onStoreError: "memory" });
+      const check = createHourlyLimiter({ name: "test", keyPrefix: "ai-app:", onStoreError: "memory", hashSecretEnv: "TEST_HASH_SECRET" });
 
       expect(await check("192.0.2.20", 1, { env: store })).toBe("ok");
       expect(await check("192.0.2.20", 1, { env: store })).toBe("limited");
@@ -136,7 +175,7 @@ describe("createHourlyLimiter", () => {
     it("memory: URLの設定に誤りがあれば、接続せずにログを出してメモリで数える", async () => {
       const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
       const fetchMock = vi.spyOn(globalThis, "fetch");
-      const check = createHourlyLimiter({ name: "test", keyPrefix: "ai-app:", onStoreError: "memory" });
+      const check = createHourlyLimiter({ name: "test", keyPrefix: "ai-app:", onStoreError: "memory", hashSecretEnv: "TEST_HASH_SECRET" });
 
       expect(await check("192.0.2.30", 1, { env: badStore })).toBe("ok");
       expect(await check("192.0.2.30", 1, { env: badStore })).toBe("limited");
@@ -147,7 +186,7 @@ describe("createHourlyLimiter", () => {
     it("unavailable: メモリに切り替えずに受け付けない(費用の歯止めを外さない)", async () => {
       const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
       vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("fetch failed"));
-      const check = createHourlyLimiter({ name: "ai-document", keyPrefix: "ai-app:", onStoreError: "unavailable" });
+      const check = createHourlyLimiter({ name: "ai-document", keyPrefix: "ai-app:", onStoreError: "unavailable", hashSecretEnv: "TEST_HASH_SECRET" });
 
       expect(await check("192.0.2.40", 5, { env: store })).toBe("unavailable");
       expect(await check("192.0.2.40", 5, { env: badStore })).toBe("unavailable");

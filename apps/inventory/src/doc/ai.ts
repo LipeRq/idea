@@ -27,6 +27,14 @@ import { MODEL } from "./model";
 
 export { MODEL };
 
+/**
+ * このエンジンが使う Claude SDK(既定のエクスポート)。呼び出し側のサーバー(apps/inventory-web)が、ログで
+ * packages/shared の log.ts の errorTypeOf / errorClassOf に渡し、SDK の例外をクラスで照合する
+ * (本番ビルドではクラス名が潰れるため。照合は同じ SDK のクラスでないと instanceof が合わない)。
+ * サーバー専用(画面・Worker のバンドルには入れない)。
+ */
+export { Anthropic as ClaudeSdk };
+
 export type Effort = "low" | "medium" | "high";
 
 export interface StructuredRequest<S extends z.ZodType> {

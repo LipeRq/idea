@@ -73,15 +73,16 @@ CSP で止まらないもの(正直に書いておく): ブラウザの拡張機
 
 - **伏せ字の限界**: 伏せ字はパスワードのパターン検出だけです。API キー・トークン・Bearer・Webhook の URL・`.Item(cdoSendPassword)` 形式のメールのパスワード・コード中の氏名やメールアドレスは伏せられません。そのため、送信内容から、メールアドレス・電話番号・Webhook の URL・キーを含む URL・よく知られたキーの形(`AKIA`・`AIza`・`xox?-`・`ghp_`・`glpat-`・`sk-ant-`・`sk-`)・名前が `…_KEY` / `…Key` / `…Secret` / `…Token` の変数への文字列の代入・`cdoSendPassword` などの語のある行・長いランダムな文字列・個人フォルダのパスを探し、**場所付きで同意画面に一覧表示**します(検出も完全ではないことを明記)。
 - 「ソースコード本文とクエリの SQL を送らない」を選べます。ただし、コードから取り出した SQL 文・URL・パスなどの抽出結果は送られます(画面にもそう書いています)。
-- 同意のチェックは2つ: 「運営者のサーバーを経由して Anthropic 社(米国)の API に送信することに同意」「このファイルの持ち主(自社または顧客)から外部 AI サービスへの送信の了承を得ている」。送信先の国と、Anthropic 社側で規約に従い保持される場合があることも表示します。
+- 同意のチェックは2つ: 「運営者のサーバーを経由して Anthropic 社(米国)の API に送信することに同意」「このファイルの持ち主(自社または顧客)から外部 AI サービスへの送信の了承を得ている」。送信先の国と、Anthropic 社側で規約に従い保持される場合があることも表示します。運営者名(`NEXT_PUBLIC_OPERATOR_NAME`)、プライバシーポリシー(`NEXT_PUBLIC_PRIVACY_POLICY_URL`)・利用規約(`NEXT_PUBLIC_TERMS_URL`)へのリンクも、設定があれば同意画面に出します。
+- 「米国」は送信先の会社(Anthropic, PBC)の所在国です。Claude API の推論の地域は、既定(`default_inference_geo` が `"global"`)では米国外になることもあります。処理を米国内に限るには、Claude Console のワークスペースの設定で `default_inference_geo` を `"us"` にしてください(コードの変更は不要)。設定しない場合は、プライバシーポリシーの記載をそれに合わせます(`docs/legal/README.md`)。
 - 大きさ(本文のバイト数・推定入力トークン・要約の依頼回数)はサーバーと同じ計算で同意前に判定し、超えていれば送信できないようにします。
 
 ### サーバー側(`/api/ai-document`)
 
-- `GET`: 利用可否(`available` / `mode` / `requiresAccessCode` / 上限 / 同意の版)。秘密を含みません。リクエストごとに環境変数を読みます(再ビルド不要で止められる)。
+- `GET`: 利用可否(`available` / `mode` / `requiresAccessCode` / 上限 / 同意の版)。秘密を含みません。リクエストごとに環境変数を読みます(再ビルド不要で止められる)。使わない理由(`no_credentials`・`no_privacy_policy` など)は、理由ごとに1回だけサーバーログに警告で出します(`src/lib/server/ai-config.ts`)。
 - `POST` の受付順: 有効か(503)→ アクセスコード(403。誤ったコードの試行が送信元ごとに1時間5回・サイト全体で50回に達すると、正しいコードでもしばらく 429)→ 送信元ごとの回数(429)→ Content-Type(415)→ 本文の大きさ(413)→ 形式と同意の版(400 / 409)→ サーバーでも送らない項目を外し直す → 依頼の大きさ(413)→ 1日の回数と推定入力トークン(429)→ 生成。
 - 生成はエンジンの `generateAiDocument` と `createClaudeClient`(`claude-opus-5-5`、thinking パラメータは送らず `output_config.effort` を明示、`beta.messages.stream` + `server-side-fallback-2026-07-01`、`stop_reason` と出力の検証)をそのまま使います。応答は NDJSON(`accepted` / `progress` / `heartbeat`(15秒ごと)/ `done` / `error`)。AI 版の仕様書の Markdown は画面の Worker で作ります。
-- ログは1リクエスト1行の JSON(結果・件数・処理時間・推定トークン・エラーのクラス名)だけ。本文・ファイル名・モジュール名・SQL・AI の出力・IP アドレス・アクセスコードは出しません。データは処理中のメモリだけに置き、保存しません。
+- ログは1リクエスト1行の JSON(結果・件数・処理時間・推定トークン・エラーのクラス名・無効のときの理由)だけ。Claude SDK の例外は、エンジンが公開する SDK(`@engine/doc/ai` の `ClaudeSdk`)を `packages/shared` の `errorClassOf` に渡してクラスで照合します(本番ビルドでクラス名が潰れても `RateLimitError` などで記録される。サーバー専用で、画面のバンドルには入りません)。本文・ファイル名・モジュール名・SQL・AI の出力・IP アドレス・アクセスコードは出しません。データは処理中のメモリだけに置き、保存しません。
 
 ### 費用の目安と歯止め
 
@@ -91,6 +92,7 @@ CSP で止まらないもの(正直に書いておく): ブラウザの拡張機
 - 送信元の判定: Vercel 上では Vercel が付ける `x-vercel-forwarded-for` を使います。それ以外は、手前に信頼できるリバースプロキシが1段あるときだけ `INVENTORY_TRUST_PROXY=true` にしてください(`x-forwarded-for` の末尾を使う)。設定しないと、利用者が偽装できる転送元のヘッダーは使わず、全員で1つの枠を共有します(`next start` を直接公開すると、送信元ごとの1時間の回数がサイト全体の回数になります)。
 - 送信元ごとの1時間の回数、サイト全体の1日の回数と推定入力トークンの上限。読み取れない設定値は「AI を使わない」側に倒します。
 - Vercel 上では共有ストア(Upstash)が無いと claude モードを使いません(インスタンスごとのメモリでは上限にならないため)。共有ストアに接続できないときも受け付けません(フェイルクローズ)。
+- 共有ストアのキーに置く送信元(IPアドレス)は、`INVENTORY_RATE_LIMIT_HASH_SECRET` を鍵にした HMAC-SHA256 にします(未設定なら鍵なしの SHA-256 で、本番では警告)。**鍵を設定・変更すると Upstash のキー(`ai-inventory:rl:ai-document:<ハッシュ>`・`ai-inventory:ai-access-fail:src:<ハッシュ>`)が変わり**、その時点で送信元ごとの1時間の回数と誤ったアクセスコードの試行回数は数え直しになります(古いキーは1時間で消える。サイト全体の回数・1日の上限のキーは変わらない)。
 - **最後の歯止めとして、Anthropic Console で月の利用上限を必ず設定してください。**
 
 ## 環境変数
@@ -100,7 +102,9 @@ CSP で止まらないもの(正直に書いておく): ブラウザの拡張機
 | 環境変数 | 既定 | 内容 |
 | --- | --- | --- |
 | `NEXT_PUBLIC_CONTACT_URL` | — | 相談ページ(未設定なら出さない)。**ビルド時**に埋め込まれる |
-| `NEXT_PUBLIC_PRIVACY_POLICY_URL` | — | プライバシーポリシー。**ビルド時**に埋め込まれる |
+| `NEXT_PUBLIC_PRIVACY_POLICY_URL` | — | プライバシーポリシー。フッター・同意画面・「仕組みとデータの扱い」に出す。**ビルド時**に埋め込まれる。**`claude` モードでは必須**(未設定ならAI版を使わず、理由をログに出す。判定もビルド時の値で行うので、設定したらビルドし直す) |
+| `NEXT_PUBLIC_TERMS_URL` | — | 利用規約。フッターと同意画面に出す(未設定なら出さない)。**ビルド時**に埋め込まれる |
+| `NEXT_PUBLIC_OPERATOR_NAME` | — | 運営者名(例:`株式会社〇〇`)。フッターと同意画面に出す(未設定なら出さない)。**ビルド時**に埋め込まれる |
 | `INVENTORY_AI_MODE` | `off` | `off` / `mock`(デモ用の固定文章)/ `claude` |
 | `ANTHROPIC_API_KEY`(または `ANTHROPIC_AUTH_TOKEN`) | — | `claude` のとき必須 |
 | `INVENTORY_AI_ACCESS_CODE` | — | `claude` のときは既定で必須。**16文字以上**(短いと AI 版を使わない)。設定すると mock でも必要 |
@@ -116,6 +120,7 @@ CSP で止まらないもの(正直に書いておく): ブラウザの拡張機
 | `INVENTORY_AI_MOCK_DELAY_MS` | 300 | mock の応答の待ち時間 |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`(`KV_REST_API_URL` / `_TOKEN`) | — | 回数を共有ストアで数える(サーバーレスでは必須) |
 | `INVENTORY_AI_REQUIRE_SHARED_STORE` | `false` | Vercel 以外でも共有ストアを必須にする |
+| `INVENTORY_RATE_LIMIT_HASH_SECRET` | — | 共有ストアのキーに置く送信元(IPアドレス)の HMAC-SHA256 の鍵。**本番では設定**(例:`openssl rand -hex 32`)。専用の値にする(アクセスコードなどを流用しない)。未設定なら鍵なしの SHA-256(本番では警告)。変えると回数が数え直しになる |
 | `INVENTORY_SAMPLES_DIR` | `../inventory/samples` | 「サンプルで試す」の取り込み元 |
 
 ## 制約・未実装
@@ -143,7 +148,7 @@ CSP で止まらないもの(正直に書いておく): ブラウザの拡張機
 
 1. プロジェクトのルートディレクトリを `apps/inventory-web` にし、「ルートディレクトリ外のファイルをビルドに含める」を有効にする(解析エンジン `apps/inventory` と共通の部品 `packages/shared` を使うため。`next.config.ts` で Turbopack とファイルトレースのルートをリポジトリのルートにしています)。
 2. インストールコマンド: `npm ci && npm ci --prefix ../inventory`。ビルドコマンドは既定(`npm run build`。前処理で Worker のバンドルとサンプルを用意)。
-3. 環境変数を設定する(上の表)。AI 版を使うなら `INVENTORY_AI_MODE=claude`・`ANTHROPIC_API_KEY`・`INVENTORY_AI_ACCESS_CODE`・Upstash を設定。`NEXT_PUBLIC_*` を変えたらビルドし直す。
+3. 環境変数を設定する(上の表)。AI 版を使うなら `INVENTORY_AI_MODE=claude`・`ANTHROPIC_API_KEY`・`INVENTORY_AI_ACCESS_CODE`・Upstash・`INVENTORY_RATE_LIMIT_HASH_SECRET`・`NEXT_PUBLIC_PRIVACY_POLICY_URL` を設定(`NEXT_PUBLIC_TERMS_URL`・`NEXT_PUBLIC_OPERATOR_NAME` も推奨)。`NEXT_PUBLIC_*` を変えたらビルドし直す。
 4. `maxDuration` は 300 秒にしています(`src/app/api/ai-document/route.ts`)。生成全体はその手前の 280 秒(`AI_DEADLINE_MS`)、1回の依頼は 240 秒(`AI_REQUEST_TIMEOUT_MS`)で打ち切り、画面に理由を返します(`src/lib/server/ai-document.ts`)。大きなファイルで統合に時間がかかる場合は、プランの上限に合わせて3つをそろえて調整する。
 
 ### 公開前チェック
@@ -151,6 +156,8 @@ CSP で止まらないもの(正直に書いておく): ブラウザの拡張機
 - [ ] **Vercel Toolbar をプロジェクト設定で無効にする**(プレビュー環境に外部のスクリプトが注入され、CSP 違反と「外部を読み込まない」の説明との矛盾になる)
 - [ ] Anthropic Console で月の利用上限を設定する(AI 版を使う場合)
 - [ ] Upstash(共有ストア)を設定する(AI 版を使う場合。Vercel 上では未設定だと claude モードは無効になる)
+- [ ] Claude Console で `default_inference_geo` を決める(`"us"` にすると推論を米国内に限れる。同意画面の「Anthropic 社(米国)」の表記・プライバシーポリシーと合わせる)
+- [ ] `NEXT_PUBLIC_PRIVACY_POLICY_URL` を設定してビルドする(AI 版を使う場合。未設定だと claude モードは無効になる)
 - [ ] プライバシーポリシーに AI 版の送信(運営者のサーバー経由で Anthropic 社(米国)へ)と保持の扱いを書く。コードやコメントに個人情報が含まれうるため、**個人情報保護法の「外国にある第三者への提供」に当たるかを法務に確認する**
 - [ ] Safari・Edge で、サンプルの解析・図・HTML 保存・印刷・オフラインでの解析を手動で確認する
 - [ ] `npm test`・`npm run test:e2e`・`npm run lint`・`npm run typecheck`・`npm run build` が通ること

@@ -45,6 +45,8 @@ export function AiConsentDialog({
   status,
   buildPayload,
   privacyUrl,
+  termsUrl,
+  operatorName,
   contactUrl,
   onGenerated,
 }: {
@@ -57,6 +59,9 @@ export function AiConsentDialog({
   /** 送信内容を Worker で作る(includeSource: ソースコード本文と SQL を含めるか) */
   buildPayload: (includeSource: boolean) => Promise<AiPayload>;
   privacyUrl: string | null;
+  termsUrl: string | null;
+  /** 運営者名(NEXT_PUBLIC_OPERATOR_NAME)。送信先の説明に出す */
+  operatorName: string | null;
   contactUrl: string | null;
   /** AI の文章を受け取ったら、Worker で仕様書にして結果画面に追加する */
   onGenerated: (ai: AiDocumentJson) => Promise<void>;
@@ -318,6 +323,7 @@ export function AiConsentDialog({
               <h3 id={`${titleId}-dest`} className="font-bold">
                 送信先と保存
               </h3>
+              {operatorName && <p className="mt-1">運営者: {operatorName}</p>}
               <p className="mt-1">{DESTINATION_TEXT}</p>
               <p className="mt-1">
                 {RETENTION_TEXT}
@@ -345,6 +351,15 @@ export function AiConsentDialog({
                 <input id={ownerId} type="checkbox" className="mt-1" checked={agreeOwner} disabled={busy} onChange={(e) => setAgreeOwner(e.currentTarget.checked)} />
                 <span>{CONSENT_OWNER_LABEL}</span>
               </label>
+              {termsUrl && (
+                <p className="text-xs text-ink-2">
+                  AI版を含む本サービスのご利用には、
+                  <ExternalLink href={termsUrl} className="text-accent-ink underline underline-offset-2">
+                    利用規約
+                  </ExternalLink>
+                  が適用されます。
+                </p>
+              )}
               {status.requiresAccessCode && (
                 <div className="pt-1">
                   <label htmlFor={codeId} className="block text-sm font-semibold">

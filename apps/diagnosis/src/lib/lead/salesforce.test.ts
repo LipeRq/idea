@@ -103,6 +103,21 @@ describe("webToLeadFields", () => {
     expect(fields.get("debug")).toBe("1");
     expect(fields.get("debugEmail")).toBe("admin@example.com");
   });
+
+  it("本番(NODE_ENV=production かつ VERCEL_ENV=production)では SALESFORCE_DEBUG_EMAIL を警告して無視する", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const production = config({ NODE_ENV: "production", VERCEL_ENV: "production", SALESFORCE_DEBUG_EMAIL: "admin@example.com" });
+    expect(production.debugEmail).toBeUndefined();
+    const fields = webToLeadFields(lead, production);
+    expect(fields.has("debug")).toBe(false);
+    expect(fields.has("debugEmail")).toBe(false);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("SALESFORCE_DEBUG_EMAIL は本番では使いません"));
+    warn.mockRestore();
+
+    // プレビュー環境・手元の本番ビルドでは使える
+    expect(config({ NODE_ENV: "production", VERCEL_ENV: "preview", SALESFORCE_DEBUG_EMAIL: "admin@example.com" }).debugEmail).toBe("admin@example.com");
+    expect(config({ NODE_ENV: "production", SALESFORCE_DEBUG_EMAIL: "admin@example.com" }).debugEmail).toBe("admin@example.com");
+  });
 });
 
 describe("salesforceAdapter", () => {

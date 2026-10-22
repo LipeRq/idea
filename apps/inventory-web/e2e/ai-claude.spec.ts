@@ -38,6 +38,8 @@ test("AI に接続できないときはエラーを表示して標準の結果�
 
   const log = readFileSync(join(LOG_DIR, "claude.log"), "utf8");
   expect(log).toContain('"outcome":"ai_error"');
+  // 本番ビルドでも、SDK の例外の種類をクラスで照合して記録する("Error" に潰れない)
+  expect(log).toContain('"errorClass":"APIConnectionError"');
   expect(log).toContain('"outcome":"daily_limit"');
   for (const word of [MARKER.source, MARKER.password, MARKER.apiKey, FIXTURES.secret, "sk-ant-e2e-dummy"]) {
     expect(log, `サーバーのログに ${word}`).not.toContain(word);

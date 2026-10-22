@@ -19,8 +19,11 @@ export function httpUrlOrUndefined(value: string | undefined): string | undefine
 /** 外部の問い合わせ窓口。PDFの申し込み先や、フォームを送れなかったときの案内に使う */
 export const CONTACT_URL = httpUrlOrUndefined(process.env.NEXT_PUBLIC_CONTACT_URL);
 
-/** プライバシーポリシーのページ。申し込みフォームの同意欄からリンクする */
+/** プライバシーポリシーのページ。フッター・申し込みフォームの同意欄・「いま困っていること」の注記からリンクする */
 export const PRIVACY_POLICY_URL = httpUrlOrUndefined(process.env.NEXT_PUBLIC_PRIVACY_POLICY_URL);
+
+/** 利用規約のページ。フッターと申し込みフォームからリンクする(未設定ならリンクを出さない) */
+export const TERMS_URL = httpUrlOrUndefined(process.env.NEXT_PUBLIC_TERMS_URL);
 
 /**
  * 公開URL(OGP・canonical・robots・sitemap の絶対URL)。

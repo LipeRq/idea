@@ -2,8 +2,10 @@ import Anthropic from "@anthropic-ai/sdk";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { analyzeBuffer, type InventoryReport } from "../src";
+import { errorTypeOf } from "../../../packages/shared/src/log";
 import {
   AiGenerationError,
+  ClaudeSdk,
   createClaudeClient,
   factsText,
   generateAiDocument,
@@ -263,6 +265,17 @@ function accessInfo(): InventoryReport["access"] {
     vbaStatus: "none",
   };
 }
+
+describe("ClaudeSdk(ログで例外の種類を照合するために公開する SDK)", () => {
+  it("エンジンが使う SDK そのもので、packages/shared の errorTypeOf に渡すと SDK の例外を名前で返す", () => {
+    expect(ClaudeSdk).toBe(Anthropic);
+    const minified = new ClaudeSdk.RateLimitError(429, undefined, "x", new Headers());
+    // 本番ビルドでクラス名が潰れた場合と同じ状態にしても、クラスで照合できる
+    Object.defineProperty(minified, "name", { value: "s" });
+    expect(errorTypeOf(minified, ClaudeSdk)).toBe("RateLimitError");
+    expect(errorTypeOf(minified)).toBe("Error");
+  });
+});
 
 describe("createClaudeClient", () => {
   function fakeAnthropic(message: Record<string, unknown> | (() => Promise<unknown>)) {

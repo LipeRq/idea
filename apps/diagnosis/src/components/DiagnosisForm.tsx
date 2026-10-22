@@ -7,6 +7,7 @@ import {
   READINESS_QUESTIONS,
   TASKS,
 } from "@/lib/diagnosis/master";
+import { PRIVACY_POLICY_URL } from "@/lib/site";
 import {
   STEPS,
   hoursFieldId,
@@ -24,6 +25,10 @@ type Props = {
 
 /** フォーム下部に出すエラーメッセージのID。エラーのある欄から aria-describedby で参照する */
 export const FORM_ERROR_ID = "diagnosis-form-error";
+
+/** 「いま困っていること」の欄と、外部のAIへの送信の注記のID(注記は欄から aria-describedby で参照する) */
+const CHALLENGES_ID = "diagnosis-challenges";
+const CHALLENGES_NOTE_ID = "diagnosis-challenges-note";
 
 export const inputClass =
   "w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-base text-ink focus:outline-2 focus:outline-accent aria-[invalid=true]:border-critical";
@@ -151,9 +156,34 @@ function CompanyStep({ form, onChange, invalid }: StepProps) {
         </div>
       </fieldset>
 
-      <label className="block space-y-1">
-        <span className="font-medium">いま困っていること(任意)</span>
+      <div className="space-y-1">
+        <label htmlFor={CHALLENGES_ID} className="block font-medium">
+          いま困っていること(任意)
+        </label>
+        {/* 自由記述は外部のAI(Anthropic、米国)に送るため、書く前に目に入る位置に注意を出す */}
+        <p id={CHALLENGES_NOTE_ID} className="text-sm text-ink-2">
+          入力内容は、AIによる分析のため Anthropic 社(米国)に送信します。
+          <strong className="font-semibold text-ink">
+            個人情報(氏名・連絡先など)や機密情報は書かないでください。
+          </strong>
+          {PRIVACY_POLICY_URL && (
+            <>
+              詳しくは
+              <a
+                href={PRIVACY_POLICY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent-ink underline"
+              >
+                プライバシーポリシー(別タブで開きます)
+              </a>
+              をご覧ください。
+            </>
+          )}
+        </p>
         <textarea
+          id={CHALLENGES_ID}
+          aria-describedby={CHALLENGES_NOTE_ID}
           className={`${inputClass} min-h-28`}
           maxLength={1000}
           placeholder="例:見積の作成がベテラン1人に集中していて、受注を取りこぼしている"
@@ -162,7 +192,7 @@ function CompanyStep({ form, onChange, invalid }: StepProps) {
             onChange((p) => ({ ...p, challenges: e.target.value }))
           }
         />
-      </label>
+      </div>
     </div>
   );
 }

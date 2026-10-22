@@ -1,19 +1,22 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { analyzeBuffer, type InventoryReport } from "@engine/browser";
-import type { StructuredClient } from "@engine/doc/ai";
+import { ClaudeSdk, type StructuredClient } from "@engine/doc/ai";
+import { hashClientKey } from "@idea/shared/rate-limit";
 import { CONSENT_VERSION } from "@/lib/ai-consent";
 import { AiDocumentJsonSchema } from "@/lib/ai-json-schema";
 import { MARKER, secretWorkbook } from "@/test/fixtures";
 import { buildAiPayload } from "@/worker/handle";
-import { aiConfigFromEnv, aiStatusBody } from "./ai-config";
+import { aiConfigFromEnv, aiStatusBody, resetAiConfigWarningsForTest } from "./ai-config";
 import { handleAiDocumentPost, type AiRouteDeps } from "./ai-document";
 import { resetAccessGuardForTest } from "./access-guard";
 import { resetAiQuotaForTest } from "./ai-quota";
 import { clientKey } from "./http";
+import { KV_KEY_PREFIX } from "./kv";
 import { createMockClient, MOCK_MARK } from "./mock-client";
 import { resetRateLimitForTest } from "./rate-limit";
 
 const ACCESS_CODE = "テスト用のアクセスコード-0123456789";
+const PRIVACY_URL = "https://example.com/privacy";
 const env = (e: Record<string, string>) => e as unknown as NodeJS.ProcessEnv;
 const BASE_ENV: Record<string, string> = {
   INVENTORY_AI_MODE: "mock",
@@ -213,6 +216,29 @@ describe("生成", () => {
 });
 
 describe("ログ", () => {
+  it("AI 版を使わないときは、理由をログに出す(秘密の値は出さない)", async () => {
+    logs.length = 0;
+    const res = await call(post(validBody), { INVENTORY_AI_MODE: "claude", ANTHROPIC_API_KEY: "sk-ant-secret" });
+    expect(res.status).toBe(503);
+    const all = logs.join("\n");
+    expect(all).toContain('"outcome":"disabled"');
+    expect(all).toContain('"reason":"no_privacy_policy"');
+    expect(all).not.toContain("sk-ant-secret");
+    expect(all).not.toContain(ACCESS_CODE);
+  });
+
+  it("Claude SDK の例外は、本番ビルドでクラス名が潰れても種類と HTTP ステータスをログに出す(メッセージは出さない)", async () => {
+    logs.length = 0;
+    const sdkError = new ClaudeSdk.RateLimitError(429, undefined, `内部の詳細 ${MARKER.source}`, new Headers());
+    Object.defineProperty(sdkError, "name", { value: "s" });
+    await events(await call(post(validBody), {}, { createClient: () => ({ generate: () => Promise.reject(sdkError) }) }));
+    const all = logs.join("\n");
+    expect(all).toContain('"outcome":"ai_error"');
+    expect(all).toContain('"errorClass":"RateLimitError"');
+    expect(all).toContain('"errorStatus":429');
+    expect(all).not.toContain(MARKER.source);
+  });
+
   it("件数だけの1行ログで、ソース・ファイル名・モジュール名・パスワード・アクセスコードを出さない", async () => {
     await events(await call(post(validBody)));
     await call(post(validBody, { "x-access-code": "wrong" }));
@@ -227,13 +253,30 @@ describe("ログ", () => {
 
 describe("設定(費用の歯止め)", () => {
   it("claude モードは APIキーとアクセスコードがそろったときだけ有効(匿名公開は明示したときだけ)", () => {
-    const base = { INVENTORY_AI_MODE: "claude" };
+    const base = { INVENTORY_AI_MODE: "claude", NEXT_PUBLIC_PRIVACY_POLICY_URL: PRIVACY_URL };
     expect(aiConfigFromEnv(env(base)).reason).toBe("no_credentials");
     // 短いアクセスコードは総当たりで当てられるので、AI 版を使わない
     expect(aiConfigFromEnv(env({ ...base, ANTHROPIC_API_KEY: "k", INVENTORY_AI_ACCESS_CODE: "short-code" })).reason).toBe("weak_access_code");
     expect(aiConfigFromEnv(env({ ...base, ANTHROPIC_API_KEY: "k" })).reason).toBe("no_access_code");
     expect(aiConfigFromEnv(env({ ...base, ANTHROPIC_API_KEY: "k", INVENTORY_AI_ACCESS_CODE: ACCESS_CODE })).available).toBe(true);
     expect(aiConfigFromEnv(env({ ...base, ANTHROPIC_API_KEY: "k", INVENTORY_AI_ALLOW_ANONYMOUS: "true" })).available).toBe(true);
+  });
+
+  it("claude モードは、プライバシーポリシーの URL(http(s))が無いと使わず、理由を1回だけログに出す", () => {
+    resetAiConfigWarningsForTest();
+    logs.length = 0;
+    const claude = { INVENTORY_AI_MODE: "claude", ANTHROPIC_API_KEY: "sk-ant-secret", INVENTORY_AI_ACCESS_CODE: ACCESS_CODE };
+    expect(aiConfigFromEnv(env(claude)).reason).toBe("no_privacy_policy");
+    expect(aiConfigFromEnv(env({ ...claude, NEXT_PUBLIC_PRIVACY_POLICY_URL: "javascript:alert(1)" })).reason).toBe("no_privacy_policy");
+    expect(aiConfigFromEnv(env({ ...claude, NEXT_PUBLIC_PRIVACY_POLICY_URL: PRIVACY_URL })).available).toBe(true);
+    // mock は外部に送らないので、未設定でも使える
+    expect(aiConfigFromEnv(env({ INVENTORY_AI_MODE: "mock" })).available).toBe(true);
+
+    const warnings = logs.filter((l) => l.includes("no_privacy_policy"));
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain("NEXT_PUBLIC_PRIVACY_POLICY_URL が未設定です");
+    expect(logs.join("\n")).not.toContain("sk-ant-secret");
+    expect(logs.join("\n")).not.toContain(ACCESS_CODE);
   });
 
   it("Vercel 上で共有ストアが無いと使わない。読み取れない上限・0 は止める", () => {
@@ -250,6 +293,30 @@ describe("設定(費用の歯止め)", () => {
     expect(JSON.stringify(body)).not.toContain("sk-secret");
     expect(JSON.stringify(body)).not.toContain(ACCESS_CODE);
     expect(body).toMatchObject({ available: true, mode: "mock", requiresAccessCode: true, consentVersion: CONSENT_VERSION });
+  });
+});
+
+describe("送信元のハッシュ(共有ストアのキー)", () => {
+  it("INVENTORY_RATE_LIMIT_HASH_SECRET を鍵にした HMAC にして置き、IPアドレスはそのまま置かない", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementation(async () => new Response(JSON.stringify([{ result: null }, { result: 0 }]), { status: 200 }));
+    const store = {
+      UPSTASH_REDIS_REST_URL: "https://example.upstash.io",
+      UPSTASH_REDIS_REST_TOKEN: "token",
+      INVENTORY_TRUST_PROXY: "true",
+      INVENTORY_RATE_LIMIT_HASH_SECRET: "inventory-hash-secret",
+    };
+    const source = clientKey(post(validBody), env(store));
+    expect(source).toBe("203.0.113.5");
+    await call(post(validBody, { "x-access-code": "wrong" }), store);
+    await call(post(validBody), store);
+
+    const keys = fetchMock.mock.calls.map((c) => (JSON.parse(String(c[1]?.body)) as string[][])[0][1]);
+    const hashed = hashClientKey(source, "inventory-hash-secret");
+    expect(keys).toContain(`${KV_KEY_PREFIX}ai-access-fail:src:${hashed}`);
+    expect(keys).toContain(`${KV_KEY_PREFIX}rl:ai-document:${hashed}`);
+    expect(keys.join("\n")).not.toContain(source);
   });
 });
 

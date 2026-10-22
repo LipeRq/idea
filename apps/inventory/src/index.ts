@@ -11,6 +11,7 @@ export {
   generateAiDocument,
   hasAnthropicCredentials,
   AiGenerationError,
+  ClaudeSdk,
   MODEL,
   type StructuredClient,
   type StructuredRequest,

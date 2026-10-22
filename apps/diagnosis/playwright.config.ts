@@ -31,6 +31,9 @@ const isolatedEnv = {
   LEAD_LOG_ONLY: "true",
   // 本番以外でも検索エンジン向けの設定を本番と同じにする
   VERCEL_ENV: "",
+  // 回数制限の送信元のハッシュの鍵(本番ビルドで未設定の警告を出さない)
+  DIAGNOSIS_RATE_LIMIT_HASH_SECRET: "e2e-diagnosis-rate-limit-hash-secret",
+  SALESFORCE_DEBUG_EMAIL: "",
 };
 
 export default defineConfig({
@@ -76,6 +79,7 @@ export default defineConfig({
         ...isolatedEnv,
         // ビルド時に埋め込まれる値。同意欄のリンク・PDF・メタデータを手元の設定に左右されないようにする
         NEXT_PUBLIC_PRIVACY_POLICY_URL: "https://example.com/privacy",
+        NEXT_PUBLIC_TERMS_URL: "https://example.com/terms",
         NEXT_PUBLIC_CONTACT_URL: "",
         NEXT_PUBLIC_SITE_URL: E2E_SITE_URL,
         REPORT_BRAND_NAME: "",

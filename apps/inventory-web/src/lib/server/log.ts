@@ -1,7 +1,7 @@
 // AI 版のサーバーログ。1リクエスト1行の JSON だけを console.info で出す。
 // 出さないもの: 本文・抽出結果の中身・ファイル名・モジュール名・SQL・AI の出力・IP アドレス・User-Agent・アクセスコード・
 // エラーオブジェクト全体(メッセージに入力の一部が含まれることがあるため、クラス名と HTTP ステータスだけを出す。
-// 取り出しは packages/shared の log.ts の errorClassOf)。
+// 取り出しは packages/shared の log.ts の errorClassOf。Claude SDK の例外は、エンジンが公開する SDK(ClaudeSdk)のクラスで照合する)。
 
 export type AiOutcome =
   | "ok"
@@ -22,6 +22,8 @@ export type AiOutcome =
 export interface AiLogEntry {
   outcome: AiOutcome;
   mode: string;
+  /** disabled のときの理由(ai-config.ts の UnavailableReason) */
+  reason?: string;
   durationMs: number;
   bodyBytes?: number;
   modules?: number;
