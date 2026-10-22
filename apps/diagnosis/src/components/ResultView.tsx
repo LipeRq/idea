@@ -3,10 +3,13 @@
 import { useEffect, useRef } from "react";
 import { READINESS_LEVEL_LABEL } from "@/lib/diagnosis/calculate";
 import { COST_BY_DIFFICULTY, DIFFICULTY_LABEL } from "@/lib/diagnosis/master";
+import { recommendRelatedTools } from "@/lib/diagnosis/related-tools";
 import type { DiagnosisInput } from "@/lib/diagnosis/schema";
 import type { DiagnosisResponse } from "@/lib/diagnosis/types";
 import { formatHours, formatYen } from "@/lib/format";
-import { LeadForm } from "./LeadForm";
+import { RELATED_TOOL_URLS } from "@/lib/site";
+import { LeadForm, type LeadFormHandle } from "./LeadForm";
+import { RelatedTools } from "./RelatedTools";
 import { ReportActions } from "./ReportActions";
 import { SavingsChart } from "./SavingsChart";
 
@@ -26,6 +29,9 @@ export function ResultView({ data, input, onRestart }: Props) {
     report.recommendations.map((r) => [r.taskId, r]),
   );
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const leadFormRef = useRef<LeadFormHandle>(null);
+  // 関連ツールの案内は入力から決まったルールで選ぶ(PDFも同じ関数で作る)
+  const relatedTools = recommendRelatedTools(input);
 
   // 診断ボタンは結果表示で消えるため、見出しにフォーカスを移して結果が出たことを伝える
   useEffect(() => {
@@ -277,6 +283,12 @@ export function ResultView({ data, input, onRestart }: Props) {
         </p>
       </section>
 
+      <RelatedTools
+        recommendations={relatedTools}
+        urls={RELATED_TOOL_URLS}
+        onRequestLead={(topic) => leadFormRef.current?.selectTopic(topic)}
+      />
+
       <ReportActions data={data} input={input} onRestart={onRestart} />
 
       <section
@@ -292,7 +304,11 @@ export function ResultView({ data, input, onRestart }: Props) {
           ))}
         </ul>
         <div className="no-print rounded-lg border border-line bg-surface p-5 sm:p-6">
-          <LeadForm input={input} />
+          <LeadForm
+            ref={leadFormRef}
+            input={input}
+            topics={relatedTools.map((r) => r.leadTopic)}
+          />
         </div>
       </section>
     </article>

@@ -1,5 +1,5 @@
 // サイトの名前と、ビルド時に決まる外部へのリンク(NEXT_PUBLIC_* はビルド時に埋め込まれる)。
-// 外部へのリンクは相談ページ・プライバシーポリシー・利用規約だけ(どれも解析結果を一切付けない・新しいタブで開く)。
+// 外部へのリンクは相談ページ・AI導入診断・プライバシーポリシー・利用規約だけ(どれも解析結果を一切付けない・新しいタブで開く)。
 
 export const SERVICE_NAME = "マクロ棚卸し";
 export const SITE_DESCRIPTION =
@@ -19,6 +19,11 @@ export function httpUrl(value: string | undefined): string | null {
 
 export function contactUrl(): string | null {
   return httpUrl(process.env.NEXT_PUBLIC_CONTACT_URL);
+}
+
+/** AI導入診断(apps/diagnosis)のページ。結果画面の下の「次の一歩」に出す(未設定なら出さない) */
+export function diagnosisUrl(): string | null {
+  return httpUrl(process.env.NEXT_PUBLIC_DIAGNOSIS_URL);
 }
 
 export function privacyPolicyUrl(): string | null {

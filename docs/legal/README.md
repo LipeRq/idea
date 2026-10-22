@@ -143,10 +143,12 @@
 | `apps/diagnosis` | `NEXT_PUBLIC_CONTACT_URL` | フッター、PDF の申し込み先、送信に失敗したときの案内 | 推奨 |
 | `apps/diagnosis` | `REPORT_BRAND_NAME` | PDF の発行元、ページのタイトル・フッター、OGP 画像 | 運営者を示すため設定を推奨(【会社名】またはブランド名) |
 | `apps/diagnosis` | `NEXT_PUBLIC_TERMS_URL` | フッター、申し込みフォーム(同意欄の説明。別タブで開く) | 推奨(論点4) |
+| `apps/diagnosis` | `NEXT_PUBLIC_INVENTORY_TOOL_URL` / `NEXT_PUBLIC_QUOTE_ASSIST_DEMO_URL` | 結果画面と PDF の「あわせて使えるツール」のリンク先(別タブで開く。未設定なら「無料相談でご案内します」)。案内は参考情報で効果を保証しない旨を画面と PDF に書く。見積アシスト本体の URL は入れない(社外に公開しない) | 任意 |
 | `apps/inventory-web` | `NEXT_PUBLIC_PRIVACY_POLICY_URL` | フッター、AI版の同意画面、「仕組みとデータの扱い」 | **AI版(`INVENTORY_AI_MODE=claude`)では必須**。未設定なら AI版を無効にし、理由をサーバーログに出す(同意画面から法28条の情報に案内するため。論点1) |
 | `apps/inventory-web` | `NEXT_PUBLIC_TERMS_URL` | フッター、AI版の同意画面 | 推奨(論点4) |
 | `apps/inventory-web` | `NEXT_PUBLIC_OPERATOR_NAME` | フッター(「運営:…」)、AI版の同意画面(「運営者: …」) | 推奨(【会社名】またはブランド名) |
-| `apps/inventory-web` | `NEXT_PUBLIC_CONTACT_URL` | 相談リンク(画面・同意画面) | 任意 |
+| `apps/inventory-web` | `NEXT_PUBLIC_CONTACT_URL` | 相談リンク(フッター・結果画面の下の「次の一歩」・同意画面) | 任意 |
+| `apps/inventory-web` | `NEXT_PUBLIC_DIAGNOSIS_URL` | 結果画面の下の「次の一歩」(AI導入診断へのリンク。別タブで開き、解析結果は付けない) | 任意 |
 
 回数制限のための秘密の値(画面には出ない。サーバーで実行時に読む):
 

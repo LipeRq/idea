@@ -1,3 +1,5 @@
+import type { RelatedToolUrls } from "./diagnosis/related-tools";
+
 // 画面・PDF・メタデータで使う、環境変数による設定。
 // NEXT_PUBLIC_ の値と、メタデータ・OGP画像・robots・sitemap に使う値はビルド時に決まるので、変えたらビルドし直す。
 
@@ -24,6 +26,17 @@ export const PRIVACY_POLICY_URL = httpUrlOrUndefined(process.env.NEXT_PUBLIC_PRI
 
 /** 利用規約のページ。フッターと申し込みフォームからリンクする(未設定ならリンクを出さない) */
 export const TERMS_URL = httpUrlOrUndefined(process.env.NEXT_PUBLIC_TERMS_URL);
+
+/**
+ * 結果画面とPDFの「あわせて使えるツール」のリンク先。
+ * 未設定の案内はリンクを出さず、「無料相談でご案内します」として相談フォームへ誘導する。
+ */
+export const RELATED_TOOL_URLS: RelatedToolUrls = {
+  // Excelマクロ・Accessの棚卸しツール(apps/inventory-web)の画面
+  inventoryTool: httpUrlOrUndefined(process.env.NEXT_PUBLIC_INVENTORY_TOOL_URL),
+  // 見積アシスト(apps/quote-assist)のデモの紹介ページ(録画など)。ツール本体は社外に公開しない
+  quoteAssistDemo: httpUrlOrUndefined(process.env.NEXT_PUBLIC_QUOTE_ASSIST_DEMO_URL),
+};
 
 /**
  * 公開URL(OGP・canonical・robots・sitemap の絶対URL)。

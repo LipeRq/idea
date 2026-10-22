@@ -5,6 +5,7 @@
 - 数値は決まった計算式で出し、文章だけをClaudeが書きます(`docs/diagnosis-logic.md`)
 - PDFレポートと申し込みの設計は `docs/lead-and-report.md`
 - 公開(Vercel)の手順、環境変数の登録、公開後の確認、計測のファネルの見方は `docs/deploy.md`
+- 結果画面とPDFでは、回答内容から決まったルールで「あわせて使えるツール」(Excelマクロ・Accessの棚卸しツール、製造業向け見積アシストのデモ)を案内します(下記「関連ツールの案内」)
 - ほかのアプリと共通の部品(セキュリティヘッダー・送信元の判定と本文の読み取り・回数制限・1日の上限の数え方・Upstash・例外の種類・構造化出力の検証)は、リポジトリ直下の `packages/shared` を `tsconfig.json` の別名 `@idea/shared/*` で取り込んでいます(ビルド不要。`src/lib` にはこのアプリ用の設定だけを置く)。そのため `next.config.ts` で Turbopack とファイルトレースのルートをリポジトリのルートにしています。共通の部品自体のテストは `packages/shared` で `npm test`
 
 ## 動かし方
@@ -41,6 +42,8 @@ GitHub Actions(リポジトリの `.github/workflows/diagnosis.yml`)が、`apps/
 | `NEXT_PUBLIC_PRIVACY_POLICY_URL` | プライバシーポリシー。フッター、申し込みフォームの同意欄、「いま困っていること」の注記(外部のAIへの送信)からリンクする。**本番では設定** | リンクなしの文言 |
 | `NEXT_PUBLIC_TERMS_URL` | 利用規約。フッターと申し込みフォーム(同意欄の説明)からリンクする。公開時は設定を推奨 | リンクを出さない |
 | `NEXT_PUBLIC_CONTACT_URL` | 外部の問い合わせ窓口。PDFの申し込み先と、フォームを送れなかったときの案内に使う | PDFには「診断結果画面のフォームから」と書く |
+| `NEXT_PUBLIC_INVENTORY_TOOL_URL` | Excelマクロ・Accessの棚卸しツール(`apps/inventory-web`)の画面のURL。「あわせて使えるツール」のリンク先(結果画面は別タブで開く・PDFにも載せる) | リンクを出さず「無料相談でご案内します」として相談フォームへ誘導 |
+| `NEXT_PUBLIC_QUOTE_ASSIST_DEMO_URL` | 見積アシストのデモの紹介ページ(録画など)のURL。ツール本体(`apps/quote-assist`)は社外に公開しないので、そのURLは入れない | リンクを出さず「無料相談でご案内します」(デモは相談フォームから申し込む) |
 | `SALESFORCE_ORG_ID` ほか | 申し込みを Salesforce に送る(下記) | 使わない |
 | `LEAD_WEBHOOK_URL` ほか | 申し込みを Slack などに送る(下記) | 使わない |
 | `LEAD_LOG_ONLY` | `true` にすると、本番でも申し込みを(個人情報を伏せて)サーバーログに出すだけにする。検証環境やE2E用 | 本番で送信先がなければ申し込みを受け付けない(503) |
@@ -147,9 +150,23 @@ Web-to-Lead は取り込みに失敗しても HTTP 200 を返すことがあり�
 - アイコンは `src/app/favicon.ico`・`icon.svg`・`apple-icon.tsx`、404ページは `src/app/not-found.tsx`
 - セキュリティヘッダー(CSP、`X-Frame-Options`、`X-Content-Type-Options`、`Referrer-Policy`、`Permissions-Policy`、HSTS)は `next.config.ts` から付ける(`src/lib/security-headers.ts`。共通の部分は `packages/shared` の `security-headers.ts`。このアプリだけ `Referrer-Policy` は `strict-origin-when-cross-origin`、`Permissions-Policy` は camera・microphone・geolocation のみ)。ページを静的に生成しているので nonce は使わず、`script-src` に `'unsafe-inline'` を許可している。Turnstile と GA4 の送信先は、その設定でビルドしたときだけ許可する。zod は eval を試すとCSPの違反が報告されるので、eval を使わない設定にしている(`src/lib/zod-setup.ts`)
 
+## 関連ツールの案内
+
+結果画面の「あわせて使えるツール」とPDFの同名の節は、診断の入力から決まったルールで選びます(AIには判断させない)。ルール・しきい値・キーワード・理由の文言は `src/lib/diagnosis/related-tools.ts`、テストは同じ場所の `related-tools.test.ts` と `e2e/related-tools.spec.ts` です。
+
+| 案内 | 条件(どれか1つ。当てはまった理由をすべて表示) |
+|---|---|
+| Excelマクロ・Accessの中身を調べる無料ツール | 「いま困っていること」に Excel・エクセル・xls・マクロ・VBA・Access・属人・引き継(引継・ひきつぎ)を含む/データ入力・転記と集計・分析が月40時間以上で、業務データの保存場所が「紙」か「個人PCのExcel・Word」/「属人化の解消」を優先し、保存場所が「個人PCのExcel・Word」 |
+| 製造業向け見積アシストのデモ(面談で実演) | 業種が製造業で、見積書・提案書の作成が月20時間以上/業種が製造業で、「いま困っていること」に 見積・みつもり・積算 を含む |
+
+- 理由の文言に入力した文章は引用しない。案内は参考情報で、効果を保証するものではない旨を画面とPDFに書く
+- リンク先は `NEXT_PUBLIC_INVENTORY_TOOL_URL`・`NEXT_PUBLIC_QUOTE_ASSIST_DEMO_URL`。未設定なら「無料相談でご案内します」として、ボタンで申し込みフォームへ移る。見積アシストのデモは面談で実演するので、URLがあっても申し込みのボタンを出す
+- 申し込みフォームには、案内したツールの「相談したいテーマ」(例:「見積アシストのデモ希望」)のチェックボックスが出る。選ぶと「相談したい内容」の欄の先頭に1行で入る(別の項目としては送らない)
+- リンクには結果や入力内容を付けない(`rel="noopener noreferrer"` で参照元も送らない)
+
 ## 計測
 
-`src/lib/analytics.ts` の `track()` で、診断の開始・ステップ2と3への到達・完了・PDFのダウンロード・相談の申し込みを送ります(イベント名と付加情報は `docs/deploy.md` の「計測を設定する」)。個人情報(会社名・氏名・連絡先・相談内容・入力した数値)は送りません。送り先は `NEXT_PUBLIC_ANALYTICS_PROVIDER` で選び、Vercel Web Analytics は公式パッケージ(`@vercel/analytics`)、GA4 は gtag.js を使います。
+`src/lib/analytics.ts` の `track()` で、診断の開始・ステップ2と3への到達・完了・PDFのダウンロード・相談の申し込み・関連ツールの案内のクリックを送ります(イベント名と付加情報は `docs/deploy.md` の「計測を設定する」)。個人情報(会社名・氏名・連絡先・相談内容・入力した数値)は送りません。送り先は `NEXT_PUBLIC_ANALYTICS_PROVIDER` で選び、Vercel Web Analytics は公式パッケージ(`@vercel/analytics`)、GA4 は gtag.js を使います。
 
 ## フォントのライセンス
 

@@ -8,6 +8,7 @@ import { buttonPrimary, buttonSecondary } from "../ui";
 import { AiTab } from "./AiTab";
 import { ExportActions } from "./ExportActions";
 import { FlowTab } from "./FlowTab";
+import { NextStepLinks } from "./NextStepLinks";
 import { OverviewTab } from "./OverviewTab";
 import { RisksTab } from "./RisksTab";
 import type { AiResult } from "./types";
@@ -21,6 +22,8 @@ export function ResultView({
   onSelectTab,
   onOpenAi,
   onAnalyzeAnother,
+  contactUrl,
+  diagnosisUrl,
 }: {
   fileName: string;
   result: AnalysisResult;
@@ -30,6 +33,8 @@ export function ResultView({
   onSelectTab: (id: string) => void;
   onOpenAi: () => void;
   onAnalyzeAnother: () => void;
+  contactUrl: string | null;
+  diagnosisUrl: string | null;
 }) {
   const { derived } = result;
   const tabs: TabDef[] = [
@@ -88,6 +93,7 @@ export function ResultView({
           )}
         </div>
         <Tabs tabs={tabs} selected={selectedTab} onSelect={onSelectTab} label="解析結果" />
+        <NextStepLinks contactUrl={contactUrl} diagnosisUrl={diagnosisUrl} />
       </div>
       <div className="print-only" aria-hidden="true">
         <DocumentView key={printDoc === result.document ? "standard" : "ai"} doc={printDoc} purpose="print" />

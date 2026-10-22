@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from "react";
 import { track } from "@/lib/analytics";
 import type { DiagnosisInput } from "@/lib/diagnosis/schema";
 import {
@@ -9,6 +9,7 @@ import {
   leadFieldErrors,
   type LeadField,
 } from "@/lib/lead/schema";
+import { hasTopic, toggleTopic } from "@/lib/lead/topics";
 import { CONTACT_URL, PRIVACY_POLICY_URL, TERMS_URL } from "@/lib/site";
 import { inputClass } from "./DiagnosisForm";
 import {
@@ -21,6 +22,14 @@ import {
 type Props = {
   /** 診断に使った入力。結果の要約はサーバーがこれから計算し直して添える */
   input: DiagnosisInput;
+  /** 「相談したいテーマ」の候補(結果画面で案内した関連ツール)。選ぶと「相談したい内容」の欄に入る */
+  topics?: readonly string[];
+  ref?: Ref<LeadFormHandle>;
+};
+
+export type LeadFormHandle = {
+  /** テーマを選んだ状態にして、「相談したい内容」の欄へ移る(申し込み済みなら完了の表示へ移る) */
+  selectTopic(topic: string): void;
 };
 
 type Values = {
@@ -50,7 +59,7 @@ function validate(values: Values): Errors {
   return result.success ? {} : leadFieldErrors(result.error);
 }
 
-export function LeadForm({ input }: Props) {
+export function LeadForm({ input, topics = [], ref }: Props) {
   const [values, setValues] = useState<Values>({
     companyName: input.companyName ?? "",
     name: "",
@@ -68,6 +77,7 @@ export function LeadForm({ input }: Props) {
   const turnstileRef = useRef<TurnstileHandle>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const doneRef = useRef<HTMLHeadingElement>(null);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
 
   // 送信ボタンは完了表示で消えるので、完了の見出しにフォーカスを移す
   useEffect(() => {
@@ -85,6 +95,17 @@ export function LeadForm({ input }: Props) {
     // 一度エラーになった欄は、入力し直すたびに確かめ直す
     if (errors[key]) setErrors({ ...errors, [key]: validate(next)[key] });
   };
+
+  const setTopic = (topic: string, on: boolean) => update("message", toggleTopic(values.message, topic, on));
+
+  useImperativeHandle(ref, () => ({
+    selectTopic(topic) {
+      const target = status.kind === "done" ? doneRef.current : messageRef.current;
+      if (status.kind !== "done") setTopic(topic, true);
+      target?.scrollIntoView({ behavior: "smooth", block: "center" });
+      target?.focus({ preventScroll: true });
+    },
+  }));
 
   const submit = async () => {
     if (status.kind === "submitting") return;
@@ -226,9 +247,33 @@ export function LeadForm({ input }: Props) {
         </Field>
       </div>
 
+      {topics.length > 0 && (
+        <fieldset className="space-y-2" aria-describedby="lead-topics-hint">
+          <legend className="font-medium">
+            相談したいテーマ
+            <RequiredBadge optional />
+          </legend>
+          <p id="lead-topics-hint" className="text-sm text-muted">
+            選ぶと「相談したい内容」の欄に入ります。
+          </p>
+          {topics.map((topic) => (
+            <label key={topic} className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4 shrink-0 accent-accent"
+                checked={hasTopic(values.message, topic)}
+                onChange={(e) => setTopic(topic, e.target.checked)}
+              />
+              <span>{topic}</span>
+            </label>
+          ))}
+        </fieldset>
+      )}
+
       <Field field="message" label="相談したい内容" required error={errors.message}>
         <textarea
           {...fieldProps("message")}
+          ref={messageRef}
           className={`${inputClass} min-h-32`}
           maxLength={LEAD_LIMITS.message}
           required

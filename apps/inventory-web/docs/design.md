@@ -20,7 +20,7 @@
 3. まず「サンプルで試す」で架空の会社のマクロを解析し、何が分かるかを見る(自社ファイルを入れる前の不安を下げる)。
 4. 自社のファイルをドラッグ&ドロップ → 数秒で結果。概要・リスク・処理の流れ図を見る。
 5. 標準の仕様書(Markdown / HTML / 印刷)を保存する。
-6. 次の行動の導線: 「詳しい仕様書をAIで作る(送信内容を確認のうえ同意)」※有効な環境のみ/「移行・改修の相談をする」(`NEXT_PUBLIC_CONTACT_URL`。URL に解析結果を一切付けない)。
+6. 次の行動の導線: 「詳しい仕様書をAIで作る(送信内容を確認のうえ同意)」※有効な環境のみ/結果画面の下の「次の一歩」に「移行や改善を相談する」(`NEXT_PUBLIC_CONTACT_URL`)・「自社のAI活用の余地を無料診断する」(`NEXT_PUBLIC_DIAGNOSIS_URL`)。どちらも通常の a タグ(新しいタブ・`rel="noopener noreferrer"`)で、URL に解析結果を一切付けない。未設定のものは出さない。
 
 ### (b) コンサルタントが顧客先・自分のPCで使う
 
@@ -241,7 +241,7 @@ interface Derived {
    worker-src 'self' blob:;                      (【反映 F10】Worker を Blob URL から起動するため)
    frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
    ```
-   外部のオリジンを1つも許可しない。【反映 F12】`connect-src 'self'` なので、fetch などによる第三者のサーバーへの通信はブラウザが止める(画面遷移・リンクは CSP では止まらないため、外部へのリンクは相談ページとプライバシーポリシーだけにし、E2E で外部を指す a[href] を列挙して確かめる)。自社サーバーへの送信は AI ルートだけ(サーバー側で他の POST を持たない)。【反映 F12】Worker の入口(`src/worker/lockdown.ts`)で `fetch` / `XMLHttpRequest` / `WebSocket` / `EventSource` / `importScripts` / `WebTransport` / `navigator.sendBeacon` を使えなくする。【反映 F02】同じモジュールで zod の `jitless` を有効にし(エンジンの schema.ts より先に評価される位置)、zod が `new Function` で eval を試して CSP 違反を出すのを防ぐ。画面側の zod は `src/lib/zod-setup.ts`。
+   外部のオリジンを1つも許可しない。【反映 F12】`connect-src 'self'` なので、fetch などによる第三者のサーバーへの通信はブラウザが止める(画面遷移・リンクは CSP では止まらないため、外部へのリンクは相談ページ・AI導入診断・プライバシーポリシー・利用規約だけにし、E2E で外部を指す a[href] を列挙して確かめる)。自社サーバーへの送信は AI ルートだけ(サーバー側で他の POST を持たない)。【反映 F12】Worker の入口(`src/worker/lockdown.ts`)で `fetch` / `XMLHttpRequest` / `WebSocket` / `EventSource` / `importScripts` / `WebTransport` / `navigator.sendBeacon` を使えなくする。【反映 F02】同じモジュールで zod の `jitless` を有効にし(エンジンの schema.ts より先に評価される位置)、zod が `new Function` で eval を試して CSP 違反を出すのを防ぐ。画面側の zod は `src/lib/zod-setup.ts`。
 4. **外部に何も読みに行かない**: 【反映 F12】エラー監視SDK(Sentry 等)・`instrumentation-client.ts`・Server Actions・`experimental.useOffline`(オフライン中に HEAD 要求を繰り返す)も使わない(計測・エラー監視のライブラリは ESLint の `no-restricted-imports` で禁止)。Vercel のプレビュー環境で注入される Toolbar はプロジェクト設定で無効にする(README の公開前チェック)。計測タグ(GA・Vercel Analytics・タグマネージャー)・外部フォント・CDN・Turnstile・チャットウィジェットは入れない。フォントはシステムフォント(`apps/diagnosis` の `--font-sans`)。アクセス数はホスティングのアクセスログ(パスのみ)で見る。
 5. その他のヘッダー: `Referrer-Policy: no-referrer`、`X-Content-Type-Options: nosniff`、`X-Frame-Options: DENY`、`Permissions-Policy: camera=(), microphone=(), geolocation=()`、`Strict-Transport-Security`、`Cross-Origin-Opener-Policy: same-origin`、`poweredByHeader: false`。API は `Cache-Control: no-store`。
 6. **保存しない**: 結果はメモリだけ。localStorage / IndexedDB / Cookie / URL に解析内容を入れない。相談リンクにも何も付けない。
@@ -561,6 +561,7 @@ apps/inventory-web/
 | `INVENTORY_SAMPLES_DIR` | `../inventory/samples` | 「サンプルで試す」の取り込み元 |
 | `UPSTASH_REDIS_REST_URL` / `_TOKEN`(`KV_REST_API_URL` / `_TOKEN`) | — | 回数を共有ストアで数える(サーバーレスでは必須) |
 | `NEXT_PUBLIC_CONTACT_URL` | — | 相談の導線(未設定なら出さない) |
+| `NEXT_PUBLIC_DIAGNOSIS_URL` | — | 結果画面の下の AI導入診断への導線(未設定なら出さない) |
 | `NEXT_PUBLIC_PRIVACY_POLICY_URL` | — | 同意画面・仕組みページのリンク |
 
 **デプロイの注意**(詳細は後続の公開手順書で): Vercel のルートディレクトリは `apps/inventory-web`、「ルートディレクトリ外のファイルをビルドに含める」を有効、インストールコマンドは `npm ci && npm ci --prefix ../inventory`。Anthropic Console 側でも月の利用上限を設定する(最後の歯止め)。

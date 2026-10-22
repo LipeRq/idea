@@ -44,6 +44,28 @@ test("解析から保存までの間、ファイルの中身・ファイル名�
   // ダミーのパスワードは解析の段階で伏せ字になっている
   expect(json.text).not.toContain(MARKER.password);
 
+  // 結果画面の下の「次の一歩」:相談ページと AI導入診断への通常のリンクだけ(押さない限り通信しない)。
+  // 別タブで開き、参照元を送らず、URL に解析結果・ファイル名を付けない
+  const nextSteps = page.getByRole("region", { name: "次の一歩" });
+  for (const [name, href] of [
+    ["移行や改善を相談する", "https://example.com/contact"],
+    ["自社のAI活用の余地を無料診断する", "https://example.com/diagnosis"],
+  ]) {
+    const link = nextSteps.getByRole("link", { name: new RegExp(`^${name}`) });
+    await expect(link).toHaveAttribute("href", href);
+    await expect(link).toHaveAttribute("target", "_blank");
+    await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  }
+  const externalAnchors = await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLAnchorElement>("a[href]")].map((a) => a.href).filter((u) => new URL(u).origin !== location.origin),
+  );
+  expect([...new Set(externalAnchors)].sort()).toEqual([
+    "https://example.com/contact",
+    "https://example.com/diagnosis",
+    "https://example.com/privacy",
+    "https://example.com/terms",
+  ]);
+
   const origin = new URL(baseURL!).origin;
   const forbidden = [MARKER.source, MARKER.password, MARKER.apiKey, FIXTURES.secret, encodeURIComponent(FIXTURES.secret), "顧客台帳"];
   for (const r of requests) {
@@ -98,7 +120,8 @@ test("CSP で外部への通信が止まり、外部の読み込みもない", a
   const violations = await page.evaluate(() => (window as unknown as { __cspViolations: string[] }).__cspViolations);
   expect(violations.some((v) => v.startsWith("connect-src"))).toBe(true);
 
-  // 外部のスクリプト・スタイルを読まない。外部へのリンクは相談ページ・プライバシーポリシー・利用規約だけ
+  // 外部のスクリプト・スタイルを読まない。選択画面の外部へのリンクは相談ページ・プライバシーポリシー・利用規約だけ
+  // (AI導入診断へのリンクは結果画面の下にだけ出す。上の解析のテストで確かめる)
   const external = await page.evaluate(() => {
     const here = location.origin;
     const srcs = [...document.querySelectorAll<HTMLScriptElement>("script[src]")].map((s) => s.src);

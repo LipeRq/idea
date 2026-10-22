@@ -1,4 +1,5 @@
 import { track as vercelTrack } from "@vercel/analytics";
+import type { RelatedToolId } from "./diagnosis/related-tools";
 
 // 診断のファネルを計測するイベント。送り先は NEXT_PUBLIC_ANALYTICS_PROVIDER で選び、未設定なら何もしない。
 // 個人情報(会社名・氏名・連絡先・相談内容・入力した数値)は送らない。送るのは下の型にある値だけ。
@@ -20,7 +21,9 @@ export type AnalyticsEvent =
   /** PDFをダウンロードした */
   | { name: "report_download"; reportSource: "ai" | "standard" }
   /** 無料相談の申し込みが完了した */
-  | { name: "lead_submit" };
+  | { name: "lead_submit" }
+  /** 結果画面の「あわせて使えるツール」の案内を押した(link:リンク先を開いた、lead_form:相談フォームへ移った) */
+  | { name: "related_tool_click"; tool: RelatedToolId; destination: "link" | "lead_form" };
 
 export type EventParams = Record<string, string | number | boolean>;
 
@@ -63,6 +66,8 @@ export function eventParams(event: AnalyticsEvent): EventParams {
       return { ai_generated: event.aiGenerated };
     case "report_download":
       return { report_source: event.reportSource };
+    case "related_tool_click":
+      return { tool: event.tool, destination: event.destination };
     default:
       return {};
   }

@@ -42,6 +42,7 @@ export function InventoryApp({
   samples,
   workerUrl,
   contactUrl,
+  diagnosisUrl,
   privacyUrl,
   termsUrl,
   operatorName,
@@ -49,6 +50,7 @@ export function InventoryApp({
   samples: SampleEntry[];
   workerUrl: string;
   contactUrl: string | null;
+  diagnosisUrl: string | null;
   privacyUrl: string | null;
   termsUrl: string | null;
   operatorName: string | null;
@@ -255,6 +257,8 @@ export function InventoryApp({
             selectedTab={tab}
             onSelectTab={setTab}
             onOpenAi={() => setAiOpen(true)}
+            contactUrl={contactUrl}
+            diagnosisUrl={diagnosisUrl}
             onAnalyzeAnother={() => {
               if (window.confirm("いまの解析結果は消えます。よろしいですか?(必要なら先に保存してください)")) backToSelect();
             }}

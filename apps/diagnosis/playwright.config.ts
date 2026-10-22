@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import { E2E_SITE_URL } from "./e2e/constants";
+import { E2E_INVENTORY_TOOL_URL, E2E_SITE_URL } from "./e2e/constants";
 
 // 開発用サーバー(3000)や手元で動かしている next start(3100)とぶつからないポート
 const PORT = Number(process.env.E2E_PORT ?? 3200);
@@ -82,6 +82,9 @@ export default defineConfig({
         NEXT_PUBLIC_TERMS_URL: "https://example.com/terms",
         NEXT_PUBLIC_CONTACT_URL: "",
         NEXT_PUBLIC_SITE_URL: E2E_SITE_URL,
+        // 関連ツールの案内:棚卸しツールはリンクあり、見積アシストのデモは未設定(相談フォームへ誘導)の両方を確かめる
+        NEXT_PUBLIC_INVENTORY_TOOL_URL: E2E_INVENTORY_TOOL_URL,
+        NEXT_PUBLIC_QUOTE_ASSIST_DEMO_URL: "",
         REPORT_BRAND_NAME: "",
         // 計測はページの変数に記録するだけ(外部に送らない)。送る内容に個人情報がないことを確かめる
         NEXT_PUBLIC_ANALYTICS_PROVIDER: "debug",

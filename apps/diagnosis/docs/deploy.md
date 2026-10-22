@@ -148,6 +148,8 @@ Vercel の「Settings → Environment Variables」で登録します。秘密の
 | `NEXT_PUBLIC_ANALYTICS_PROVIDER` | 推奨 | `ga4` または `vercel` |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 なら必須 | `G-XXXXXXXXXX` |
 | `NEXT_PUBLIC_CONTACT_URL` | 任意 | 外部の問い合わせ窓口のURL |
+| `NEXT_PUBLIC_INVENTORY_TOOL_URL` | 任意 | 棚卸しツール(`apps/inventory-web`)を公開したら、その画面のURL。「あわせて使えるツール」のリンク先になる。未設定なら「無料相談でご案内します」 |
+| `NEXT_PUBLIC_QUOTE_ASSIST_DEMO_URL` | 任意 | 見積アシストのデモの紹介ページ(録画など)のURL。**ツール本体のURLは入れない**(社外に公開しない)。未設定なら「無料相談でご案内します」 |
 | `RATE_LIMIT_DIAGNOSE_PER_HOUR` ほか | 任意 | 回数制限を変えるとき(既定:診断5・PDF30・申し込み5) |
 | `DIAGNOSIS_TRUST_PROXY` | Vercel では不要 | Vercel 以外で、信頼できるリバースプロキシの後ろに置くときだけ `true`(`x-forwarded-for` の末尾を送信元にする) |
 
@@ -192,12 +194,13 @@ Vercel の「Settings → Environment Variables」で登録します。秘密の
 | `diagnosis_complete` | 結果が表示されたとき(再診断のたびに送る) | `ai_generated`(AIの個別レポートか) |
 | `report_download` | PDFをダウンロードしたとき | `report_source`(`ai` / `standard`) |
 | `lead_submit` | 無料相談の申し込みが完了したとき | なし |
+| `related_tool_click` | 結果画面の「あわせて使えるツール」の案内を押したとき | `tool`(`inventoryTool` / `quoteAssistDemo`)、`destination`(`link`:リンク先を開いた / `lead_form`:申し込みフォームへ移った) |
 
 **個人情報は送りません**。会社名・氏名・連絡先・相談内容・入力した業務時間や人件費は、どのイベントにも含めていません(E2Eテストで確かめています)。ページのURLにも入力内容は入りません。
 
 ### GA4 の場合
 
-1. 「管理 → データの表示 → カスタム定義 → カスタムディメンションを作成」で、範囲を「イベント」にして `step`・`step_name`・`ai_generated`・`report_source` を登録する(登録しないとレポートで付加情報を選べない)
+1. 「管理 → データの表示 → カスタム定義 → カスタムディメンションを作成」で、範囲を「イベント」にして `step`・`step_name`・`ai_generated`・`report_source`・`tool`・`destination` を登録する(登録しないとレポートで付加情報を選べない)
 2. 公開後に一度申し込みまで進め、「管理 → データの表示 → イベント」に `lead_submit` が出たら「キーイベントとしてマーク」をオンにする(広告やレポートで成果として数えられる)
 3. 動作の確認は「レポート → リアルタイム」で行う(反映は数十秒)
 
@@ -226,6 +229,7 @@ Vercel の「Settings → Environment Variables」で登録します。秘密の
 
 - [ ] 「PDFをダウンロード」でPDFが保存され、日本語が文字化けせずに開ける。AIのレポートなら総評がAIの文面になっている
 - [ ] 申し込むと「お申し込みを受け付けました」と出て、Salesforce にリードができる/Slack に通知が届く
+- [ ] 製造業・見積書の作成に月20時間以上・「いま困っていること」に「Excelのマクロ」と入れて診断すると、「あわせて使えるツール」に2つの案内が理由つきで出る。リンク先を設定した案内は別タブで開き、未設定の案内は「無料相談でご案内します」と出て、ボタンで申し込みフォームの「相談したい内容」にテーマ(例:「見積アシストのデモ希望」)が入る。PDFにも同じ案内が出る
 
 ### 8-4. ボット対策・回数制限(Turnstile と Upstash を設定した場合)
 

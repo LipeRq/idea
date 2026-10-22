@@ -10,6 +10,7 @@ const EVENTS: AnalyticsEvent[] = [
   { name: "diagnosis_complete", aiGenerated: true },
   { name: "report_download", reportSource: "standard" },
   { name: "lead_submit" },
+  { name: "related_tool_click", tool: "quoteAssistDemo", destination: "lead_form" },
 ];
 
 afterEach(() => {
@@ -35,13 +36,14 @@ describe("resolveAnalyticsConfig", () => {
 });
 
 describe("eventParams", () => {
-  it("送るのは決まった値(ステップ番号・名前、AIの有無、レポートの種類)だけ", () => {
+  it("送るのは決まった値(ステップ番号・名前、AIの有無、レポートの種類、案内したツールと移り先)だけ", () => {
     expect(EVENTS.map(eventParams)).toEqual([
       {},
       { step: 2, step_name: "業務にかかる時間" },
       { ai_generated: true },
       { report_source: "standard" },
       {},
+      { tool: "quoteAssistDemo", destination: "lead_form" },
     ]);
   });
 });

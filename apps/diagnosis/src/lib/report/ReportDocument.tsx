@@ -2,6 +2,7 @@ import { Document, Link, Page, StyleSheet, Text, View } from "@react-pdf/rendere
 import type { ReactNode } from "react";
 import { READINESS_LEVEL_LABEL, type DiagnosisResult, type TaskResult } from "../diagnosis/calculate";
 import { COST_BY_DIFFICULTY, DIFFICULTY_LABEL } from "../diagnosis/master";
+import { recommendRelatedTools, type RelatedToolUrls } from "../diagnosis/related-tools";
 import type { AiReport, DiagnosisInput } from "../diagnosis/schema";
 import { formatHours, formatYen } from "../format";
 
@@ -15,6 +16,8 @@ export type ReportDocumentProps = {
   issuedAt: Date;
   brandName: string;
   contactUrl?: string;
+  /** 「あわせて使えるツール」のリンク先。未設定の案内は「無料相談でご案内します」と書く */
+  relatedToolUrls?: RelatedToolUrls;
 };
 
 // globals.css のライトモードの色に合わせる(PDFは常に白い紙に出す)
@@ -193,11 +196,14 @@ export function ReportDocument({
   issuedAt,
   brandName,
   contactUrl,
+  relatedToolUrls = {},
 }: ReportDocumentProps) {
   const { readiness, totals } = result;
   const topIds = new Set(result.top.map((t) => t.taskId));
   const recommendationByTask = new Map(report.recommendations.map((r) => [r.taskId, r]));
   const title = `${input.companyName ? `${input.companyName}様の` : ""}AI導入診断レポート`;
+  // 結果画面と同じルールで選ぶ(src/lib/diagnosis/related-tools.ts)
+  const relatedTools = recommendRelatedTools(input);
 
   return (
     <Document
@@ -409,6 +415,31 @@ export function ReportDocument({
             />
           </View>
         </Section>
+
+        {relatedTools.length > 0 ? (
+          <View style={s.section} wrap={false}>
+            <Text style={s.h2}>あわせて使えるツール</Text>
+            {relatedTools.map((rec) => {
+              const url = relatedToolUrls[rec.id];
+              return (
+                <View key={rec.id} style={{ marginTop: 4 }}>
+                  <Text style={s.bold}>{rec.title}</Text>
+                  <Text style={[s.ink2, s.small]}>ご案内の理由:{rec.reasons.join("")}</Text>
+                  {url ? (
+                    <Text style={s.small}>
+                      {rec.linkLabel}:<Link src={url} style={s.link}>{url}</Link>
+                    </Text>
+                  ) : (
+                    <Text style={s.small}>無料相談でご案内します。</Text>
+                  )}
+                </View>
+              );
+            })}
+            <Text style={[s.small, s.muted, { marginTop: 4 }]}>
+              回答内容から決まったルールで選んだ参考情報です(AIによる判断ではありません)。効果を保証するものではありません。
+            </Text>
+          </View>
+        ) : null}
 
         <View style={s.cta} wrap={false}>
           <Text style={[s.h2, { borderBottomColor: C.track }]}>専門家と一緒に深掘りしたいポイント</Text>

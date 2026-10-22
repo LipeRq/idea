@@ -10,7 +10,7 @@ import { isReportRateLimited } from "@/lib/rate-limit";
 import { reportFileName } from "@/lib/report/file-name";
 import { renderReportPdf } from "@/lib/report/pdf";
 import { verifyReport } from "@/lib/report/token";
-import { CONTACT_URL, reportBrandName } from "@/lib/site";
+import { CONTACT_URL, RELATED_TOOL_URLS, reportBrandName } from "@/lib/site";
 
 export const maxDuration = 30;
 
@@ -60,6 +60,7 @@ export async function POST(request: Request) {
       issuedAt,
       brandName: reportBrandName(),
       contactUrl: CONTACT_URL,
+      relatedToolUrls: RELATED_TOOL_URLS,
     });
     return new Response(pdf as Uint8Array<ArrayBuffer>, {
       headers: {
