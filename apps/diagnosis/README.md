@@ -23,8 +23,22 @@ npm run dev                  # http://localhost:3000
 | `npm test` | 単体テスト(vitest。外部への送信はすべてモック) |
 | `npm run test:e2e` | E2Eテスト(Playwright。本番ビルドを3200番ポートで起動し、同じビルドをAIの1日の上限に達する設定で3201番でも起動する。`E2E_PORT` で変更可) |
 | `npx tsc --noEmit` / `npx eslint src e2e` | 型チェック / リント |
+| `npm run eval:report` | AI の文章の評価(実際の Claude API を使う。キーがなければ案内して終了。`--yes` なしでは概算費用の表示だけで API は呼ばない)。下の「AI の評価」 |
 
 E2Eを初めて動かすときは `npx playwright install chromium` が必要です。E2E は外部のサービスに接続しません(AI・申し込みの送信先・Upstash・Turnstile・計測はすべて無効か、手元で完結する設定)。
+
+### AI の評価(品質と費用)
+
+診断レポートの文章を実際の Claude API で生成し、構造化出力の検証成功率・規則による採点(施策が上位業務とそろっているか、試算結果にない数値を作っていないか、保証・誇張表現がないか、課題欄の指示に従っていないか)・LLM 採点・1件あたりのトークン数/費用/時間を測ります。入力は `evals/cases.ts` の11件(インジェクション2件を含む)。CI では実行しません。
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+npm run eval:report                      # 概算費用の表示だけ(count_tokens。API は呼ばない)
+npm run eval:report -- --yes --limit 1   # まず1件だけ実行
+npm run eval:report -- --yes             # 全件(概算 $1.5〜2)。結果は evals/results/<日時>/(git管理外)
+```
+
+`--reps N`(同じ入力を N 回)、`--no-judge`(LLM 採点なし)、`--judge-selftest`(採点者の自己点検)など。何を測るか・合格の目安・費用・結果の読み方は、リポジトリ直下の [docs/evals.md](../../docs/evals.md) を参照してください。評価のコードは `evals/`・`scripts/eval-report.ts` で、単体テスト(`evals/**/*.test.ts`)は SDK を差し替えて API を呼びません(`npm test` に含まれる)。
 
 GitHub Actions(リポジトリの `.github/workflows/diagnosis.yml`)が、`apps/diagnosis` 配下の変更のたびに `npm ci` → 型チェック → リント → 単体テスト → ビルド → E2E を実行します。
 

@@ -9,6 +9,7 @@
     "document": "tsx src/cli.ts document",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "eval:document": "tsx scripts/eval-document.ts",
     "build:browser": "node scripts/build-browser.mjs",
     "test:browser": "tsx scripts/browser-check.ts"
   },

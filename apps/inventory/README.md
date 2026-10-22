@@ -38,6 +38,19 @@ npx tsx src/cli.ts document report.json --out spec.md
 | `--no-ai` | AI を使わず、抽出結果だけで標準レポートを作る |
 
 `npm test` でテスト、`npm run typecheck` で型チェックを実行します。
+
+### AI の評価(品質と費用)
+
+`npm run eval:document` は、`samples/` の架空のブック4本(と、AI への指示をソースに書き込んだ1本)の仕様書の文章を、実際の Claude API で生成して評価します(map → reduce の呼び出し回数・費用・時間、検証成功率、規則による採点=抽出結果にない名前・件数の食い違い・Mermaid の構文・伏せ字の復活・指示への追従、LLM 採点=移行提案の妥当性など)。API キーがなければ案内して終了し、CI では実行しません。
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+npm run eval:document                       # 概算費用の表示だけ(count_tokens。API は呼ばない)
+npm run eval:document -- --yes --limit 1    # まず1本だけ実行
+npm run eval:document -- --yes              # 全部(概算 $1.5〜2.5)。結果は evals/results/<日時>/(git管理外)
+```
+
+`--only juchu,zaiko`、`--reps N`、`--no-judge`、`--judge-selftest` など。何を測るか・合格の目安・費用・結果の読み方は、リポジトリ直下の [docs/evals.md](../../docs/evals.md) を参照してください。評価のコードは `evals/`・`scripts/eval-document.ts`、単体テストは `test/evals/`(SDK を差し替えて API を呼びません)です。
 `npm run build:browser` でブラウザ用のバンドル(`dist/inventory-engine.js`)を作り、`npm run test:browser` で Playwright の Chromium 上で解析を実行して Node.js と結果を比べます(Playwright と Chromium が必要。`PLAYWRIGHT_BROWSERS_PATH` を参照し、`playwright install` は行いません)。
 
 ## AI と機密情報の扱い

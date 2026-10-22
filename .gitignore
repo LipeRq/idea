@@ -8,3 +8,6 @@ coverage/
 *.log
 .DS_Store
 .vercel
+
+# AI評価(npm run eval:*)の結果。実行ごとに作られ、顧客データを含みうるのでコミットしない
+**/evals/results/
