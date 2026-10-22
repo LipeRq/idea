@@ -10,6 +10,7 @@ import { browserWorkerFactory } from "@/lib/engine-loader";
 import type { Failure } from "@/lib/errors";
 import { precheckFiles } from "@/lib/file-types";
 import { warmUpMermaid } from "@/lib/mermaid-render";
+import { serialMemo } from "@/lib/serial-memo";
 import { fetchSampleFile, type SampleEntry } from "@/lib/samples";
 import type { AiPayload, AnalysisResult, Phase } from "@/worker/protocol";
 import { AiConsentDialog } from "./AiConsentDialog";
@@ -187,11 +188,21 @@ export function InventoryApp({
   }, [aiStatus]);
 
   const resultReport = view.kind === "result" ? view.result.report : null;
+  // 解析結果ごとに作り直す。同じ選択肢の依頼は使い回し、別の選択肢は前の依頼の後に続けて実行する
+  const payloadMemoRef = useRef<{ report: NonNullable<typeof resultReport>; build: (includeSource: boolean) => Promise<AiPayload> } | null>(null);
   const buildAiPayload = useCallback(
     (includeSource: boolean): Promise<AiPayload> => {
       const controller = controllerRef.current;
       if (!controller || !resultReport) return Promise.reject(new CancelledError());
-      return controller.buildAiPayload(resultReport, includeSource, CONSENT_VERSION);
+      let memo = payloadMemoRef.current;
+      if (!memo || memo.report !== resultReport) {
+        memo = {
+          report: resultReport,
+          build: serialMemo((source: boolean) => controller.buildAiPayload(resultReport, source, CONSENT_VERSION)),
+        };
+        payloadMemoRef.current = memo;
+      }
+      return memo.build(includeSource);
     },
     [resultReport],
   );
