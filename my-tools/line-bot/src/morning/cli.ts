@@ -2,10 +2,11 @@
 //
 //   npm run morning                 集めて、要約して、LINE に送る
 //   npm run morning -- --dry-run    送らずに、送る内容を表示する(LINE の設定がなくても動く)
+//
+// 環境変数:DEEPSEEK_API_KEY(なければ見出しだけ)、LINE_CHANNEL_ACCESS_TOKEN・LINE_USER_ID(送るとき)
 //   npm run morning -- --hours 48   何時間前までの記事を使うか(既定 24)
 //   npm run sources:check           情報源ごとに取得できるかを確認する(取得できないものがあれば終了コード 1)
-import Anthropic from "@anthropic-ai/sdk";
-import { createClaudeClient, hasAnthropicCredentials } from "../claude";
+import { createDeepSeekClient } from "../ai";
 import { createLineApi, pushWithRetry } from "../line/api";
 import { formatJstDateTime } from "../time";
 import { fetchFeed } from "./feed";
@@ -66,10 +67,10 @@ async function main(): Promise<number> {
     return 2;
   }
 
-  const useAi = hasAnthropicCredentials();
-  const claude = useAi
-    ? createClaudeClient(new Anthropic(), {
-        onUsage: (u) => console.log(`Claude の使用量:入力 ${u.inputTokens} トークン・出力 ${u.outputTokens} トークン`),
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  const ai = apiKey
+    ? createDeepSeekClient(apiKey, {
+        onUsage: (u) => console.log(`AI の使用量:入力 ${u.inputTokens} トークン・出力 ${u.outputTokens} トークン`),
       })
     : null;
   const line = token ? createLineApi(token) : null;
@@ -79,8 +80,8 @@ async function main(): Promise<number> {
       sources: SOURCES,
       categories: CATEGORIES,
       fetchFeed: (url) => fetchFeed(url),
-      claude,
-      aiUnavailableReason: "Claude API のキーが未設定です",
+      ai,
+      aiUnavailableReason: "DeepSeek API のキーが未設定です",
       send: args.dryRun || !line || !userId ? null : (messages) => pushWithRetry(line, userId, messages),
       now: () => new Date(),
       log: (m) => console.log(m),

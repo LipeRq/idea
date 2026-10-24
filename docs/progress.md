@@ -16,7 +16,7 @@
 
 ## 作業途中
 
-- `my-tools/line-bot`(自分専用の LINE ボット):「毎朝の情報まとめ」「打ち合わせメモの整理」を実装・テスト済み(単体テスト・型チェック・受け口の動作確認)。**ユーザーが LINE 公式アカウント・GitHub の Secrets・Vercel を準備したら**、`my-tools/line-bot/README.md` の手順で `check-sources` → `dry-run` → `send` の順に確かめる(情報源の RSS は開発環境から取得できず、URL が合っているかは未確認。初回の Claude の使用量で費用の目安も確かめる)。費用を抑えるため Claude は Haiku 5.5。受け口の置き場所(Vercel Hobby・Pro・Cloudflare)はユーザーの判断待ち
+- `my-tools/line-bot`(自分専用の LINE ボット):「毎朝の情報まとめ」「打ち合わせメモの整理」を実装・テスト済み(単体テスト・型チェック・受け口の動作確認)。AI は DeepSeek、メモの受け口は Cloudflare Workers の無料プラン(キューで処理)。**ユーザーが LINE・DeepSeek・Cloudflare・GitHub の Secrets を準備したら**、`my-tools/line-bot/README.md` の手順で確かめる(RSS の URL と DeepSeek の実際の応答は、開発環境から外部に出られず未確認)
 
 ## 最後に残っているもの
 

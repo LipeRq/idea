@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formatMeetingNotes } from "../src/meeting/format";
 import { organizeMeetingNotes } from "../src/meeting/notes";
-import { fakeClaude, NOTES, texts } from "./helpers";
+import { fakeAi, NOTES, texts } from "./helpers";
 
 
 describe("formatMeetingNotes", () => {
@@ -23,17 +23,16 @@ describe("organizeMeetingNotes", () => {
   const TODAY = new Date("2026-10-24T06:00:00Z");
 
   it("テキストのメモは今日の日付と一緒に渡す", async () => {
-    const claude = fakeClaude(NOTES);
-    await organizeMeetingNotes({ kind: "text", text: "田中様と見積の件" }, claude, TODAY);
-    expect(claude.calls[0].user).toBe("今日の日付:2026年10月24日(土)\n\n<memo>\n田中様と見積の件\n</memo>");
-    expect(claude.calls[0].effort).toBe("medium");
+    const ai = fakeAi(NOTES);
+    await organizeMeetingNotes({ kind: "text", text: "田中様と見積の件" }, ai, TODAY);
+    expect(ai.calls[0].user).toBe("今日の日付:2026年10月24日(土)\n\n<memo>\n田中様と見積の件\n</memo>");
   });
 
-  it("写真は base64 の画像ブロックにして、説明の前に置く", async () => {
-    const claude = fakeClaude(NOTES);
-    await organizeMeetingNotes({ kind: "image", data: new Uint8Array([1, 2, 3]), mediaType: "image/jpeg" }, claude, TODAY);
-    const user = claude.calls[0].user;
+  it("写真は data URL の画像にして、説明の前に置く", async () => {
+    const ai = fakeAi(NOTES);
+    await organizeMeetingNotes({ kind: "image", data: new Uint8Array([1, 2, 3]), mediaType: "image/jpeg" }, ai, TODAY);
+    const user = ai.calls[0].user;
     expect(Array.isArray(user)).toBe(true);
-    expect((user as unknown[])[0]).toEqual({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: "AQID" } });
+    expect((user as unknown[])[0]).toEqual({ type: "image_url", image_url: { url: "data:image/jpeg;base64,AQID" } });
   });
 });

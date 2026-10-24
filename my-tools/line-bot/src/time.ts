@@ -1,4 +1,4 @@
-// 日付の表示はすべて日本時間で行う(GitHub Actions も Vercel も UTC で動くため)
+// 日付の表示はすべて日本時間で行う(GitHub Actions も Cloudflare も UTC で動くため)
 const TIME_ZONE = "Asia/Tokyo";
 
 const DATE_PARTS = new Intl.DateTimeFormat("ja-JP", {

@@ -1,6 +1,6 @@
 // 毎朝の情報まとめの全体の流れ:集める → 選んで要約する(AI が使えなければ見出しだけ) → LINE の吹き出しにする → 送る
 import type { messagingApi } from "@line/bot-sdk";
-import { describeAiError, type StructuredClient } from "../claude";
+import { describeAiError, type StructuredClient } from "../ai";
 import { collectArticles, DEFAULT_COLLECT, type FailedSource } from "./collect";
 import { generateDigest, headlinesDigest, type Digest } from "./digest";
 import type { ParsedFeed } from "./feed";
@@ -12,7 +12,7 @@ export interface MorningDeps {
   categories: readonly Category[];
   fetchFeed: (url: string) => Promise<ParsedFeed>;
   /** null なら AI を使わない(理由は aiUnavailableReason) */
-  claude: StructuredClient | null;
+  ai: StructuredClient | null;
   aiUnavailableReason?: string;
   /** null なら送らない(試し実行) */
   send: ((messages: messagingApi.TextMessage[]) => Promise<void>) | null;
@@ -43,11 +43,11 @@ export async function runMorningDigest(deps: MorningDeps, windowHours: number = 
   let digest: Digest;
   if (articles.length === 0) {
     digest = headlinesDigest(articles, deps.categories, "新しい記事がありませんでした");
-  } else if (!deps.claude) {
+  } else if (!deps.ai) {
     digest = headlinesDigest(articles, deps.categories, deps.aiUnavailableReason ?? "AIを使わない設定です");
   } else {
     try {
-      digest = await generateDigest(articles, deps.categories, deps.claude);
+      digest = await generateDigest(articles, deps.categories, deps.ai);
       if (digest.sections.every((s) => s.items.length === 0)) {
         digest = headlinesDigest(articles, deps.categories, "AIが記事を選べませんでした");
       }

@@ -1,7 +1,6 @@
 // 打ち合わせのメモ(テキスト・手書きメモの写真)から、議事録・宿題・お礼メールの下書きを作る。
-import type { BetaContentBlockParam } from "@anthropic-ai/sdk/resources/beta/messages/messages";
 import { z } from "zod";
-import type { StructuredClient } from "../claude";
+import type { StructuredClient, UserContent } from "../ai";
 import { formatJstFullDate } from "../time";
 
 export const MeetingNotesSchema = z.object({
@@ -45,13 +44,13 @@ const SYSTEM = `あなたは、中小企業のAI導入を支援するITコンサ
 - 議事録・宿題は短く書いてください(1項目1文、体言止めでよい)。お礼メールは5〜10行にしてください。
 - 出力はすべて日本語にしてください。`;
 
-function buildUser(input: MeetingInput, today: Date): string | BetaContentBlockParam[] {
+function buildUser(input: MeetingInput, today: Date): UserContent {
   const head = `今日の日付:${formatJstFullDate(today)}`;
   if (input.kind === "text") {
     return `${head}\n\n<memo>\n${input.text}\n</memo>`;
   }
   return [
-    { type: "image", source: { type: "base64", media_type: input.mediaType, data: Buffer.from(input.data).toString("base64") } },
+    { type: "image_url", image_url: { url: `data:${input.mediaType};base64,${Buffer.from(input.data).toString("base64")}` } },
     { type: "text", text: `${head}\n\n写真は打ち合わせのメモです。読み取って整理してください。` },
   ];
 }
@@ -61,7 +60,6 @@ export async function organizeMeetingNotes(input: MeetingInput, client: Structur
     system: SYSTEM,
     user: buildUser(input, today),
     schema: MeetingNotesSchema,
-    maxTokens: 16_000,
-    effort: "medium",
+    maxTokens: 8_000,
   });
 }

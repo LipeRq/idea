@@ -25,7 +25,7 @@ export interface Source {
   name: string;
   url: string;
   category: CategoryKey;
-  /** 英語の記事は Claude が日本語で要約する */
+  /** 英語の記事は AI が日本語で要約する */
   language: "ja" | "en";
 }
 

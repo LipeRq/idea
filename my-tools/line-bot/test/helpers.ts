@@ -1,11 +1,11 @@
 import { HTTPFetchError } from "@line/bot-sdk";
 import type { z } from "zod";
-import type { StructuredClient, StructuredRequest } from "../src/claude";
+import type { StructuredClient, StructuredRequest } from "../src/ai";
 import type { LineApi, LineMessage, MessageContent } from "../src/line/api";
 import type { MeetingNotes } from "../src/meeting/notes";
 
-/** 決まった出力を返す Claude の偽物。受け取った依頼は calls に残す */
-export function fakeClaude(output: unknown | ((req: StructuredRequest<z.ZodType>) => unknown)): StructuredClient & { calls: StructuredRequest<z.ZodType>[] } {
+/** 決まった出力を返す AI の偽物。受け取った依頼は calls に残す */
+export function fakeAi(output: unknown | ((req: StructuredRequest<z.ZodType>) => unknown)): StructuredClient & { calls: StructuredRequest<z.ZodType>[] } {
   const calls: StructuredRequest<z.ZodType>[] = [];
   return {
     calls,

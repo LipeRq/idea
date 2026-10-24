@@ -3,7 +3,7 @@ import type { ParsedFeed } from "./feed";
 import type { CategoryKey, Source } from "./sources";
 
 export interface Article {
-  /** Claude に渡す短い ID(a1, a2, ...)。Claude にはこの ID だけを返させ、URL はここから付ける */
+  /** AI に渡す短い ID(a1, a2, ...)。AI にはこの ID だけを返させ、URL はここから付ける */
   id: string;
   category: CategoryKey;
   source: string;
@@ -31,7 +31,7 @@ export interface CollectOptions {
   windowHours: number;
   /** 1つの情報源から使う記事の上限(新しい順) */
   perSourceLimit: number;
-  /** 概要の長さの上限(Claude に渡す量を抑える) */
+  /** 概要の長さの上限(AI に渡す量を抑える) */
   maxDescriptionLength: number;
 }
 

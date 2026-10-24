@@ -1,11 +1,8 @@
-# next.js
-/.next/
-next-env.d.ts
-*.tsbuildinfo
+# wrangler
+/.wrangler/
+/dist/
+.dev.vars*
 
 # env files
 .env*
 !.env.example
-
-# vercel
-.vercel

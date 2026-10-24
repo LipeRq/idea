@@ -1,9 +1,9 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { AiGenerationError } from "../src/claude";
+import { AiGenerationError } from "../src/ai";
 import { ContentTooLargeError } from "../src/line/api";
 import type { MeetingInput } from "../src/meeting/notes";
-import { detectImageType, handleWebhook, HELP_TEXT, readWebhookConfig, type WebhookDeps } from "../src/webhook/handler";
+import { detectImageType, handleWebhook, HELP_TEXT, processEvent, readWebhookConfig, type ProcessDeps, type ReceiveDeps } from "../src/webhook/handler";
 import { fakeLine, lineError, NOTES, texts, type FakeLine } from "./helpers";
 
 const SECRET = "test-channel-secret";
@@ -38,19 +38,21 @@ function event(overrides: Record<string, unknown> = {}) {
 
 interface Setup {
   line: FakeLine;
-  deps: WebhookDeps;
+  receive: ReceiveDeps;
+  process: ProcessDeps;
   inputs: MeetingInput[];
   logs: { event: string; fields?: Record<string, unknown> }[];
-  /** defer に渡された処理がすべて終わるまで待つ */
+  /** キューに入ったイベントの処理がすべて終わるまで待つ */
   settle: () => Promise<unknown>;
 }
 
-function setup(options: { line?: FakeLine; organize?: WebhookDeps["organize"] | "error" } = {}): Setup {
+function setup(options: { line?: FakeLine; organize?: ProcessDeps["organize"] | "error" } = {}): Setup {
   const line = options.line ?? fakeLine();
   const inputs: MeetingInput[] = [];
   const tasks: Promise<unknown>[] = [];
   const logs: Setup["logs"] = [];
-  const organize: WebhookDeps["organize"] =
+  const log: ReceiveDeps["log"] = (e, fields) => logs.push({ event: e, fields });
+  const organize: ProcessDeps["organize"] =
     options.organize === "error"
       ? async () => {
           throw new AiGenerationError("AIの出力を解析できませんでした");
@@ -61,23 +63,21 @@ function setup(options: { line?: FakeLine; organize?: WebhookDeps["organize"] | 
             return NOTES;
           }
         : options.organize;
-  return {
-    line,
-    inputs,
-    logs,
-    settle: () => Promise.all(tasks),
-    deps: {
-      config: { channelSecret: SECRET, ownerUserId: OWNER },
-      line,
-      organize,
-      defer: (t) => tasks.push(t),
-      log: (e, fields) => logs.push({ event: e, fields }),
+  const config = { channelSecret: SECRET, ownerUserId: OWNER };
+  const process: ProcessDeps = { config, line, organize, log };
+  // キューの代わりに、受け取ったイベントをすぐ処理する
+  const receive: ReceiveDeps = {
+    config,
+    log,
+    dispatch: async (event) => {
+      tasks.push(processEvent(event, process));
     },
   };
+  return { line, inputs, logs, receive, process, settle: () => Promise.all(tasks) };
 }
 
 async function send(s: Setup, ...events: unknown[]): Promise<Response> {
-  const res = await handleWebhook(request({ destination: "Ubot", events }), s.deps);
+  const res = await handleWebhook(request({ destination: "Ubot", events }), s.receive);
   await s.settle();
   return res;
 }
@@ -85,7 +85,7 @@ async function send(s: Setup, ...events: unknown[]): Promise<Response> {
 describe("handleWebhook:受け付け", () => {
   it("署名が合わなければ 401 で、何もしない", async () => {
     const s = setup();
-    const res = await handleWebhook(request({ destination: "Ubot", events: [event()] }, sign("other body")), s.deps);
+    const res = await handleWebhook(request({ destination: "Ubot", events: [event()] }, sign("other body")), s.receive);
     await s.settle();
     expect(res.status).toBe(401);
     expect(s.line.replies).toHaveLength(0);
@@ -94,13 +94,13 @@ describe("handleWebhook:受け付け", () => {
   it("別のチャネルシークレットの署名も 401", async () => {
     const s = setup();
     const body = { destination: "Ubot", events: [event()] };
-    const res = await handleWebhook(request(body, sign(JSON.stringify(body), "other-secret")), s.deps);
+    const res = await handleWebhook(request(body, sign(JSON.stringify(body), "other-secret")), s.receive);
     expect(res.status).toBe(401);
   });
 
   it("POST 以外は 405", async () => {
     const s = setup();
-    const res = await handleWebhook(new Request("https://bot.example/api/webhook"), s.deps);
+    const res = await handleWebhook(new Request("https://bot.example/api/webhook"), s.receive);
     expect(res.status).toBe(405);
   });
 
@@ -156,7 +156,7 @@ describe("handleWebhook:打ち合わせメモ", () => {
   it("API キーがなければ、その旨を返す", async () => {
     const s = setup({ organize: null });
     await send(s, event());
-    expect(texts(s.line.replies[0].messages)[0]).toContain("Claude API のキーが設定されていません");
+    expect(texts(s.line.replies[0].messages)[0]).toContain("DeepSeek API のキーが設定されていません");
   });
 
   it("短いテキスト・「使い方」・友だち追加には使い方を返す", async () => {

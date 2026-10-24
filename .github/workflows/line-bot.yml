@@ -1,6 +1,6 @@
-# 自分専用 LINE ボット(my-tools/line-bot)の型チェック・単体テスト・ビルド(Vercel に置く受け口が組み立てられるか)。
-# my-tools/line-bot 配下・共通の部品(packages/shared。構造化出力の検証を使う)・このファイルが変わったときだけ動く。
-# 外部サービスには接続しない(LINE・Claude・RSS はテストで偽物に差し替える)。
+# 自分専用 LINE ボット(my-tools/line-bot)の型チェック・単体テスト・ビルド(Cloudflare Workers に置く受け口がまとめられるか)。
+# my-tools/line-bot 配下・このファイルが変わったときだけ動く。
+# 外部サービスには接続しない(LINE・DeepSeek・RSS はテストで偽物に差し替える。ビルドは --dry-run で、Cloudflare には送らない)。
 name: line-bot
 
 on:
@@ -8,12 +8,10 @@ on:
     branches: [main]
     paths:
       - "my-tools/line-bot/**"
-      - "packages/shared/**"
       - ".github/workflows/line-bot.yml"
   pull_request:
     paths:
       - "my-tools/line-bot/**"
-      - "packages/shared/**"
       - ".github/workflows/line-bot.yml"
   workflow_dispatch:
 
@@ -35,7 +33,8 @@ jobs:
         working-directory: my-tools/line-bot
     env:
       # キーは渡さない(テストは偽物を使い、実際の API は呼ばない)
-      ANTHROPIC_API_KEY: ""
+      DEEPSEEK_API_KEY: ""
+      WRANGLER_SEND_METRICS: "false"
     steps:
       - uses: actions/checkout@v7
         with:

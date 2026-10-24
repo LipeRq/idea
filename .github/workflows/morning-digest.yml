@@ -68,13 +68,13 @@ jobs:
       - name: 試し実行(送らない)
         if: steps.ready.outputs.ok == 'true' && env.MODE == 'dry-run'
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: npm run morning -- --dry-run
 
       - name: LINE に送る
         if: steps.ready.outputs.ok == 'true' && env.MODE == 'send'
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
         run: npm run morning
