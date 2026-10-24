@@ -6,13 +6,13 @@ import { formatJstFullDate } from "../time";
 
 export const MeetingNotesSchema = z.object({
   title: z.string().describe("打ち合わせの名前。相手の会社名や議題から20文字程度。分からなければ「打ち合わせ」。"),
-  summary: z.array(z.string()).describe("要点。3〜5件。各1文。"),
+  summary: z.array(z.string()).describe("要点。3件まで。各30文字以内の1文。"),
   decisions: z.array(z.string()).describe("決まったこと。なければ空配列。"),
   todos: z
     .array(
       z.object({
         owner: z.string().describe("担当。「自分」「先方(〇〇様)」のように書く。分からなければ「未定」。"),
-        task: z.string().describe("やること。1文。"),
+        task: z.string().describe("やること。25文字以内。"),
         due: z.string().describe("期限。メモに書かれた期限を「10/31(金)」のような日付にする。期限がなければ「未定」。"),
       }),
     )
@@ -42,6 +42,7 @@ const SYSTEM = `あなたは、中小企業のAI導入を支援するITコンサ
 - お礼メールは、打ち合わせの相手に自分から送るものです。丁寧すぎない自然なビジネスメールにし、決まったことと宿題(とくに自分の宿題)を簡潔に入れてください。
   宛名は「〇〇株式会社 〇〇様」の形にし、分からない部分は〇〇のままにしてください。署名は書かないでください(メールソフトが付けます)。
 - 写真に打ち合わせのメモが写っていない場合は、title を「メモが見つかりません」とし、unclear にその旨を書いて、ほかは空にしてください。
+- 議事録・宿題は短く書いてください(1項目1文、体言止めでよい)。お礼メールは5〜10行にしてください。
 - 出力はすべて日本語にしてください。`;
 
 function buildUser(input: MeetingInput, today: Date): string | BetaContentBlockParam[] {

@@ -6,13 +6,13 @@ import type { Article } from "./collect";
 import { READER_PROFILE, type Category } from "./sources";
 
 export const DigestSchema = z.object({
-  highlights: z.array(z.string()).describe("今日いちばん大事なこと3つ。各40文字程度の1文。選んだ記事の中から書く。"),
+  highlights: z.array(z.string()).describe("今日いちばん大事なこと3つ。各30文字以内の1文。選んだ記事の中から書く。"),
   picks: z
     .array(
       z.object({
         id: z.string().describe("選んだ記事の id 属性をそのまま書く(例: a12)"),
-        headline: z.string().describe("短い見出し。30文字程度。英語の記事も日本語にする。"),
-        summary: z.string().describe("要約。60〜120文字の日本語。見出しと概要に書かれたことだけを使う。概要がなく見出し以上のことが分からない記事は空文字。"),
+        headline: z.string().describe("短い見出し。25文字以内。英語の記事も日本語にする。"),
+        summary: z.string().describe("要約。50文字以内の1文。見出しにない大事な点だけを書く。見出しと概要に書かれたことだけを使う。見出し以上のことが分からない記事は空文字。"),
       }),
     )
     .describe("分野ごとに、重要な順に並べる。各分野の上限の件数まで。"),
@@ -62,6 +62,7 @@ ${limits}
 - 記事が上限より少ない分野は、あるものだけを選んでください。重要でない記事を数合わせで選ばないでください。
 - 宣伝・広告・ランキング・占いなど、ニュースではない記事は選ばないでください。
 - 英語の記事は日本語で見出しと要約を書いてください。
+- 見出しと要約は、短く、やさしい言葉で書いてください。専門用語は言い換えてください。
 - 投資の判断を勧める表現(「買い」「売り」など)は使わず、事実だけを書いてください。
 - URL は書かないでください(id だけを書けば、プログラムがリンクを付けます)。`;
 }

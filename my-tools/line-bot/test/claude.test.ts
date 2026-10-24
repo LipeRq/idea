@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { AiGenerationError, createClaudeClient, defangTags, describeAiError, type TokenUsage } from "../src/claude";
-import { MODEL } from "../src/model";
+import { MODEL, USE_SERVER_FALLBACK } from "../src/model";
 
 const Schema = z.object({ answer: z.string() });
 
@@ -28,7 +28,7 @@ const ok = (text: string, stop_reason = "end_turn"): FakeMessage => ({ stop_reas
 describe("createClaudeClient", () => {
   const req = { system: "s", user: "u", schema: Schema, maxTokens: 1000, effort: "low" as const };
 
-  it("構造化出力とサーバー側フォールバックを指定し、出力を検証して返す", async () => {
+  it("構造化出力を指定し、出力を検証して返す(フォールバックは使えるモデルのときだけ)", async () => {
     const { anthropic, params } = fakeAnthropic(ok('{"answer":"はい"}'));
     const usages: TokenUsage[] = [];
     const client = createClaudeClient(anthropic, { onUsage: (u) => usages.push(u) });
@@ -36,11 +36,10 @@ describe("createClaudeClient", () => {
     expect(params[0]).toMatchObject({
       model: MODEL,
       max_tokens: 1000,
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
       output_config: { effort: "low", format: { type: "json_schema" } },
       messages: [{ role: "user", content: "u" }],
     });
+    expect(params[0].fallbacks).toBe(USE_SERVER_FALLBACK ? "default" : undefined);
     expect(usages).toEqual([{ inputTokens: 100, outputTokens: 20 }]);
   });
 

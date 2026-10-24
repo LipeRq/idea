@@ -4,7 +4,7 @@ import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import type { BetaContentBlockParam } from "@anthropic-ai/sdk/resources/beta/messages/messages";
 import type { z } from "zod";
 import { parseStructuredOutput } from "../../../packages/shared/src/structured-output";
-import { MODEL } from "./model";
+import { MODEL, USE_SERVER_FALLBACK } from "./model";
 
 export type Effort = "low" | "medium" | "high";
 
@@ -59,8 +59,7 @@ export function createClaudeClient(anthropic: Anthropic = new Anthropic(), optio
         {
           model: MODEL,
           max_tokens: req.maxTokens,
-          betas: ["server-side-fallback-2026-07-01"],
-          fallbacks: "default",
+          ...(USE_SERVER_FALLBACK ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const } : {}),
           output_config: { effort: req.effort, format: jsonSchemaFormat(req.schema) },
           system: req.system,
           messages: [{ role: "user", content: req.user }],
