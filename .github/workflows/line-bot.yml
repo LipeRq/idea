@@ -1,0 +1,61 @@
+# 自分専用 LINE ボット(my-tools/line-bot)の型チェック・単体テスト・ビルド(Vercel に置く受け口が組み立てられるか)。
+# my-tools/line-bot 配下・共通の部品(packages/shared。構造化出力の検証を使う)・このファイルが変わったときだけ動く。
+# 外部サービスには接続しない(LINE・Claude・RSS はテストで偽物に差し替える)。
+name: line-bot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "my-tools/line-bot/**"
+      - "packages/shared/**"
+      - ".github/workflows/line-bot.yml"
+  pull_request:
+    paths:
+      - "my-tools/line-bot/**"
+      - "packages/shared/**"
+      - ".github/workflows/line-bot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 同じブランチに続けて push したら、古い実行は止める
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: 型チェック・テスト・ビルド
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: my-tools/line-bot
+    env:
+      # キーは渡さない(テストは偽物を使い、実際の API は呼ばない)
+      ANTHROPIC_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # engines.node は ">=22" なので、各アプリと同じ Node 22 に固定する
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: my-tools/line-bot/package-lock.json
+
+      - name: 依存関係のインストール
+        run: npm ci
+
+      - name: 型チェック
+        run: npm run typecheck
+
+      - name: 単体テスト
+        run: npm test
+
+      - name: ビルド
+        run: npm run build

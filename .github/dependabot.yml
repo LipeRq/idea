@@ -9,6 +9,7 @@ updates:
       - /apps/inventory
       - /apps/inventory-web
       - /apps/quote-assist
+      - /my-tools/line-bot
     schedule:
       interval: weekly
       day: monday

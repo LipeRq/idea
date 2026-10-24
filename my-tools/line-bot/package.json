@@ -1,0 +1,33 @@
+{
+  "name": "line-bot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "自分専用の LINE ボット(毎朝の情報まとめ・打ち合わせメモの整理)",
+  "scripts": {
+    "dev": "next dev -p 3500",
+    "build": "next build",
+    "morning": "tsx src/morning/cli.ts",
+    "sources:check": "tsx src/morning/cli.ts --check-sources",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
+    "@line/bot-sdk": "^11.3.0",
+    "fast-xml-parser": "^5.11.2",
+    "next": "16.4.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/react": "^19",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5"
+  }
+}

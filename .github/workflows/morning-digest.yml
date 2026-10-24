@@ -1,0 +1,80 @@
+# 自分専用 LINE ボット(my-tools/line-bot)の「毎朝の情報まとめ」を、毎朝 LINE に送る。
+# 定期実行は、このファイルが既定のブランチ(main)にあるときだけ動く。Secrets を登録するまでは何もせずに終わる。
+# 手動実行(Actions → morning-digest → Run workflow)では、試し実行(送らずに内容をログに出す)と情報源の確認ができる。
+name: morning-digest
+
+on:
+  schedule:
+    # 毎日 6:40(日本時間)。GitHub の定期実行は混雑で遅れることがあるので、7時より前にしている
+    - cron: "40 21 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "send=送る / dry-run=送らずに内容をログに出す / check-sources=情報源を取得できるか確認する"
+        type: choice
+        options: [dry-run, send, check-sources]
+        default: dry-run
+
+permissions:
+  contents: read
+
+concurrency:
+  group: morning-digest
+  cancel-in-progress: false
+
+jobs:
+  send:
+    name: 情報まとめ
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: my-tools/line-bot
+    env:
+      MODE: ${{ github.event_name == 'schedule' && 'send' || inputs.mode }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: 準備ができているかの確認
+        id: ready
+        env:
+          HAS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN != '' && secrets.LINE_USER_ID != '' }}
+        run: |
+          if [ "$MODE" = "send" ] && [ "$HAS_TOKEN" != "true" ]; then
+            echo "::notice::LINE_CHANNEL_ACCESS_TOKEN と LINE_USER_ID が Secrets にないので、送らずに終わります(手順は my-tools/line-bot/README.md)"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v7
+        if: steps.ready.outputs.ok == 'true'
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: my-tools/line-bot/package-lock.json
+
+      # キーやトークンは、依存関係のインストールには渡さない(実行の手順にだけ渡す)
+      - name: 依存関係のインストール
+        if: steps.ready.outputs.ok == 'true'
+        run: npm ci
+
+      - name: 情報源の確認
+        if: steps.ready.outputs.ok == 'true' && env.MODE == 'check-sources'
+        run: npm run sources:check
+
+      - name: 試し実行(送らない)
+        if: steps.ready.outputs.ok == 'true' && env.MODE == 'dry-run'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm run morning -- --dry-run
+
+      - name: LINE に送る
+        if: steps.ready.outputs.ok == 'true' && env.MODE == 'send'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+        run: npm run morning

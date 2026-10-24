@@ -1,0 +1,11 @@
+# next.js
+/.next/
+next-env.d.ts
+*.tsbuildinfo
+
+# env files
+.env*
+!.env.example
+
+# vercel
+.vercel
