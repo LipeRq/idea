@@ -11,6 +11,7 @@
 | `apps/quote-assist` | 製造業向け「見積アシスト」。引き合いメールと図面PDFから要件・確認事項・類似案件・見積根拠・見積書を作り、Salesforceに登録する。**認証なし・社外公開禁止**(公開するなら Basic 認証必須。本番ビルドは設定がないと 401) | MVP実装済み(デモモード) |
 | `packages/shared` | 各アプリが共通で使う部品(セキュリティヘッダー・送信元の判定と本文の読み取り・回数制限・1日の上限の数え方・Upstash・例外の種類の取り出し・Claude の構造化出力の検証) | 各アプリが取り込み済み |
 | `docs/manufacturing` | 製造業向けAIエージェントパッケージの業務設計・技術設計 | 設計済み |
+| `my-tools` | 自分専用の自動化ツール(日常の面倒な作業を減らす。**社外公開しない**)。`my-tools/line-bot` は LINE ボット(毎朝の情報まとめ・打ち合わせメモの整理) | line-bot 実装済み(準備の手順は [README](my-tools/line-bot/README.md))、ほかはアイデア([ideas.md](my-tools/ideas.md)) |
 
 ## 共通の部品(packages/shared)
 

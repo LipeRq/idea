@@ -1,0 +1,27 @@
+// Cloudflare Workers の設定(打ち合わせメモの受け口)。無料プランで動く範囲にしている。
+// 秘密の値(LINE_CHANNEL_SECRET・LINE_CHANNEL_ACCESS_TOKEN・LINE_USER_ID・DEEPSEEK_API_KEY)は
+// ここに書かず、Cloudflare のダッシュボードか `npx wrangler secret put <名前>` で登録する。
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "line-bot",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-01",
+  // LINE の SDK が node:crypto・Buffer・stream を使う
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "queues": {
+    // 受け取ったメモは、このキューに入れてから整理する(先に `npx wrangler queues create line-bot-memos` で作る)
+    "producers": [{ "binding": "MEMO_QUEUE", "queue": "line-bot-memos" }],
+    "consumers": [
+      {
+        "queue": "line-bot-memos",
+        // 1件ずつ、待たずに取り出す
+        "max_batch_size": 1,
+        "max_batch_timeout": 0,
+        // 送り直さない(返信が二重に届かないように。失敗は LINE で知らせる)
+        "max_retries": 0
+      }
+    ]
+  },
+  "observability": { "enabled": true }
+}
