@@ -1,0 +1,84 @@
+%%[
+/*
+  JB_WELCOME_D0_THANKS:初回購入のお礼と、買った茶の種類に合わせた淹れ方の案内(初回購入の 1 時間後)
+  ジャーニーの入口:EC から送られる「初回購入」の API イベント(項目: SubscriberKey, EmailAddress, LastName, OrderId, MainCategory)
+  広告は入れない。値引きの案内もしない(初回の体験を案内することに集中する)
+*/
+SET @lastName = AttributeValue("LastName")
+IF EMPTY(@lastName) THEN
+  SET @greeting = "お客さま"
+ELSE
+  SET @greeting = Concat(@lastName, " 様")
+ENDIF
+
+SET @category = AttributeValue("MainCategory")
+IF @category == "Gyokuro" THEN
+  SET @guideTitle = "玉露は、ぬるめのお湯でゆっくりと"
+  SET @guideBody = "50〜60℃まで冷ましたお湯を注ぎ、2分ほど待ってから最後の一滴まで注ぎ切ってください。"
+  SET @guideUrl = "https://shop.example.com/guide/gyokuro"
+ELSEIF @category == "Matcha" THEN
+  SET @guideTitle = "抹茶は、茶こしでふるってから"
+  SET @guideBody = "茶こしでふるった抹茶2gに、80℃ほどのお湯70mlを注ぎ、茶筅で手早く点ててください。"
+  SET @guideUrl = "https://shop.example.com/guide/matcha"
+ELSEIF @category == "Hojicha" THEN
+  SET @guideTitle = "ほうじ茶は、熱湯で香りを立てて"
+  SET @guideBody = "熱湯を注いで30秒ほど。香ばしい香りが立ったら注ぎ分けてください。"
+  SET @guideUrl = "https://shop.example.com/guide/hojicha"
+ELSEIF @category == "Wakoucha" THEN
+  SET @guideTitle = "和紅茶は、蒸らしの時間で味が変わります"
+  SET @guideBody = "熱湯を注いでふたをし、3分ほど蒸らしてください。渋みが気になるときは短めに。"
+  SET @guideUrl = "https://shop.example.com/guide/wakoucha"
+ELSE
+  SET @guideTitle = "煎茶は、少し冷ましたお湯で"
+  SET @guideBody = "70〜80℃のお湯を注いで1分ほど。2煎目は短めの時間でどうぞ。"
+  SET @guideUrl = "https://shop.example.com/guide/sencha"
+ENDIF
+]%%
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ご購入ありがとうございます</title>
+</head>
+<body style="margin:0;padding:0;background:#ffffff;">
+  <!-- プリヘッダー(受信一覧に表示される文) -->
+  <div style="display:none;max-height:0;overflow:hidden;">%%=v(@guideTitle)=%%。おいしく淹れるためのひと手間をご案内します。</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;color:#2f2a22;">
+          <tr>
+            <td style="padding:32px 20px 8px;font-size:15px;line-height:1.9;">
+              %%=v(@greeting)=%%<br><br>
+              しずく茶舗(架空)で初めてのお買い物をしていただき、ありがとうございます。<br>
+              お届けまでのあいだに、おいしく淹れるためのひと手間をご案内します。
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px 20px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef3ec;border-radius:8px;">
+                <tr>
+                  <td style="padding:20px;font-size:15px;line-height:1.9;">
+                    <strong style="font-size:17px;">%%=v(@guideTitle)=%%</strong><br>
+                    %%=v(@guideBody)=%%<br>
+                    <a href="%%=RedirectTo(@guideUrl)=%%" alias="淹れ方ガイド" style="color:#3d6b4f;">写真つきの淹れ方ガイドを見る</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:8px 20px 32px;font-size:13px;line-height:1.8;color:#5b5548;">
+              ご注文の内容とお届け予定は、マイページの「注文履歴」でご確認いただけます。
+            </td>
+          </tr>
+          <tr>
+            <td>%%=ContentBlockByKey("footer-legal")=%%</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

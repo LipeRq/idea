@@ -1,0 +1,222 @@
+# しずく茶舗(架空)の Ingestion API スキーマ。scripts/generate-data.ts が tables.ts から生成する(手で書き換えない)。
+# Data 360 の「Ingestion API」コネクタにこのファイルをアップロードし、オブジェクトごとにデータストリームを作る。
+openapi: 3.0.3
+components:
+  schemas:
+    ec_customers:
+      type: object
+      properties:
+        member_id:
+          type: string
+        last_name:
+          type: string
+        first_name:
+          type: string
+        last_name_kana:
+          type: string
+        first_name_kana:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        prefecture:
+          type: string
+        birth_year:
+          type: number
+        registered_at:
+          type: string
+          format: date-time
+        email_opt_in:
+          type: boolean
+        email_opt_in_at:
+          type: string
+          format: date-time
+        email_opt_out_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    products:
+      type: object
+      properties:
+        product_id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        category_label:
+          type: string
+        price:
+          type: number
+        gift_eligible:
+          type: boolean
+        noshi_available:
+          type: boolean
+        gift_occasions:
+          type: string
+        caffeine_level:
+          type: string
+        shelf_life_days:
+          type: number
+        is_active:
+          type: boolean
+        product_url:
+          type: string
+        image_url:
+          type: string
+    ec_orders:
+      type: object
+      properties:
+        order_id:
+          type: string
+        member_id:
+          type: string
+        ordered_at:
+          type: string
+          format: date-time
+        is_gift:
+          type: boolean
+        gift_occasion:
+          type: string
+        destinations_count:
+          type: number
+        noshi:
+          type: boolean
+        subtotal:
+          type: number
+        shipping_fee:
+          type: number
+        discount:
+          type: number
+        total:
+          type: number
+        coupon_code:
+          type: string
+        status:
+          type: string
+    ec_order_items:
+      type: object
+      properties:
+        order_item_id:
+          type: string
+        order_id:
+          type: string
+        line_no:
+          type: number
+        product_id:
+          type: string
+        quantity:
+          type: number
+        unit_price:
+          type: number
+        amount:
+          type: number
+        ordered_at:
+          type: string
+          format: date-time
+    pos_members:
+      type: object
+      properties:
+        card_no:
+          type: string
+        last_name:
+          type: string
+        first_name:
+          type: string
+        last_name_kana:
+          type: string
+        first_name_kana:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        linked_ec_member_id:
+          type: string
+        email_opt_in:
+          type: boolean
+        home_store_id:
+          type: string
+        joined_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    pos_transactions:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+        card_no:
+          type: string
+        store_id:
+          type: string
+        purchased_at:
+          type: string
+          format: date-time
+        total:
+          type: number
+        items_count:
+          type: number
+    pos_transaction_items:
+      type: object
+      properties:
+        transaction_item_id:
+          type: string
+        transaction_id:
+          type: string
+        line_no:
+          type: number
+        product_id:
+          type: string
+        quantity:
+          type: number
+        unit_price:
+          type: number
+        amount:
+          type: number
+        purchased_at:
+          type: string
+          format: date-time
+    web_events:
+      type: object
+      properties:
+        event_id:
+          type: string
+        device_id:
+          type: string
+        member_id:
+          type: string
+        event_type:
+          type: string
+        page_type:
+          type: string
+        product_id:
+          type: string
+        order_id:
+          type: string
+        quantity:
+          type: number
+        occurred_at:
+          type: string
+          format: date-time
+    email_events:
+      type: object
+      properties:
+        event_id:
+          type: string
+        subscriber_key:
+          type: string
+        email_name:
+          type: string
+        event_type:
+          type: string
+        link_url:
+          type: string
+        occurred_at:
+          type: string
+          format: date-time

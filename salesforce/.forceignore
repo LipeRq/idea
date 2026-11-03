@@ -1,0 +1,4 @@
+# sf project deploy の対象から外すもの
+**/jsconfig.json
+**/.eslintrc.json
+**/__tests__/**

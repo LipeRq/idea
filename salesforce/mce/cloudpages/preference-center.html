@@ -1,0 +1,161 @@
+<script runat="server" language="ampscript">
+  /*
+    配信設定ページ(CloudPage)。メールのフッターのリンク(CloudPagesURL)から開く。
+    - 誰の設定かは、CloudPagesURL が付ける暗号化された情報からだけ取る(URL やフォームの購読者キーは信じない)
+    - 選べる値は決めた一覧だけ(画面に出す値もその一覧から作るので、入力をそのまま表示しない)
+    - 全配信停止は All Subscribers の状態を「配信停止」にする。Data 360 には MCE コネクタで、EC には毎朝のファイルで反映する
+  */
+  SET @subKey = AttributeValue("_subscriberkey")
+</script>
+<script runat="server">
+  Platform.Load("core", "1.1.1");
+
+  var DE_NAME = "Preference_Center"; // 列: SubscriberKey(主キー), Frequency, Interests, UnsubscribedAt, UpdatedAt
+  var FREQUENCIES = { weekly: "週1回", biweekly: "2週に1回", monthly: "月1回" };
+  var INTERESTS = {
+    Sencha: "煎茶",
+    Gyokuro: "玉露",
+    Matcha: "抹茶",
+    Hojicha: "ほうじ茶",
+    Wakoucha: "和紅茶",
+    Gift: "ギフト・季節の贈り物"
+  };
+
+  function trim(value) {
+    return String(value).replace(/^\s+|\s+$/g, "");
+  }
+
+  // SSJS は古い JavaScript(ES3)なので、Array.prototype.indexOf は使わない
+  function contains(list, value) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] == value) return true;
+    }
+    return false;
+  }
+
+  function allowedOnly(values, allowed) {
+    var out = [];
+    for (var i = 0; i < values.length; i++) {
+      var v = trim(values[i]);
+      if (allowed.hasOwnProperty(v) && !contains(out, v)) out.push(v);
+    }
+    return out;
+  }
+
+  var subKey = Variable.GetValue("@subKey");
+  var state = "form"; // form | saved | unsubscribed | invalid | error
+  var frequency = "biweekly";
+  var interests = [];
+
+  if (!subKey) {
+    state = "invalid";
+  } else {
+    try {
+      if (Platform.Request.Method == "POST") {
+        var action = Platform.Request.GetFormField("action");
+        if (action == "unsubscribe") {
+          var subscriber = Subscriber.Init(subKey);
+          subscriber.Unsubscribe();
+          Platform.Function.UpsertData(
+            DE_NAME,
+            ["SubscriberKey"],
+            [subKey],
+            ["Frequency", "Interests", "UnsubscribedAt", "UpdatedAt"],
+            ["none", "", Platform.Function.Now(), Platform.Function.Now()]
+          );
+          state = "unsubscribed";
+        } else {
+          frequency = Platform.Request.GetFormField("frequency");
+          if (!FREQUENCIES.hasOwnProperty(frequency)) frequency = "biweekly";
+          // 同じ名前のチェックボックスが複数選ばれると、カンマ区切りで届く
+          var raw = Platform.Request.GetFormField("interests");
+          interests = allowedOnly(raw ? String(raw).split(",") : [], INTERESTS);
+          Platform.Function.UpsertData(
+            DE_NAME,
+            ["SubscriberKey"],
+            [subKey],
+            ["Frequency", "Interests", "UpdatedAt"],
+            [frequency, interests.join(";"), Platform.Function.Now()]
+          );
+          state = "saved";
+        }
+      } else {
+        var rows = Platform.Function.LookupRows(DE_NAME, ["SubscriberKey"], [subKey]);
+        if (rows && rows.length > 0) {
+          if (FREQUENCIES.hasOwnProperty(rows[0]["Frequency"])) frequency = rows[0]["Frequency"];
+          interests = allowedOnly(rows[0]["Interests"] ? String(rows[0]["Interests"]).split(";") : [], INTERESTS);
+        }
+      }
+    } catch (e) {
+      // 例外の内容は画面に出さない
+      state = "error";
+    }
+  }
+
+  // 画面に渡す値は、決めた一覧から作ったものだけ
+  Variable.SetValue("@state", state);
+  for (var f in FREQUENCIES) {
+    Variable.SetValue("@freq_" + f, frequency == f ? "checked" : "");
+  }
+  for (var k in INTERESTS) {
+    Variable.SetValue("@int_" + k, contains(interests, k) ? "checked" : "");
+  }
+</script>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>メールの配信設定|しずく茶舗(架空)</title>
+  <style>
+    body { margin: 0; font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; color: #2f2a22; background: #faf8f3; }
+    main { max-width: 560px; margin: 0 auto; padding: 32px 16px; line-height: 1.8; }
+    fieldset { border: 1px solid #d8d2c4; border-radius: 8px; margin: 0 0 20px; padding: 16px; background: #fff; }
+    legend { font-weight: bold; padding: 0 4px; }
+    label { display: block; padding: 6px 0; }
+    button { font-size: 16px; padding: 10px 24px; border-radius: 24px; border: 0; cursor: pointer; }
+    .primary { background: #3d6b4f; color: #fff; }
+    .secondary { background: transparent; color: #8a3b2e; text-decoration: underline; padding: 10px 0; }
+    .notice { background: #eef3ec; border-radius: 8px; padding: 12px 16px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1 style="font-size:22px;">メールの配信設定</h1>
+  %%[ IF @state == "invalid" THEN ]%%
+    <p class="notice">このページは、しずく茶舗(架空)からのメールに記載のリンクから開いてください。</p>
+  %%[ ELSEIF @state == "error" THEN ]%%
+    <p class="notice">ただいま設定を保存できませんでした。時間をおいて、もう一度お試しください。</p>
+  %%[ ELSEIF @state == "unsubscribed" THEN ]%%
+    <p class="notice">メールマガジンの配信を停止しました。ご注文に関するメール(注文確認・発送のお知らせ)は、引き続きお送りします。</p>
+  %%[ ELSE ]%%
+    %%[ IF @state == "saved" THEN ]%%
+      <p class="notice">設定を保存しました。次の配信から反映されます。</p>
+    %%[ ENDIF ]%%
+    <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
+      <fieldset>
+        <legend>受け取る頻度</legend>
+        <label><input type="radio" name="frequency" value="weekly" %%=v(@freq_weekly)=%%> 週1回</label>
+        <label><input type="radio" name="frequency" value="biweekly" %%=v(@freq_biweekly)=%%> 2週に1回</label>
+        <label><input type="radio" name="frequency" value="monthly" %%=v(@freq_monthly)=%%> 月1回</label>
+      </fieldset>
+      <fieldset>
+        <legend>興味のある内容(複数選べます)</legend>
+        <label><input type="checkbox" name="interests" value="Sencha" %%=v(@int_Sencha)=%%> 煎茶</label>
+        <label><input type="checkbox" name="interests" value="Gyokuro" %%=v(@int_Gyokuro)=%%> 玉露</label>
+        <label><input type="checkbox" name="interests" value="Matcha" %%=v(@int_Matcha)=%%> 抹茶</label>
+        <label><input type="checkbox" name="interests" value="Hojicha" %%=v(@int_Hojicha)=%%> ほうじ茶</label>
+        <label><input type="checkbox" name="interests" value="Wakoucha" %%=v(@int_Wakoucha)=%%> 和紅茶</label>
+        <label><input type="checkbox" name="interests" value="Gift" %%=v(@int_Gift)=%%> ギフト・季節の贈り物</label>
+      </fieldset>
+      <button class="primary" type="submit" name="action" value="save">この内容で保存する</button>
+    </form>
+    <form method="post" action="%%=RequestParameter('PAGEURL')=%%" style="margin-top:32px;">
+      <p>メールマガジンをすべて止める場合は、こちらを押してください。ご注文に関するメールは届きます。</p>
+      <button class="secondary" type="submit" name="action" value="unsubscribe">メールマガジンの配信を停止する</button>
+    </form>
+  %%[ ENDIF ]%%
+</main>
+</body>
+</html>

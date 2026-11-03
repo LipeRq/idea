@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>NoshiAvailable__c</fullName>
+    <description>のし紙を掛けられる商品か</description>
+    <externalId>false</externalId>
+    <inlineHelpText>のし紙を掛けられる商品か</inlineHelpText>
+    <label>のし対応</label>
+    <defaultValue>false</defaultValue>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

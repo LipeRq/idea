@@ -1,0 +1,2104 @@
+{
+  "records": [
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef1"
+      },
+      "AccountId": "@AccountRef1",
+      "Name": "あさひ精機 2026お歳暮",
+      "StageName": "Qualification",
+      "CloseDate": "2026-11-08",
+      "Amount": 448200,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 166,
+      "DeliveryDate__c": "2026-12-05",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef2"
+      },
+      "AccountId": "@AccountRef2",
+      "Name": "みなと商事 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-13",
+      "Amount": 742500,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 275,
+      "DeliveryDate__c": "2024-12-03",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef3"
+      },
+      "AccountId": "@AccountRef2",
+      "Name": "みなと商事 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-18",
+      "Amount": 648000,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 240,
+      "DeliveryDate__c": "2025-12-15",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef4"
+      },
+      "AccountId": "@AccountRef2",
+      "Name": "みなと商事 2026お歳暮",
+      "StageName": "Proposal/Price Quote",
+      "CloseDate": "2026-11-23",
+      "Amount": 580500,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 215,
+      "DeliveryDate__c": "2026-12-04",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef5"
+      },
+      "AccountId": "@AccountRef3",
+      "Name": "ひかり不動産 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-30",
+      "Amount": 810000,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 150,
+      "DeliveryDate__c": "2024-12-04",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef6"
+      },
+      "AccountId": "@AccountRef3",
+      "Name": "ひかり不動産 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-11",
+      "Amount": 923400,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 171,
+      "DeliveryDate__c": "2025-12-11",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef7"
+      },
+      "AccountId": "@AccountRef3",
+      "Name": "ひかり不動産 2026お歳暮",
+      "StageName": "Proposal/Price Quote",
+      "CloseDate": "2026-11-28",
+      "Amount": 837000,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 155,
+      "DeliveryDate__c": "2026-12-11",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef8"
+      },
+      "AccountId": "@AccountRef3",
+      "Name": "ひかり不動産 2025ノベルティ",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-07-01",
+      "Amount": 457920,
+      "GiftOccasion__c": "Novelty",
+      "GiftQuantity__c": 212,
+      "DeliveryDate__c": "2025-07-25",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef9"
+      },
+      "AccountId": "@AccountRef4",
+      "Name": "つばさ物流 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-24",
+      "Amount": 364500,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 135,
+      "DeliveryDate__c": "2024-12-11",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef10"
+      },
+      "AccountId": "@AccountRef4",
+      "Name": "つばさ物流 2025お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-05-26",
+      "Amount": 345600,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 128,
+      "DeliveryDate__c": "2025-07-13",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef11"
+      },
+      "AccountId": "@AccountRef4",
+      "Name": "つばさ物流 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-24",
+      "Amount": 367200,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 136,
+      "DeliveryDate__c": "2025-12-17",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef12"
+      },
+      "AccountId": "@AccountRef4",
+      "Name": "つばさ物流 2026お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2026-06-04",
+      "Amount": 302400,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 112,
+      "DeliveryDate__c": "2026-07-15",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef13"
+      },
+      "AccountId": "@AccountRef4",
+      "Name": "つばさ物流 2026お歳暮",
+      "StageName": "Qualification",
+      "CloseDate": "2026-11-16",
+      "Amount": 307800,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 114,
+      "DeliveryDate__c": "2026-12-17",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef14"
+      },
+      "AccountId": "@AccountRef5",
+      "Name": "税理士法人かえで 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-13",
+      "Amount": 1032480,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 239,
+      "DeliveryDate__c": "2024-12-02",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef15"
+      },
+      "AccountId": "@AccountRef5",
+      "Name": "税理士法人かえで 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-15",
+      "Amount": 1006560,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 233,
+      "DeliveryDate__c": "2025-12-04",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef16"
+      },
+      "AccountId": "@AccountRef5",
+      "Name": "税理士法人かえで 2026お歳暮",
+      "StageName": "Prospecting",
+      "CloseDate": "2026-11-10",
+      "Amount": 1006560,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 233,
+      "DeliveryDate__c": "2026-12-02",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef17"
+      },
+      "AccountId": "@AccountRef5",
+      "Name": "税理士法人かえで 2025周年記念",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-09-21",
+      "Amount": 680400,
+      "GiftOccasion__c": "Anniversary",
+      "GiftQuantity__c": 126,
+      "DeliveryDate__c": "2025-10-07",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef18"
+      },
+      "AccountId": "@AccountRef6",
+      "Name": "いずみ会 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-20",
+      "Amount": 205200,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 76,
+      "DeliveryDate__c": "2024-12-09",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef19"
+      },
+      "AccountId": "@AccountRef6",
+      "Name": "いずみ会 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-10",
+      "Amount": 272700,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 101,
+      "DeliveryDate__c": "2025-12-14",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef20"
+      },
+      "AccountId": "@AccountRef6",
+      "Name": "いずみ会 2026お歳暮",
+      "StageName": "Qualification",
+      "CloseDate": "2026-12-03",
+      "Amount": 221400,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 82,
+      "DeliveryDate__c": "2026-12-14",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef21"
+      },
+      "AccountId": "@AccountRef7",
+      "Name": "さくら建設 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-27",
+      "Amount": 86400,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 32,
+      "DeliveryDate__c": "2024-12-03",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef22"
+      },
+      "AccountId": "@AccountRef7",
+      "Name": "さくら建設 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-09",
+      "Amount": 89100,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 33,
+      "DeliveryDate__c": "2025-12-17",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef23"
+      },
+      "AccountId": "@AccountRef7",
+      "Name": "さくら建設 2026お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-10-31",
+      "Amount": 81000,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 30,
+      "DeliveryDate__c": "2026-12-18",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef24"
+      },
+      "AccountId": "@AccountRef8",
+      "Name": "なぎさ食品 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-12-03",
+      "Amount": 203040,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 47,
+      "DeliveryDate__c": "2025-12-15",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef25"
+      },
+      "AccountId": "@AccountRef8",
+      "Name": "なぎさ食品 2026お歳暮",
+      "StageName": "Prospecting",
+      "CloseDate": "2026-11-29",
+      "Amount": 241920,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 56,
+      "DeliveryDate__c": "2026-12-01",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef26"
+      },
+      "AccountId": "@AccountRef9",
+      "Name": "こだま電子 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-27",
+      "Amount": 907200,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 280,
+      "DeliveryDate__c": "2024-12-18",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef27"
+      },
+      "AccountId": "@AccountRef9",
+      "Name": "こだま電子 2025お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-06-12",
+      "Amount": 1036800,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 320,
+      "DeliveryDate__c": "2025-07-06",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef28"
+      },
+      "AccountId": "@AccountRef9",
+      "Name": "こだま電子 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-21",
+      "Amount": 735480,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 227,
+      "DeliveryDate__c": "2025-12-11",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef29"
+      },
+      "AccountId": "@AccountRef9",
+      "Name": "こだま電子 2026お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-05-29",
+      "Amount": 900720,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 278,
+      "DeliveryDate__c": "2026-07-16",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef30"
+      },
+      "AccountId": "@AccountRef9",
+      "Name": "こだま電子 2026お歳暮",
+      "StageName": "Proposal/Price Quote",
+      "CloseDate": "2026-12-03",
+      "Amount": 816480,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 252,
+      "DeliveryDate__c": "2026-12-13",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef31"
+      },
+      "AccountId": "@AccountRef9",
+      "Name": "こだま電子 2026周年記念",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-02-01",
+      "Amount": 155520,
+      "GiftOccasion__c": "Anniversary",
+      "GiftQuantity__c": 48,
+      "DeliveryDate__c": "2026-02-27",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef32"
+      },
+      "AccountId": "@AccountRef10",
+      "Name": "はるか保険サービス 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-19",
+      "Amount": 1090800,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 202,
+      "DeliveryDate__c": "2024-12-04",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef33"
+      },
+      "AccountId": "@AccountRef10",
+      "Name": "はるか保険サービス 2026お歳暮",
+      "StageName": "Prospecting",
+      "CloseDate": "2026-11-15",
+      "Amount": 804600,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 149,
+      "DeliveryDate__c": "2026-12-04",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef34"
+      },
+      "AccountId": "@AccountRef11",
+      "Name": "わかばシステム 2025お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-06-21",
+      "Amount": 941220,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 249,
+      "DeliveryDate__c": "2025-07-19",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef35"
+      },
+      "AccountId": "@AccountRef11",
+      "Name": "わかばシステム 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-12-04",
+      "Amount": 1099980,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 291,
+      "DeliveryDate__c": "2025-12-06",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef36"
+      },
+      "AccountId": "@AccountRef11",
+      "Name": "わかばシステム 2026お歳暮",
+      "StageName": "Prospecting",
+      "CloseDate": "2026-11-29",
+      "Amount": 850500,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 225,
+      "DeliveryDate__c": "2026-12-14",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef37"
+      },
+      "AccountId": "@AccountRef11",
+      "Name": "わかばシステム 2026周年記念",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-08-01",
+      "Amount": 835920,
+      "GiftOccasion__c": "Anniversary",
+      "GiftQuantity__c": 258,
+      "DeliveryDate__c": "2026-08-28",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef38"
+      },
+      "AccountId": "@AccountRef12",
+      "Name": "ほしぞら印刷 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-11",
+      "Amount": 58320,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 18,
+      "DeliveryDate__c": "2024-12-18",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef39"
+      },
+      "AccountId": "@AccountRef12",
+      "Name": "ほしぞら印刷 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-25",
+      "Amount": 64800,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 20,
+      "DeliveryDate__c": "2025-12-18",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef40"
+      },
+      "AccountId": "@AccountRef13",
+      "Name": "しらなみ工業 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-26",
+      "Amount": 252720,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 117,
+      "DeliveryDate__c": "2024-12-12",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef41"
+      },
+      "AccountId": "@AccountRef13",
+      "Name": "しらなみ工業 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-20",
+      "Amount": 235440,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 109,
+      "DeliveryDate__c": "2025-12-10",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef42"
+      },
+      "AccountId": "@AccountRef13",
+      "Name": "しらなみ工業 2026お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-06-02",
+      "Amount": 250560,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 116,
+      "DeliveryDate__c": "2026-07-09",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef43"
+      },
+      "AccountId": "@AccountRef13",
+      "Name": "しらなみ工業 2026お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-10-29",
+      "Amount": 213840,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 99,
+      "DeliveryDate__c": "2026-12-01",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef44"
+      },
+      "AccountId": "@AccountRef14",
+      "Name": "あおぞら設計 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-18",
+      "Amount": 829440,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 256,
+      "DeliveryDate__c": "2024-12-05",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef45"
+      },
+      "AccountId": "@AccountRef14",
+      "Name": "あおぞら設計 2025お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-06-07",
+      "Amount": 920160,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 284,
+      "DeliveryDate__c": "2025-07-19",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef46"
+      },
+      "AccountId": "@AccountRef14",
+      "Name": "あおぞら設計 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-27",
+      "Amount": 923400,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 285,
+      "DeliveryDate__c": "2025-12-18",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef47"
+      },
+      "AccountId": "@AccountRef14",
+      "Name": "あおぞら設計 2026お歳暮",
+      "StageName": "Negotiation/Review",
+      "CloseDate": "2026-11-06",
+      "Amount": 936360,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 289,
+      "DeliveryDate__c": "2026-12-16",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef48"
+      },
+      "AccountId": "@AccountRef15",
+      "Name": "もみじ観光 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-09",
+      "Amount": 1023840,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 237,
+      "DeliveryDate__c": "2024-12-11",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef49"
+      },
+      "AccountId": "@AccountRef15",
+      "Name": "もみじ観光 2025お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-06-21",
+      "Amount": 838080,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 194,
+      "DeliveryDate__c": "2025-07-08",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef50"
+      },
+      "AccountId": "@AccountRef15",
+      "Name": "もみじ観光 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-06",
+      "Amount": 838080,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 194,
+      "DeliveryDate__c": "2025-12-10",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef51"
+      },
+      "AccountId": "@AccountRef15",
+      "Name": "もみじ観光 2026お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-06-03",
+      "Amount": 941760,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 218,
+      "DeliveryDate__c": "2026-07-07",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef52"
+      },
+      "AccountId": "@AccountRef15",
+      "Name": "もみじ観光 2026お歳暮",
+      "StageName": "Prospecting",
+      "CloseDate": "2026-11-17",
+      "Amount": 790560,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 183,
+      "DeliveryDate__c": "2026-12-03",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef53"
+      },
+      "AccountId": "@AccountRef15",
+      "Name": "もみじ観光 2026周年記念",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-08-20",
+      "Amount": 1211760,
+      "GiftOccasion__c": "Anniversary",
+      "GiftQuantity__c": 374,
+      "DeliveryDate__c": "2026-09-07",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef54"
+      },
+      "AccountId": "@AccountRef16",
+      "Name": "やまびこ電機 2025お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-06-11",
+      "Amount": 544320,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 144,
+      "DeliveryDate__c": "2025-07-11",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef55"
+      },
+      "AccountId": "@AccountRef16",
+      "Name": "やまびこ電機 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-29",
+      "Amount": 544320,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 144,
+      "DeliveryDate__c": "2025-12-15",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef56"
+      },
+      "AccountId": "@AccountRef16",
+      "Name": "やまびこ電機 2026お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-06-01",
+      "Amount": 491400,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 130,
+      "DeliveryDate__c": "2026-07-04",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef57"
+      },
+      "AccountId": "@AccountRef16",
+      "Name": "やまびこ電機 2026お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-10-12",
+      "Amount": 729540,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 193,
+      "DeliveryDate__c": "2026-12-04",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef58"
+      },
+      "AccountId": "@AccountRef17",
+      "Name": "すずらん薬局 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-11",
+      "Amount": 371520,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 86,
+      "DeliveryDate__c": "2024-12-02",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef59"
+      },
+      "AccountId": "@AccountRef17",
+      "Name": "すずらん薬局 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-08",
+      "Amount": 457920,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 106,
+      "DeliveryDate__c": "2025-12-12",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef60"
+      },
+      "AccountId": "@AccountRef17",
+      "Name": "すずらん薬局 2026お歳暮",
+      "StageName": "Qualification",
+      "CloseDate": "2026-11-07",
+      "Amount": 475200,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 110,
+      "DeliveryDate__c": "2026-12-11",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef61"
+      },
+      "AccountId": "@AccountRef18",
+      "Name": "弁護士法人こはる 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-23",
+      "Amount": 70200,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 26,
+      "DeliveryDate__c": "2025-12-15",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef62"
+      },
+      "AccountId": "@AccountRef18",
+      "Name": "弁護士法人こはる 2026お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2026-06-02",
+      "Amount": 89100,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 33,
+      "DeliveryDate__c": "2026-07-01",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef63"
+      },
+      "AccountId": "@AccountRef18",
+      "Name": "弁護士法人こはる 2026お歳暮",
+      "StageName": "Prospecting",
+      "CloseDate": "2026-11-06",
+      "Amount": 78300,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 29,
+      "DeliveryDate__c": "2026-12-16",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef64"
+      },
+      "AccountId": "@AccountRef18",
+      "Name": "弁護士法人こはる 2025周年記念",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-04-09",
+      "Amount": 1111320,
+      "GiftOccasion__c": "Anniversary",
+      "GiftQuantity__c": 343,
+      "DeliveryDate__c": "2025-05-05",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef65"
+      },
+      "AccountId": "@AccountRef18",
+      "Name": "弁護士法人こはる 2025ノベルティ",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-06-04",
+      "Amount": 784080,
+      "GiftOccasion__c": "Novelty",
+      "GiftQuantity__c": 363,
+      "DeliveryDate__c": "2025-06-21",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef66"
+      },
+      "AccountId": "@AccountRef19",
+      "Name": "いろは広告 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-18",
+      "Amount": 829440,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 192,
+      "DeliveryDate__c": "2024-12-18",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef67"
+      },
+      "AccountId": "@AccountRef19",
+      "Name": "いろは広告 2025お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-06-05",
+      "Amount": 855360,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 198,
+      "DeliveryDate__c": "2025-07-05",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef68"
+      },
+      "AccountId": "@AccountRef19",
+      "Name": "いろは広告 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-23",
+      "Amount": 781920,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 181,
+      "DeliveryDate__c": "2025-12-07",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef69"
+      },
+      "AccountId": "@AccountRef19",
+      "Name": "いろは広告 2026お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2026-06-11",
+      "Amount": 786240,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 182,
+      "DeliveryDate__c": "2026-07-01",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef70"
+      },
+      "AccountId": "@AccountRef19",
+      "Name": "いろは広告 2026お歳暮",
+      "StageName": "Negotiation/Review",
+      "CloseDate": "2026-11-12",
+      "Amount": 712800,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 165,
+      "DeliveryDate__c": "2026-12-10",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef71"
+      },
+      "AccountId": "@AccountRef20",
+      "Name": "ふたば住宅 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-09",
+      "Amount": 513000,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 190,
+      "DeliveryDate__c": "2024-12-11",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef72"
+      },
+      "AccountId": "@AccountRef20",
+      "Name": "ふたば住宅 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-16",
+      "Amount": 402300,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 149,
+      "DeliveryDate__c": "2025-12-14",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef73"
+      },
+      "AccountId": "@AccountRef20",
+      "Name": "ふたば住宅 2026お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2026-05-30",
+      "Amount": 391500,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 145,
+      "DeliveryDate__c": "2026-07-02",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef74"
+      },
+      "AccountId": "@AccountRef20",
+      "Name": "ふたば住宅 2026お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-10-05",
+      "Amount": 459000,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 170,
+      "DeliveryDate__c": "2026-12-14",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef75"
+      },
+      "AccountId": "@AccountRef21",
+      "Name": "かがやき証券 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-15",
+      "Amount": 177120,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 82,
+      "DeliveryDate__c": "2024-12-09",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef76"
+      },
+      "AccountId": "@AccountRef21",
+      "Name": "かがやき証券 2025お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-06-17",
+      "Amount": 168480,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 78,
+      "DeliveryDate__c": "2025-07-06",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef77"
+      },
+      "AccountId": "@AccountRef21",
+      "Name": "かがやき証券 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-09",
+      "Amount": 196560,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 91,
+      "DeliveryDate__c": "2025-12-04",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef78"
+      },
+      "AccountId": "@AccountRef21",
+      "Name": "かがやき証券 2026お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-10-14",
+      "Amount": 174960,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 81,
+      "DeliveryDate__c": "2026-12-13",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef79"
+      },
+      "AccountId": "@AccountRef22",
+      "Name": "たちばな自動車 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-21",
+      "Amount": 362880,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 84,
+      "DeliveryDate__c": "2024-12-04",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef80"
+      },
+      "AccountId": "@AccountRef22",
+      "Name": "たちばな自動車 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-05",
+      "Amount": 362880,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 84,
+      "DeliveryDate__c": "2025-12-08",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef81"
+      },
+      "AccountId": "@AccountRef22",
+      "Name": "たちばな自動車 2026お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-10-05",
+      "Amount": 423360,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 98,
+      "DeliveryDate__c": "2026-12-16",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef82"
+      },
+      "AccountId": "@AccountRef23",
+      "Name": "ひだまり介護 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-13",
+      "Amount": 1127520,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 261,
+      "DeliveryDate__c": "2025-12-01",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef83"
+      },
+      "AccountId": "@AccountRef23",
+      "Name": "ひだまり介護 2026お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-05-29",
+      "Amount": 1274400,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 295,
+      "DeliveryDate__c": "2026-07-11",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef84"
+      },
+      "AccountId": "@AccountRef23",
+      "Name": "ひだまり介護 2026お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-10-21",
+      "Amount": 1002240,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 232,
+      "DeliveryDate__c": "2026-12-06",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef85"
+      },
+      "AccountId": "@AccountRef24",
+      "Name": "みずき製作所 2026お歳暮",
+      "StageName": "Prospecting",
+      "CloseDate": "2026-11-17",
+      "Amount": 270000,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 100,
+      "DeliveryDate__c": "2026-12-06",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef86"
+      },
+      "AccountId": "@AccountRef25",
+      "Name": "つむぎ商店 2025お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-06-16",
+      "Amount": 81000,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 25,
+      "DeliveryDate__c": "2025-07-19",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef87"
+      },
+      "AccountId": "@AccountRef25",
+      "Name": "つむぎ商店 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-20",
+      "Amount": 84240,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 26,
+      "DeliveryDate__c": "2025-12-18",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef88"
+      },
+      "AccountId": "@AccountRef25",
+      "Name": "つむぎ商店 2026お歳暮",
+      "StageName": "Qualification",
+      "CloseDate": "2026-11-08",
+      "Amount": 100440,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 31,
+      "DeliveryDate__c": "2026-12-10",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef89"
+      },
+      "AccountId": "@AccountRef25",
+      "Name": "つむぎ商店 2025周年記念",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-04-22",
+      "Amount": 839160,
+      "GiftOccasion__c": "Anniversary",
+      "GiftQuantity__c": 259,
+      "DeliveryDate__c": "2025-05-08",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef90"
+      },
+      "AccountId": "@AccountRef26",
+      "Name": "あかね歯科 2025お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-06-15",
+      "Amount": 1041120,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 241,
+      "DeliveryDate__c": "2025-07-09",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef91"
+      },
+      "AccountId": "@AccountRef26",
+      "Name": "あかね歯科 2026お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2026-06-11",
+      "Amount": 1261440,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 292,
+      "DeliveryDate__c": "2026-07-14",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef92"
+      },
+      "AccountId": "@AccountRef26",
+      "Name": "あかね歯科 2025周年記念",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-07-16",
+      "Amount": 945000,
+      "GiftOccasion__c": "Anniversary",
+      "GiftQuantity__c": 175,
+      "DeliveryDate__c": "2025-08-11",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef93"
+      },
+      "AccountId": "@AccountRef27",
+      "Name": "いなほ運輸 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-09",
+      "Amount": 691740,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 183,
+      "DeliveryDate__c": "2024-12-12",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef94"
+      },
+      "AccountId": "@AccountRef27",
+      "Name": "いなほ運輸 2025お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-06-22",
+      "Amount": 502740,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 133,
+      "DeliveryDate__c": "2025-07-16",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef95"
+      },
+      "AccountId": "@AccountRef27",
+      "Name": "いなほ運輸 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-08",
+      "Amount": 578340,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 153,
+      "DeliveryDate__c": "2025-12-14",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef96"
+      },
+      "AccountId": "@AccountRef27",
+      "Name": "いなほ運輸 2026お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-05-28",
+      "Amount": 540540,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 143,
+      "DeliveryDate__c": "2026-07-10",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef97"
+      },
+      "AccountId": "@AccountRef27",
+      "Name": "いなほ運輸 2026お歳暮",
+      "StageName": "Negotiation/Review",
+      "CloseDate": "2026-11-13",
+      "Amount": 532980,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 141,
+      "DeliveryDate__c": "2026-12-08",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef98"
+      },
+      "AccountId": "@AccountRef28",
+      "Name": "そよかぜ旅行 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-29",
+      "Amount": 378000,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 100,
+      "DeliveryDate__c": "2025-12-13",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef99"
+      },
+      "AccountId": "@AccountRef28",
+      "Name": "そよかぜ旅行 2026お歳暮",
+      "StageName": "Prospecting",
+      "CloseDate": "2026-11-05",
+      "Amount": 313740,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 83,
+      "DeliveryDate__c": "2026-12-07",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef100"
+      },
+      "AccountId": "@AccountRef29",
+      "Name": "ことぶき会館 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-09",
+      "Amount": 565920,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 131,
+      "DeliveryDate__c": "2024-12-16",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef101"
+      },
+      "AccountId": "@AccountRef29",
+      "Name": "ことぶき会館 2025お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-06-05",
+      "Amount": 626400,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 145,
+      "DeliveryDate__c": "2025-07-19",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef102"
+      },
+      "AccountId": "@AccountRef29",
+      "Name": "ことぶき会館 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-09",
+      "Amount": 686880,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 159,
+      "DeliveryDate__c": "2025-12-07",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef103"
+      },
+      "AccountId": "@AccountRef29",
+      "Name": "ことぶき会館 2026お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-06-08",
+      "Amount": 583200,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 135,
+      "DeliveryDate__c": "2026-07-05",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef104"
+      },
+      "AccountId": "@AccountRef29",
+      "Name": "ことぶき会館 2026お歳暮",
+      "StageName": "Proposal/Price Quote",
+      "CloseDate": "2026-11-09",
+      "Amount": 557280,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 129,
+      "DeliveryDate__c": "2026-12-14",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef105"
+      },
+      "AccountId": "@AccountRef30",
+      "Name": "みのり農園 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-12-01",
+      "Amount": 712800,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 132,
+      "DeliveryDate__c": "2024-12-10",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef106"
+      },
+      "AccountId": "@AccountRef30",
+      "Name": "みのり農園 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-22",
+      "Amount": 702000,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 130,
+      "DeliveryDate__c": "2025-12-08",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef107"
+      },
+      "AccountId": "@AccountRef30",
+      "Name": "みのり農園 2026お歳暮",
+      "StageName": "Prospecting",
+      "CloseDate": "2026-11-30",
+      "Amount": 496800,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 92,
+      "DeliveryDate__c": "2026-12-09",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef108"
+      },
+      "AccountId": "@AccountRef31",
+      "Name": "しおさい水産 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-20",
+      "Amount": 216000,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 50,
+      "DeliveryDate__c": "2024-12-18",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef109"
+      },
+      "AccountId": "@AccountRef31",
+      "Name": "しおさい水産 2025お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-06-19",
+      "Amount": 172800,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 40,
+      "DeliveryDate__c": "2025-07-10",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef110"
+      },
+      "AccountId": "@AccountRef31",
+      "Name": "しおさい水産 2026お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2026-06-17",
+      "Amount": 177120,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 41,
+      "DeliveryDate__c": "2026-07-08",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef111"
+      },
+      "AccountId": "@AccountRef31",
+      "Name": "しおさい水産 2026お歳暮",
+      "StageName": "Qualification",
+      "CloseDate": "2026-11-19",
+      "Amount": 207360,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 48,
+      "DeliveryDate__c": "2026-12-13",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef112"
+      },
+      "AccountId": "@AccountRef31",
+      "Name": "しおさい水産 2025ノベルティ",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-22",
+      "Amount": 174960,
+      "GiftOccasion__c": "Novelty",
+      "GiftQuantity__c": 108,
+      "DeliveryDate__c": "2025-12-11",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef113"
+      },
+      "AccountId": "@AccountRef32",
+      "Name": "あけぼの塗装 2024お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-12-04",
+      "Amount": 423360,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 196,
+      "DeliveryDate__c": "2024-12-05",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef114"
+      },
+      "AccountId": "@AccountRef32",
+      "Name": "あけぼの塗装 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-28",
+      "Amount": 494640,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 229,
+      "DeliveryDate__c": "2025-12-18",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef115"
+      },
+      "AccountId": "@AccountRef32",
+      "Name": "あけぼの塗装 2026お歳暮",
+      "StageName": "Qualification",
+      "CloseDate": "2026-11-05",
+      "Amount": 473040,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 219,
+      "DeliveryDate__c": "2026-12-02",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef116"
+      },
+      "AccountId": "@AccountRef33",
+      "Name": "ゆうひ電設 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-26",
+      "Amount": 100440,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 31,
+      "DeliveryDate__c": "2024-12-08",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef117"
+      },
+      "AccountId": "@AccountRef33",
+      "Name": "ゆうひ電設 2025お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-06-23",
+      "Amount": 132840,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 41,
+      "DeliveryDate__c": "2025-07-17",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef118"
+      },
+      "AccountId": "@AccountRef33",
+      "Name": "ゆうひ電設 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-18",
+      "Amount": 116640,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 36,
+      "DeliveryDate__c": "2025-12-14",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef119"
+      },
+      "AccountId": "@AccountRef33",
+      "Name": "ゆうひ電設 2026お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-10-14",
+      "Amount": 103680,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 32,
+      "DeliveryDate__c": "2026-12-15",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef120"
+      },
+      "AccountId": "@AccountRef34",
+      "Name": "くすのき学院 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-11",
+      "Amount": 1016820,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 269,
+      "DeliveryDate__c": "2024-12-03",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef121"
+      },
+      "AccountId": "@AccountRef34",
+      "Name": "くすのき学院 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-24",
+      "Amount": 876960,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 232,
+      "DeliveryDate__c": "2025-12-01",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef122"
+      },
+      "AccountId": "@AccountRef34",
+      "Name": "くすのき学院 2026お歳暮",
+      "StageName": "Negotiation/Review",
+      "CloseDate": "2026-11-13",
+      "Amount": 945000,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 250,
+      "DeliveryDate__c": "2026-12-10",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef123"
+      },
+      "AccountId": "@AccountRef34",
+      "Name": "くすのき学院 2025周年記念",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-14",
+      "Amount": 896400,
+      "GiftOccasion__c": "Anniversary",
+      "GiftQuantity__c": 166,
+      "DeliveryDate__c": "2025-11-28",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef124"
+      },
+      "AccountId": "@AccountRef35",
+      "Name": "ひまわり会 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-13",
+      "Amount": 913680,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 282,
+      "DeliveryDate__c": "2024-12-19",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef125"
+      },
+      "AccountId": "@AccountRef35",
+      "Name": "ひまわり会 2025お歳暮",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-11-13",
+      "Amount": 709560,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 219,
+      "DeliveryDate__c": "2025-12-10",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef126"
+      },
+      "AccountId": "@AccountRef35",
+      "Name": "ひまわり会 2026お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2026-06-20",
+      "Amount": 696600,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 215,
+      "DeliveryDate__c": "2026-07-03",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef127"
+      },
+      "AccountId": "@AccountRef36",
+      "Name": "こもれびデザイン 2025周年記念",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-06-05",
+      "Amount": 1172880,
+      "GiftOccasion__c": "Anniversary",
+      "GiftQuantity__c": 362,
+      "DeliveryDate__c": "2025-06-26",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef128"
+      },
+      "AccountId": "@AccountRef37",
+      "Name": "ささなみ工務店 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-06",
+      "Amount": 1425600,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 264,
+      "DeliveryDate__c": "2024-12-12",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef129"
+      },
+      "AccountId": "@AccountRef37",
+      "Name": "ささなみ工務店 2025お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-06-22",
+      "Amount": 1215000,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 225,
+      "DeliveryDate__c": "2025-07-14",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef130"
+      },
+      "AccountId": "@AccountRef37",
+      "Name": "ささなみ工務店 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-12-04",
+      "Amount": 1096200,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 203,
+      "DeliveryDate__c": "2025-12-11",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef131"
+      },
+      "AccountId": "@AccountRef37",
+      "Name": "ささなみ工務店 2026お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-10-27",
+      "Amount": 1360800,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 252,
+      "DeliveryDate__c": "2026-12-11",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef132"
+      },
+      "AccountId": "@AccountRef39",
+      "Name": "はやぶさ通信 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-27",
+      "Amount": 573480,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 177,
+      "DeliveryDate__c": "2024-12-02",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef133"
+      },
+      "AccountId": "@AccountRef39",
+      "Name": "はやぶさ通信 2025お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-06-11",
+      "Amount": 599400,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 185,
+      "DeliveryDate__c": "2025-07-10",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef134"
+      },
+      "AccountId": "@AccountRef39",
+      "Name": "はやぶさ通信 2025お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2025-11-21",
+      "Amount": 534600,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 165,
+      "DeliveryDate__c": "2025-12-15",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef135"
+      },
+      "AccountId": "@AccountRef39",
+      "Name": "はやぶさ通信 2026お中元",
+      "StageName": "Closed Won",
+      "CloseDate": "2026-05-30",
+      "Amount": 531360,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 164,
+      "DeliveryDate__c": "2026-07-06",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef136"
+      },
+      "AccountId": "@AccountRef39",
+      "Name": "はやぶさ通信 2026お歳暮",
+      "StageName": "Negotiation/Review",
+      "CloseDate": "2026-11-20",
+      "Amount": 583200,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 180,
+      "DeliveryDate__c": "2026-12-04",
+      "IsRepeat__c": true
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef137"
+      },
+      "AccountId": "@AccountRef39",
+      "Name": "はやぶさ通信 2024ノベルティ",
+      "StageName": "Closed Lost",
+      "CloseDate": "2024-11-17",
+      "Amount": 354780,
+      "GiftOccasion__c": "Novelty",
+      "GiftQuantity__c": 219,
+      "DeliveryDate__c": "2024-12-03",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef138"
+      },
+      "AccountId": "@AccountRef40",
+      "Name": "ときわ百貨 2024お歳暮",
+      "StageName": "Closed Won",
+      "CloseDate": "2024-11-10",
+      "Amount": 272160,
+      "GiftOccasion__c": "Oseibo",
+      "GiftQuantity__c": 84,
+      "DeliveryDate__c": "2024-12-18",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef139"
+      },
+      "AccountId": "@AccountRef40",
+      "Name": "ときわ百貨 2025お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2025-05-28",
+      "Amount": 210600,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 65,
+      "DeliveryDate__c": "2025-07-06",
+      "IsRepeat__c": false
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "referenceId": "OpportunityRef140"
+      },
+      "AccountId": "@AccountRef40",
+      "Name": "ときわ百貨 2026お中元",
+      "StageName": "Closed Lost",
+      "CloseDate": "2026-05-27",
+      "Amount": 217080,
+      "GiftOccasion__c": "Ochugen",
+      "GiftQuantity__c": 67,
+      "DeliveryDate__c": "2026-07-12",
+      "IsRepeat__c": false
+    }
+  ]
+}

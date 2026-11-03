@@ -1,0 +1,70 @@
+%%[
+/*
+  JB_WELCOME_D30_COUPON:初回購入の 30 日後、まだ 2 回目を買っていない人へ、2 回目に使えるクーポン
+  クーポンのコードは、あらかじめ取り込んだ Coupon_Pool_2nd(列: CouponCode, IsClaimed, SubscriberKey)から 1 人 1 つ割り当てる。
+  ClaimRow は、同じ購読者キーで割り当て済みの行があればその行を返すので、再送しても別のコードは消費しない。
+
+  景品表示法などの確認事項:割引の条件・対象・期限を本文に書く(「必ず安い」などの言い方をしない)。
+*/
+SET @subKey = _subscriberkey
+SET @lastName = AttributeValue("LastName")
+SET @greeting = IIF(EMPTY(@lastName), "お客さま", Concat(@lastName, " 様"))
+
+SET @coupon = ClaimRow("Coupon_Pool_2nd", "IsClaimed", "SubscriberKey", @subKey)
+IF EMPTY(@coupon) THEN
+  /* コードの在庫切れ。この人には送らず、送信のログに残す(在庫は毎週の確認で補充する) */
+  RaiseError("Coupon_Pool_2nd の在庫切れ", true)
+ENDIF
+SET @code = Field(@coupon, "CouponCode")
+
+/* 期限は送信日から 14 日後。Now() は米国中部標準時なので、日本時間に直してから数える */
+SET @expires = FormatDate(DateAdd(DateAdd(Now(), 15, "H"), 14, "D"), "yyyy/MM/dd")
+]%%
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2回目のお買い物に使えるクーポン</title>
+</head>
+<body style="margin:0;padding:0;background:#ffffff;">
+  <div style="display:none;max-height:0;overflow:hidden;">%%=v(@expires)=%%まで、商品代金から10%引きでお使いいただけます。</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;color:#2f2a22;">
+          <tr>
+            <td style="padding:32px 20px 16px;font-size:15px;line-height:1.9;">
+              %%=v(@greeting)=%%<br><br>
+              しずく茶舗(架空)をご利用いただき、ありがとうございます。<br>
+              2回目のお買い物に使えるクーポンをお送りします。
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:8px 20px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:2px dashed #3d6b4f;border-radius:8px;">
+                <tr>
+                  <td align="center" style="padding:20px;font-size:15px;line-height:1.9;">
+                    クーポンコード<br>
+                    <strong style="font-size:22px;letter-spacing:2px;">%%=v(@code)=%%</strong><br>
+                    商品代金から10%引き(送料は対象外)<br>
+                    有効期限:%%=v(@expires)=%% 23:59 まで/1回限り/ほかのクーポンとの併用はできません
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding:24px 20px 32px;">
+              <a href="%%=RedirectTo('https://shop.example.com/?utm_source=mce&utm_medium=email&utm_campaign=welcome_d30')=%%" alias="ショップへ" style="display:inline-block;padding:12px 32px;background:#3d6b4f;color:#ffffff;text-decoration:none;border-radius:24px;font-size:15px;">ショップを見る</a>
+            </td>
+          </tr>
+          <tr>
+            <td>%%=ContentBlockByKey("footer-legal")=%%</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

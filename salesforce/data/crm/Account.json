@@ -1,0 +1,444 @@
+{
+  "records": [
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef1"
+      },
+      "Name": "株式会社あさひ精機(架空)",
+      "Phone": "045-097-6033",
+      "BillingState": "神奈川県",
+      "NumberOfEmployees": 40,
+      "Website": "https://www.asahi-seiki.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef2"
+      },
+      "Name": "みなと商事株式会社(架空)",
+      "Phone": "03-0959-7099",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 85,
+      "Website": "https://www.minato-shoji.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef3"
+      },
+      "Name": "株式会社ひかり不動産(架空)",
+      "Phone": "03-0168-3134",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 250,
+      "Website": "https://www.hikari-fudosan.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef4"
+      },
+      "Name": "つばさ物流株式会社(架空)",
+      "Phone": "052-028-1275",
+      "BillingState": "愛知県",
+      "NumberOfEmployees": 25,
+      "Website": "https://www.tsubasa-butsuryu.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef5"
+      },
+      "Name": "税理士法人かえで(架空)",
+      "Phone": "03-0475-3847",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 85,
+      "Website": "https://www.kaede-tax.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef6"
+      },
+      "Name": "医療法人社団いずみ会(架空)",
+      "Phone": "092-094-3295",
+      "BillingState": "福岡県",
+      "NumberOfEmployees": 180,
+      "Website": "https://www.izumikai.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef7"
+      },
+      "Name": "株式会社さくら建設(架空)",
+      "Phone": "03-0938-8237",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 250,
+      "Website": "https://www.sakura-kensetsu.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef8"
+      },
+      "Name": "なぎさ食品株式会社(架空)",
+      "Phone": "045-072-1759",
+      "BillingState": "神奈川県",
+      "NumberOfEmployees": 12,
+      "Website": "https://www.nagisa-foods.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef9"
+      },
+      "Name": "こだま電子株式会社(架空)",
+      "Phone": "011-096-5021",
+      "BillingState": "北海道",
+      "NumberOfEmployees": 85,
+      "Website": "https://www.kodama-denshi.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef10"
+      },
+      "Name": "株式会社はるか保険サービス(架空)",
+      "Phone": "03-0385-1879",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 12,
+      "Website": "https://www.haruka-hoken.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef11"
+      },
+      "Name": "株式会社わかばシステム(架空)",
+      "Phone": "03-0201-5339",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 250,
+      "Website": "https://www.wakaba-system.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef12"
+      },
+      "Name": "株式会社ほしぞら印刷(架空)",
+      "Phone": "03-0133-3644",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 40,
+      "Website": "https://www.hoshizora-print.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef13"
+      },
+      "Name": "しらなみ工業株式会社(架空)",
+      "Phone": "011-014-3055",
+      "BillingState": "北海道",
+      "NumberOfEmployees": 250,
+      "Website": "https://www.shiranami-kogyo.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef14"
+      },
+      "Name": "株式会社あおぞら設計(架空)",
+      "Phone": "052-071-3258",
+      "BillingState": "愛知県",
+      "NumberOfEmployees": 120,
+      "Website": "https://www.aozora-sekkei.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef15"
+      },
+      "Name": "株式会社もみじ観光(架空)",
+      "Phone": "03-0670-4798",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 40,
+      "Website": "https://www.momiji-kanko.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef16"
+      },
+      "Name": "やまびこ電機株式会社(架空)",
+      "Phone": "03-0261-9101",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 60,
+      "Website": "https://www.yamabiko-denki.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef17"
+      },
+      "Name": "株式会社すずらん薬局(架空)",
+      "Phone": "03-0528-6476",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 400,
+      "Website": "https://www.suzuran-pharmacy.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef18"
+      },
+      "Name": "弁護士法人こはる(架空)",
+      "Phone": "03-0242-8824",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 40,
+      "Website": "https://www.koharu-law.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef19"
+      },
+      "Name": "株式会社いろは広告(架空)",
+      "Phone": "011-052-3046",
+      "BillingState": "北海道",
+      "NumberOfEmployees": 85,
+      "Website": "https://www.iroha-ad.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef20"
+      },
+      "Name": "株式会社ふたば住宅(架空)",
+      "Phone": "03-0769-6036",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 12,
+      "Website": "https://www.futaba-jutaku.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef21"
+      },
+      "Name": "かがやき証券株式会社(架空)",
+      "Phone": "03-0874-8280",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 180,
+      "Website": "https://www.kagayaki-sec.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef22"
+      },
+      "Name": "株式会社たちばな自動車(架空)",
+      "Phone": "06-0458-1837",
+      "BillingState": "大阪府",
+      "NumberOfEmployees": 85,
+      "Website": "https://www.tachibana-auto.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef23"
+      },
+      "Name": "株式会社ひだまり介護(架空)",
+      "Phone": "011-056-5453",
+      "BillingState": "北海道",
+      "NumberOfEmployees": 12,
+      "Website": "https://www.hidamari-kaigo.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef24"
+      },
+      "Name": "株式会社みずき製作所(架空)",
+      "Phone": "011-014-3390",
+      "BillingState": "北海道",
+      "NumberOfEmployees": 18,
+      "Website": "https://www.mizuki-ss.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef25"
+      },
+      "Name": "株式会社つむぎ商店(架空)",
+      "Phone": "03-0313-6836",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 120,
+      "Website": "https://www.tsumugi-shoten.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef26"
+      },
+      "Name": "医療法人あかね歯科(架空)",
+      "Phone": "06-0205-6647",
+      "BillingState": "大阪府",
+      "NumberOfEmployees": 180,
+      "Website": "https://www.akane-dental.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef27"
+      },
+      "Name": "いなほ運輸株式会社(架空)",
+      "Phone": "06-0157-3179",
+      "BillingState": "大阪府",
+      "NumberOfEmployees": 120,
+      "Website": "https://www.inaho-unyu.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef28"
+      },
+      "Name": "株式会社そよかぜ旅行(架空)",
+      "Phone": "03-0996-5635",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 250,
+      "Website": "https://www.soyokaze-travel.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef29"
+      },
+      "Name": "株式会社ことぶき会館(架空)",
+      "Phone": "052-042-7497",
+      "BillingState": "愛知県",
+      "NumberOfEmployees": 250,
+      "Website": "https://www.kotobuki-kaikan.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef30"
+      },
+      "Name": "株式会社みのり農園(架空)",
+      "Phone": "052-062-1977",
+      "BillingState": "愛知県",
+      "NumberOfEmployees": 250,
+      "Website": "https://www.minori-farm.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef31"
+      },
+      "Name": "株式会社しおさい水産(架空)",
+      "Phone": "03-0314-7468",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 180,
+      "Website": "https://www.shiosai-suisan.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef32"
+      },
+      "Name": "株式会社あけぼの塗装(架空)",
+      "Phone": "052-056-3814",
+      "BillingState": "愛知県",
+      "NumberOfEmployees": 85,
+      "Website": "https://www.akebono-tosou.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef33"
+      },
+      "Name": "株式会社ゆうひ電設(架空)",
+      "Phone": "052-081-8081",
+      "BillingState": "愛知県",
+      "NumberOfEmployees": 85,
+      "Website": "https://www.yuhi-densetsu.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef34"
+      },
+      "Name": "株式会社くすのき学院(架空)",
+      "Phone": "03-0434-5529",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 60,
+      "Website": "https://www.kusunoki-gakuin.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef35"
+      },
+      "Name": "社会福祉法人ひまわり会(架空)",
+      "Phone": "06-0627-1886",
+      "BillingState": "大阪府",
+      "NumberOfEmployees": 180,
+      "Website": "https://www.himawarikai.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef36"
+      },
+      "Name": "株式会社こもれびデザイン(架空)",
+      "Phone": "03-0850-1693",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 250,
+      "Website": "https://www.komorebi-design.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef37"
+      },
+      "Name": "株式会社ささなみ工務店(架空)",
+      "Phone": "03-0735-1200",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 12,
+      "Website": "https://www.sasanami-koumuten.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef38"
+      },
+      "Name": "株式会社あやめ化粧品(架空)",
+      "Phone": "052-065-2716",
+      "BillingState": "愛知県",
+      "NumberOfEmployees": 85,
+      "Website": "https://www.ayame-cosme.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef39"
+      },
+      "Name": "株式会社はやぶさ通信(架空)",
+      "Phone": "011-069-5047",
+      "BillingState": "北海道",
+      "NumberOfEmployees": 180,
+      "Website": "https://www.hayabusa-tsushin.example"
+    },
+    {
+      "attributes": {
+        "type": "Account",
+        "referenceId": "AccountRef40"
+      },
+      "Name": "株式会社ときわ百貨(架空)",
+      "Phone": "03-0309-8881",
+      "BillingState": "東京都",
+      "NumberOfEmployees": 85,
+      "Website": "https://www.tokiwa-hyakka.example"
+    }
+  ]
+}

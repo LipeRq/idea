@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>InquiryChannel__c</fullName>
+    <description>相談を受けた経路</description>
+    <externalId>false</externalId>
+    <inlineHelpText>相談を受けた経路</inlineHelpText>
+    <label>相談の経路</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>WebForm</fullName>
+                    <default>false</default>
+                    <label>Webフォーム</label>
+                </value>
+                <value>
+                    <fullName>Agentforce</fullName>
+                    <default>false</default>
+                    <label>ギフト相談エージェント</label>
+                </value>
+                <value>
+                    <fullName>Phone</fullName>
+                    <default>false</default>
+                    <label>電話</label>
+                </value>
+                <value>
+                    <fullName>Email</fullName>
+                    <default>false</default>
+                    <label>メール</label>
+                </value>
+                <value>
+                    <fullName>Data360</fullName>
+                    <default>false</default>
+                    <label>Data 360(見込みの抽出)</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

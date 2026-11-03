@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GiftQuantity__c</fullName>
+    <description>送り先の数(または個数)</description>
+    <externalId>false</externalId>
+    <inlineHelpText>送り先の数(または個数)</inlineHelpText>
+    <label>ギフトの個数</label>
+    <precision>6</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

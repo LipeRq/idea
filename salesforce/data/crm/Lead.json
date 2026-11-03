@@ -1,0 +1,742 @@
+{
+  "records": [
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef1"
+      },
+      "Company": "株式会社つきみ酒造(架空)",
+      "LastName": "吉田",
+      "FirstName": "沙織",
+      "Email": "yoshida.saori@tsukimi-shuzo.example",
+      "Phone": "090-0469-1959",
+      "GiftQuantity__c": 122,
+      "GiftBudgetPerItem__c": 3240,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-08",
+      "InquiryChannel__c": "Phone",
+      "InquiryDate__c": "2026-05-02",
+      "InquirySummary__c": "お中元として122件。1件あたり3,240円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef2"
+      },
+      "Company": "株式会社ひので製菓(架空)",
+      "LastName": "吉田",
+      "FirstName": "悠真",
+      "Email": "yoshida.yuma@hinode-seika.example",
+      "Phone": "080-0643-9876",
+      "GiftQuantity__c": 59,
+      "GiftBudgetPerItem__c": 5400,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-12",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-05-11",
+      "InquirySummary__c": "お中元として59件。1件あたり5,400円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef3"
+      },
+      "Company": "株式会社みやび呉服(架空)",
+      "LastName": "山崎",
+      "FirstName": "香織",
+      "Email": "yamazaki.kaori@miyabi-gofuku.example",
+      "Phone": "080-0202-8679",
+      "GiftQuantity__c": 229,
+      "GiftBudgetPerItem__c": 540,
+      "GiftOccasion__c": "Novelty",
+      "DesiredDeliveryDate__c": "2026-07-05",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-05-12",
+      "InquirySummary__c": "ノベルティとして229件。1件あたり540円程度。のし不要。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef4"
+      },
+      "Company": "株式会社せせらぎ温泉(架空)",
+      "LastName": "西村",
+      "FirstName": "真由美",
+      "Email": "nishimura.mayumi@seseragi-onsen.example",
+      "Phone": "070-0592-5965",
+      "GiftQuantity__c": 149,
+      "GiftBudgetPerItem__c": 3000,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-01",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-05-13",
+      "InquirySummary__c": "お中元として149件。1件あたり3,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef5"
+      },
+      "Company": "株式会社にじいろ玩具(架空)",
+      "LastName": "西村",
+      "FirstName": "沙織",
+      "Email": "nishimura.saori@nijiiro-toys.example",
+      "Phone": "080-0997-3273",
+      "GiftQuantity__c": 46,
+      "GiftBudgetPerItem__c": 5400,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-08",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-05-23",
+      "InquirySummary__c": "お中元として46件。1件あたり5,400円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef6"
+      },
+      "Company": "株式会社ちとせ製パン(架空)",
+      "LastName": "木村",
+      "FirstName": "裕子",
+      "Email": "kimura.yuko@chitose-bakery.example",
+      "Phone": "080-0961-7296",
+      "GiftQuantity__c": 74,
+      "GiftBudgetPerItem__c": 3240,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-11",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-05-27",
+      "InquirySummary__c": "お中元として74件。1件あたり3,240円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef7"
+      },
+      "Company": "株式会社ゆきわり食品(架空)",
+      "LastName": "清水",
+      "FirstName": "明美",
+      "Email": "shimizu.akemi@yukiwari-foods.example",
+      "Phone": "092-099-9852",
+      "GiftQuantity__c": 31,
+      "GiftBudgetPerItem__c": 5000,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-06",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-05-31",
+      "InquirySummary__c": "お中元として31件。1件あたり5,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef8"
+      },
+      "Company": "株式会社くれは化学(架空)",
+      "LastName": "藤田",
+      "FirstName": "真由美",
+      "Email": "fujita.mayumi@kureha-kagaku.example",
+      "Phone": "080-0335-2256",
+      "GiftQuantity__c": 35,
+      "GiftBudgetPerItem__c": 2000,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-02",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-05-31",
+      "InquirySummary__c": "お中元として35件。1件あたり2,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef9"
+      },
+      "Company": "株式会社きらら美容(架空)",
+      "LastName": "福田",
+      "FirstName": "恵子",
+      "Email": "fukuda.keiko@kirara-biyo.example",
+      "Phone": "03-0813-8391",
+      "GiftQuantity__c": 164,
+      "GiftBudgetPerItem__c": 540,
+      "GiftOccasion__c": "Novelty",
+      "DesiredDeliveryDate__c": "2026-07-13",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-06-02",
+      "InquirySummary__c": "ノベルティとして164件。1件あたり540円程度。のし不要。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef10"
+      },
+      "Company": "株式会社いずも工業(架空)",
+      "LastName": "山田",
+      "FirstName": "直美",
+      "Email": "yamada.naomi@izumo-kogyo.example",
+      "Phone": "090-0631-3036",
+      "GiftQuantity__c": 49,
+      "GiftBudgetPerItem__c": 5400,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-06",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-06-09",
+      "InquirySummary__c": "お中元として49件。1件あたり5,400円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef11"
+      },
+      "Company": "株式会社らいむ情報(架空)",
+      "LastName": "坂本",
+      "FirstName": "奈々",
+      "Email": "sakamoto.nana@raimu-joho.example",
+      "Phone": "06-0464-6906",
+      "GiftQuantity__c": 56,
+      "GiftBudgetPerItem__c": 5400,
+      "GiftOccasion__c": "Anniversary",
+      "DesiredDeliveryDate__c": "2026-08-11",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-06-12",
+      "InquirySummary__c": "周年記念として56件。1件あたり5,400円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef12"
+      },
+      "Company": "株式会社なごみ介護(架空)",
+      "LastName": "森",
+      "FirstName": "直美",
+      "Email": "mori.naomi@nagomi-kaigo.example",
+      "Phone": "06-0897-6500",
+      "GiftQuantity__c": 86,
+      "GiftBudgetPerItem__c": 3000,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-04",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-06-12",
+      "InquirySummary__c": "お中元として86件。1件あたり3,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef13"
+      },
+      "Company": "株式会社かすみ電子(架空)",
+      "LastName": "近藤",
+      "FirstName": "正樹",
+      "Email": "kondo.masaki@kasumi-denshi.example",
+      "Phone": "080-0979-1743",
+      "GiftQuantity__c": 142,
+      "GiftBudgetPerItem__c": 2000,
+      "GiftOccasion__c": "Anniversary",
+      "DesiredDeliveryDate__c": "2026-07-22",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-06-13",
+      "InquirySummary__c": "周年記念として142件。1件あたり2,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef14"
+      },
+      "Company": "株式会社ぬくもり住宅(架空)",
+      "LastName": "渡辺",
+      "FirstName": "結衣",
+      "Email": "watanabe.yui@nukumori-jutaku.example",
+      "Phone": "06-0578-1667",
+      "GiftQuantity__c": 69,
+      "GiftBudgetPerItem__c": 3240,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-05",
+      "InquiryChannel__c": "Phone",
+      "InquiryDate__c": "2026-06-16",
+      "InquirySummary__c": "お中元として69件。1件あたり3,240円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef15"
+      },
+      "Company": "株式会社ぬくもり住宅(架空)",
+      "LastName": "小林",
+      "FirstName": "恵子",
+      "Email": "kobayashi.keiko@nukumori-jutaku.example",
+      "Phone": "03-0339-3736",
+      "GiftQuantity__c": 261,
+      "GiftBudgetPerItem__c": 1000,
+      "GiftOccasion__c": "Novelty",
+      "DesiredDeliveryDate__c": "2026-08-05",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-06-16",
+      "InquirySummary__c": "ノベルティとして261件。1件あたり1,000円程度。のし不要。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef16"
+      },
+      "Company": "株式会社つきみ酒造(架空)",
+      "LastName": "清水",
+      "FirstName": "直樹",
+      "Email": "shimizu.naoki@tsukimi-shuzo.example",
+      "Phone": "080-0566-5388",
+      "GiftQuantity__c": 60,
+      "GiftBudgetPerItem__c": 2000,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-12",
+      "InquiryChannel__c": "Email",
+      "InquiryDate__c": "2026-06-18",
+      "InquirySummary__c": "お中元として60件。1件あたり2,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef17"
+      },
+      "Company": "株式会社えにし不動産(架空)",
+      "LastName": "橋本",
+      "FirstName": "裕子",
+      "Email": "hashimoto.yuko@enishi-fudosan.example",
+      "Phone": "070-0474-3838",
+      "GiftQuantity__c": 140,
+      "GiftBudgetPerItem__c": 3240,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-15",
+      "InquiryChannel__c": "Phone",
+      "InquiryDate__c": "2026-06-19",
+      "InquirySummary__c": "お中元として140件。1件あたり3,240円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef18"
+      },
+      "Company": "株式会社たまゆら写真(架空)",
+      "LastName": "小林",
+      "FirstName": "千尋",
+      "Email": "kobayashi.chihiro@tamayura-photo.example",
+      "Phone": "070-0703-4174",
+      "GiftQuantity__c": 62,
+      "GiftBudgetPerItem__c": 5400,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-10",
+      "InquiryChannel__c": "Phone",
+      "InquiryDate__c": "2026-07-01",
+      "InquirySummary__c": "お中元として62件。1件あたり5,400円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef19"
+      },
+      "Company": "株式会社しののめ出版(架空)",
+      "LastName": "前田",
+      "FirstName": "直美",
+      "Email": "maeda.naomi@shinonome-pub.example",
+      "Phone": "080-0458-3013",
+      "GiftQuantity__c": 60,
+      "GiftBudgetPerItem__c": 3000,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-03",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-07-07",
+      "InquirySummary__c": "お中元として60件。1件あたり3,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef20"
+      },
+      "Company": "株式会社のぞみ技研(架空)",
+      "LastName": "林",
+      "FirstName": "香織",
+      "Email": "hayashi.kaori@nozomi-giken.example",
+      "Phone": "070-0138-6028",
+      "GiftQuantity__c": 499,
+      "GiftBudgetPerItem__c": 1620,
+      "GiftOccasion__c": "Novelty",
+      "DesiredDeliveryDate__c": "2026-08-10",
+      "InquiryChannel__c": "Phone",
+      "InquiryDate__c": "2026-07-07",
+      "InquirySummary__c": "ノベルティとして499件。1件あたり1,620円程度。のし不要。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef21"
+      },
+      "Company": "株式会社ほたる企画(架空)",
+      "LastName": "佐藤",
+      "FirstName": "佳奈",
+      "Email": "sato.kana@hotaru-kikaku.example",
+      "Phone": "070-0434-3057",
+      "GiftQuantity__c": 145,
+      "GiftBudgetPerItem__c": 2000,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-05",
+      "InquiryChannel__c": "Email",
+      "InquiryDate__c": "2026-07-07",
+      "InquirySummary__c": "お中元として145件。1件あたり2,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef22"
+      },
+      "Company": "株式会社さざんか保険(架空)",
+      "LastName": "高橋",
+      "FirstName": "大輔",
+      "Email": "takahashi.daisuke@sazanka-hoken.example",
+      "Phone": "03-0946-3090",
+      "GiftQuantity__c": 74,
+      "GiftBudgetPerItem__c": 2000,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-02",
+      "InquiryChannel__c": "Phone",
+      "InquiryDate__c": "2026-07-12",
+      "InquirySummary__c": "お中元として74件。1件あたり2,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef23"
+      },
+      "Company": "株式会社けやき建築(架空)",
+      "LastName": "坂本",
+      "FirstName": "大輔",
+      "Email": "sakamoto.daisuke@keyaki-kenchiku.example",
+      "Phone": "092-050-6166",
+      "GiftQuantity__c": 416,
+      "GiftBudgetPerItem__c": 540,
+      "GiftOccasion__c": "Novelty",
+      "DesiredDeliveryDate__c": "2026-09-10",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-07-15",
+      "InquirySummary__c": "ノベルティとして416件。1件あたり540円程度。のし不要。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef24"
+      },
+      "Company": "株式会社せせらぎ温泉(架空)",
+      "LastName": "西村",
+      "FirstName": "智子",
+      "Email": "nishimura.tomoko@seseragi-onsen.example",
+      "Phone": "06-0203-1951",
+      "GiftQuantity__c": 128,
+      "GiftBudgetPerItem__c": 5400,
+      "GiftOccasion__c": "Ochugen",
+      "DesiredDeliveryDate__c": "2026-07-09",
+      "InquiryChannel__c": "Phone",
+      "InquiryDate__c": "2026-07-28",
+      "InquirySummary__c": "お中元として128件。1件あたり5,400円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef25"
+      },
+      "Company": "株式会社すばる光学(架空)",
+      "LastName": "佐藤",
+      "FirstName": "沙織",
+      "Email": "sato.saori@subaru-kogaku.example",
+      "Phone": "03-0274-8007",
+      "GiftQuantity__c": 276,
+      "GiftBudgetPerItem__c": 1620,
+      "GiftOccasion__c": "Novelty",
+      "DesiredDeliveryDate__c": "2026-09-21",
+      "InquiryChannel__c": "Email",
+      "InquiryDate__c": "2026-07-30",
+      "InquirySummary__c": "ノベルティとして276件。1件あたり1,620円程度。のし不要。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef26"
+      },
+      "Company": "株式会社はなみずき歯科(架空)",
+      "LastName": "小川",
+      "FirstName": "佳奈",
+      "Email": "ogawa.kana@hanamizuki-dental.example",
+      "Phone": "090-0577-9388",
+      "GiftQuantity__c": 93,
+      "GiftBudgetPerItem__c": 1620,
+      "GiftOccasion__c": "Novelty",
+      "DesiredDeliveryDate__c": "2026-09-09",
+      "InquiryChannel__c": "Agentforce",
+      "InquiryDate__c": "2026-08-04",
+      "InquirySummary__c": "ノベルティとして93件。1件あたり1,620円程度。のし不要。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef27"
+      },
+      "Company": "株式会社なごみ介護(架空)",
+      "LastName": "村上",
+      "FirstName": "真由美",
+      "Email": "murakami.mayumi@nagomi-kaigo.example",
+      "Phone": "090-0533-5739",
+      "GiftQuantity__c": 64,
+      "GiftBudgetPerItem__c": 3240,
+      "GiftOccasion__c": "Anniversary",
+      "DesiredDeliveryDate__c": "2026-09-26",
+      "InquiryChannel__c": "Phone",
+      "InquiryDate__c": "2026-08-13",
+      "InquirySummary__c": "周年記念として64件。1件あたり3,240円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef28"
+      },
+      "Company": "株式会社ゆきわり食品(架空)",
+      "LastName": "田中",
+      "FirstName": "沙織",
+      "Email": "tanaka.saori@yukiwari-foods.example",
+      "Phone": "052-077-4568",
+      "GiftQuantity__c": 94,
+      "GiftBudgetPerItem__c": 5000,
+      "GiftOccasion__c": "Anniversary",
+      "DesiredDeliveryDate__c": "2026-10-09",
+      "InquiryChannel__c": "Phone",
+      "InquiryDate__c": "2026-08-22",
+      "InquirySummary__c": "周年記念として94件。1件あたり5,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef29"
+      },
+      "Company": "株式会社いずも工業(架空)",
+      "LastName": "前田",
+      "FirstName": "修",
+      "Email": "maeda.osamu@izumo-kogyo.example",
+      "Phone": "03-0739-6673",
+      "GiftQuantity__c": 84,
+      "GiftBudgetPerItem__c": 3000,
+      "GiftOccasion__c": "Anniversary",
+      "DesiredDeliveryDate__c": "2026-10-15",
+      "InquiryChannel__c": "Agentforce",
+      "InquiryDate__c": "2026-08-27",
+      "InquirySummary__c": "周年記念として84件。1件あたり3,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef30"
+      },
+      "Company": "株式会社あすなろ商会(架空)",
+      "LastName": "近藤",
+      "FirstName": "典子",
+      "Email": "kondo.noriko@asunaro-shokai.example",
+      "Phone": "011-025-2645",
+      "GiftQuantity__c": 95,
+      "GiftBudgetPerItem__c": 3000,
+      "GiftOccasion__c": "Anniversary",
+      "DesiredDeliveryDate__c": "2026-09-20",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-08-27",
+      "InquirySummary__c": "周年記念として95件。1件あたり3,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef31"
+      },
+      "Company": "株式会社つつじ住建(架空)",
+      "LastName": "佐々木",
+      "FirstName": "結衣",
+      "Email": "sasaki.yui@tsutsuji-juken.example",
+      "Phone": "052-037-1650",
+      "GiftQuantity__c": 122,
+      "GiftBudgetPerItem__c": 3000,
+      "GiftOccasion__c": "Oseibo",
+      "DesiredDeliveryDate__c": "2026-12-15",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-09-02",
+      "InquirySummary__c": "お歳暮として122件。1件あたり3,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef32"
+      },
+      "Company": "株式会社ふじなみ工芸(架空)",
+      "LastName": "山田",
+      "FirstName": "結衣",
+      "Email": "yamada.yui@fujinami-kogei.example",
+      "Phone": "052-044-2461",
+      "GiftQuantity__c": 51,
+      "GiftBudgetPerItem__c": 5000,
+      "GiftOccasion__c": "Anniversary",
+      "DesiredDeliveryDate__c": "2026-10-06",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-09-13",
+      "InquirySummary__c": "周年記念として51件。1件あたり5,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef33"
+      },
+      "Company": "株式会社わだち運送(架空)",
+      "LastName": "木村",
+      "FirstName": "沙織",
+      "Email": "kimura.saori@wadachi-unso.example",
+      "Phone": "03-0657-7689",
+      "GiftQuantity__c": 73,
+      "GiftBudgetPerItem__c": 3240,
+      "GiftOccasion__c": "Oseibo",
+      "DesiredDeliveryDate__c": "2026-12-08",
+      "InquiryChannel__c": "Agentforce",
+      "InquiryDate__c": "2026-09-22",
+      "InquirySummary__c": "お歳暮として73件。1件あたり3,240円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef34"
+      },
+      "Company": "株式会社つつじ住建(架空)",
+      "LastName": "木村",
+      "FirstName": "典子",
+      "Email": "kimura.noriko@tsutsuji-juken.example",
+      "Phone": "070-0729-3641",
+      "GiftQuantity__c": 112,
+      "GiftBudgetPerItem__c": 3000,
+      "GiftOccasion__c": "Oseibo",
+      "DesiredDeliveryDate__c": "2026-12-19",
+      "InquiryChannel__c": "Email",
+      "InquiryDate__c": "2026-09-22",
+      "InquirySummary__c": "お歳暮として112件。1件あたり3,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef35"
+      },
+      "Company": "株式会社えにし不動産(架空)",
+      "LastName": "橋本",
+      "FirstName": "恵子",
+      "Email": "hashimoto.keiko@enishi-fudosan.example",
+      "Phone": "06-0103-5848",
+      "GiftQuantity__c": 128,
+      "GiftBudgetPerItem__c": 2000,
+      "GiftOccasion__c": "Oseibo",
+      "DesiredDeliveryDate__c": "2026-12-14",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-09-24",
+      "InquirySummary__c": "お歳暮として128件。1件あたり2,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef36"
+      },
+      "Company": "株式会社あすなろ商会(架空)",
+      "LastName": "青木",
+      "FirstName": "由美子",
+      "Email": "aoki.yumiko@asunaro-shokai.example",
+      "Phone": "011-079-2748",
+      "GiftQuantity__c": 119,
+      "GiftBudgetPerItem__c": 3000,
+      "GiftOccasion__c": "Oseibo",
+      "DesiredDeliveryDate__c": "2026-12-16",
+      "InquiryChannel__c": "Email",
+      "InquiryDate__c": "2026-09-29",
+      "InquirySummary__c": "お歳暮として119件。1件あたり3,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef37"
+      },
+      "Company": "株式会社おおぞら航測(架空)",
+      "LastName": "青木",
+      "FirstName": "典子",
+      "Email": "aoki.noriko@ozora-kosoku.example",
+      "Phone": "090-0489-6404",
+      "GiftQuantity__c": 22,
+      "GiftBudgetPerItem__c": 5000,
+      "GiftOccasion__c": "Oseibo",
+      "DesiredDeliveryDate__c": "2026-12-16",
+      "InquiryChannel__c": "Agentforce",
+      "InquiryDate__c": "2026-10-04",
+      "InquirySummary__c": "お歳暮として22件。1件あたり5,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef38"
+      },
+      "Company": "株式会社あまね会計(架空)",
+      "LastName": "小川",
+      "FirstName": "陽子",
+      "Email": "ogawa.yoko@amane-kaikei.example",
+      "Phone": "090-0572-6397",
+      "GiftQuantity__c": 121,
+      "GiftBudgetPerItem__c": 5000,
+      "GiftOccasion__c": "Oseibo",
+      "DesiredDeliveryDate__c": "2026-12-10",
+      "InquiryChannel__c": "WebForm",
+      "InquiryDate__c": "2026-10-07",
+      "InquirySummary__c": "お歳暮として121件。1件あたり5,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef39"
+      },
+      "Company": "株式会社のぞみ技研(架空)",
+      "LastName": "池田",
+      "FirstName": "美咲",
+      "Email": "ikeda.misaki@nozomi-giken.example",
+      "Phone": "06-0411-2233",
+      "GiftQuantity__c": 119,
+      "GiftBudgetPerItem__c": 3000,
+      "GiftOccasion__c": "Anniversary",
+      "DesiredDeliveryDate__c": "2026-11-10",
+      "InquiryChannel__c": "Agentforce",
+      "InquiryDate__c": "2026-10-07",
+      "InquirySummary__c": "周年記念として119件。1件あたり3,000円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef40"
+      },
+      "Company": "株式会社ゆきわり食品(架空)",
+      "LastName": "加藤",
+      "FirstName": "健一",
+      "Email": "kato.kenichi@yukiwari-foods.example",
+      "Phone": "070-0264-9516",
+      "GiftQuantity__c": 106,
+      "GiftBudgetPerItem__c": 3240,
+      "GiftOccasion__c": "Anniversary",
+      "DesiredDeliveryDate__c": "2026-11-30",
+      "InquiryChannel__c": "Phone",
+      "InquiryDate__c": "2026-10-09",
+      "InquirySummary__c": "周年記念として106件。1件あたり3,240円程度。のし希望。"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "referenceId": "LeadRef41"
+      },
+      "Company": "株式会社まほろば不動産(架空)",
+      "LastName": "太田",
+      "FirstName": "智子",
+      "Email": "ota.tomoko@mahoroba-fudosan.example",
+      "Phone": "011-050-3738",
+      "GiftQuantity__c": 103,
+      "GiftBudgetPerItem__c": 2000,
+      "GiftOccasion__c": "Oseibo",
+      "DesiredDeliveryDate__c": "2026-12-03",
+      "InquiryChannel__c": "Email",
+      "InquiryDate__c": "2026-10-30",
+      "InquirySummary__c": "お歳暮として103件。1件あたり2,000円程度。のし希望。"
+    }
+  ]
+}

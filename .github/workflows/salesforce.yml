@@ -1,0 +1,52 @@
+# Salesforce ポートフォリオ(salesforce/)の確認。
+# 架空データ・スキーマ・期待値がコミット済みのファイルと一致しているか(生成スクリプトを直したのに再生成し忘れていないか)と、
+# Apex の構文・書式を確かめる。Salesforce の組織には接続しない(Apex の単体テストは組織にデプロイして実行する)。
+name: salesforce
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "salesforce/**"
+      - ".github/workflows/salesforce.yml"
+  pull_request:
+    paths:
+      - "salesforce/**"
+      - ".github/workflows/salesforce.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: 架空データ・Apex の確認
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: salesforce
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # 生成スクリプトは TypeScript をそのまま node で動かす(型の除去が既定で有効な Node 22.18 以上)
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: salesforce/package-lock.json
+
+      - name: 依存関係のインストール
+        run: npm ci
+
+      - name: 架空データが生成スクリプトの出力と一致しているか
+        run: npm run check-data
+
+      - name: Apex の構文と書式
+        run: npm run lint:apex

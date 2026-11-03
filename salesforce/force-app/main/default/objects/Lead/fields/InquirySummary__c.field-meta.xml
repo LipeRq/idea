@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>InquirySummary__c</fullName>
+    <description>相談内容の要約。エージェントが作った場合は、担当者が内容を確かめてから使う</description>
+    <externalId>false</externalId>
+    <inlineHelpText>相談内容の要約。エージェントが作った場合は、担当者が内容を確かめてから使う</inlineHelpText>
+    <label>相談の要約</label>
+    <length>2000</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
+</CustomField>

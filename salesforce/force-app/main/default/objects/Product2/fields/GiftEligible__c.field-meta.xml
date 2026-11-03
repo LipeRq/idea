@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GiftEligible__c</fullName>
+    <description>ギフト包装・送り先の指定ができる商品か</description>
+    <externalId>false</externalId>
+    <inlineHelpText>ギフト包装・送り先の指定ができる商品か</inlineHelpText>
+    <label>ギフト対応</label>
+    <defaultValue>false</defaultValue>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

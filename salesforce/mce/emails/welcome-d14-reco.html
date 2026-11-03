@@ -1,0 +1,88 @@
+%%[
+/*
+  JB_WELCOME_D14_RECO:初回購入の 14 日後、まだ 2 回目を買っていない人へ「好きな茶の種類」に合わせたおすすめ
+  おすすめは毎朝の SQL(mce/sql/02_recommendations.sql)で作った Reco_PerSubscriber から 3 件。
+  作れていない人(履歴が少ないなど)は、売れ筋の Reco_Bestsellers に切り替える。
+*/
+SET @subKey = _subscriberkey
+SET @lastName = AttributeValue("LastName")
+SET @greeting = IIF(EMPTY(@lastName), "お客さま", Concat(@lastName, " 様"))
+
+SET @rows = LookupOrderedRows("Reco_PerSubscriber", 3, "Rnk ASC", "SubscriberKey", @subKey)
+SET @rowCount = RowCount(@rows)
+SET @personal = IIF(@rowCount > 0, "true", "false")
+IF @rowCount == 0 THEN
+  /* LookupOrderedRows は絞り込みの列が要るので、売れ筋の DE には固定値の列 ListName を持たせている */
+  SET @rows = LookupOrderedRows("Reco_Bestsellers", 3, "Rnk ASC", "ListName", "default")
+  SET @rowCount = RowCount(@rows)
+ENDIF
+
+SET @favoriteLabel = Lookup("Customer_FavoriteCategory", "FavoriteCategoryLabel", "SubscriberKey", @subKey)
+IF @personal == "true" AND NOT EMPTY(@favoriteLabel) THEN
+  SET @lead = Concat(@favoriteLabel, "がお好きな方に、次の一杯をご提案します。")
+ELSE
+  SET @lead = "いま多くの方に選ばれているお茶をご紹介します。"
+ENDIF
+
+/* 1 件も出せない(売れ筋の表も空)なら、このメールは送らない(空の枠を送らないため) */
+IF @rowCount == 0 THEN
+  RaiseError("おすすめも売れ筋も空のため送信しない", true)
+ENDIF
+]%%
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>次の一杯のご提案</title>
+</head>
+<body style="margin:0;padding:0;background:#ffffff;">
+  <div style="display:none;max-height:0;overflow:hidden;">%%=v(@lead)=%%</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;color:#2f2a22;">
+          <tr>
+            <td style="padding:32px 20px 16px;font-size:15px;line-height:1.9;">
+              %%=v(@greeting)=%%<br><br>
+              先日はお買い上げありがとうございました。お茶はお楽しみいただけていますか。<br>
+              %%=v(@lead)=%%
+            </td>
+          </tr>
+          %%[ FOR @i = 1 TO @rowCount DO
+            SET @row = Row(@rows, @i)
+            SET @name = Field(@row, "ProductName")
+            SET @price = FormatNumber(Field(@row, "Price"), "N0")
+            SET @url = Field(@row, "ProductUrl")
+            SET @image = Field(@row, "ImageUrl")
+          ]%%
+          <tr>
+            <td style="padding:12px 20px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td width="120" valign="top">
+                    <a href="%%=RedirectTo(@url)=%%" alias="%%=Concat('おすすめ', @i)=%%"><img src="%%=v(@image)=%%" width="120" alt="%%=v(@name)=%%" style="display:block;border:0;border-radius:6px;"></a>
+                  </td>
+                  <td valign="top" style="padding-left:16px;font-size:15px;line-height:1.8;">
+                    <a href="%%=RedirectTo(@url)=%%" alias="%%=Concat('おすすめ', @i, '_商品名')=%%" style="color:#2f2a22;text-decoration:none;"><strong>%%=v(@name)=%%</strong></a><br>
+                    %%=v(@price)=%%円(税込)
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          %%[ NEXT @i ]%%
+          <tr>
+            <td style="padding:16px 20px 32px;font-size:13px;line-height:1.8;color:#5b5548;">
+              税込5,400円以上のご注文で送料無料です(送り先1件あたり)。
+            </td>
+          </tr>
+          <tr>
+            <td>%%=ContentBlockByKey("footer-legal")=%%</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

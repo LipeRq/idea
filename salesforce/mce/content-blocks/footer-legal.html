@@ -1,0 +1,18 @@
+%%[
+/*
+  販促メールに必ず入れるフッター(特定電子メール法の表示:送信者の名前・住所・問い合わせ先・配信停止の方法)。
+  コンテンツビルダーの「コンテンツブロック」として 1 か所で管理し、各メールから参照する。
+  ※ 1 クリックで配信停止できるヘッダー(List-Unsubscribe)は、送信者の設定で別に有効にしておく。
+*/
+SET @prefPageId = 1001 /* 配信設定ページ(cloudpages/preference-center.html)の CloudPage ID。組織に合わせる */
+]%%
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f1ea;">
+  <tr>
+    <td style="padding:24px 20px;font-size:12px;line-height:1.8;color:#5b5548;font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;">
+      このメールは、しずく茶舗(架空)のメールマガジンの受け取りに同意いただいた方にお送りしています。<br>
+      配信の頻度・内容の変更や配信停止は、<a href="%%=RedirectTo(CloudPagesURL(@prefPageId))=%%" style="color:#3d6b4f;">配信設定ページ</a>からいつでもできます。<br>
+      送信者:株式会社しずく茶舗(架空)/〒000-0000 静岡県静岡市葵区(架空の住所)<br>
+      お問い合わせ:<a href="https://shop.example.com/contact" style="color:#3d6b4f;">お問い合わせフォーム</a>
+    </td>
+  </tr>
+</table>

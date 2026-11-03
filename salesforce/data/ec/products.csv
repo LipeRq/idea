@@ -1,0 +1,30 @@
+product_id,name,category,category_label,price,gift_eligible,noshi_available,gift_occasions,caffeine_level,shelf_life_days,is_active,product_url,image_url
+SZK-SEN-001,煎茶「しずく」100g,Sencha,煎茶,1620,false,false,,Medium,180,true,https://shop.example.com/products/sencha-shizuku,https://shop.example.com/images/products/sencha-shizuku.jpg
+SZK-SEN-002,深蒸し煎茶「朝露」100g,Sencha,煎茶,1944,false,false,,Medium,180,true,https://shop.example.com/products/fukamushi-asatsuyu,https://shop.example.com/images/products/fukamushi-asatsuyu.jpg
+SZK-SEN-003,上煎茶「若葉」80g 箱入り,Sencha,煎茶,2700,true,true,Uchiiwai;Anniversary,Medium,180,true,https://shop.example.com/products/jo-sencha-wakaba,https://shop.example.com/images/products/jo-sencha-wakaba.jpg
+SZK-SEN-004,煎茶ティーバッグ 3g×20,Sencha,煎茶,1080,false,false,,Medium,365,true,https://shop.example.com/products/sencha-teabag,https://shop.example.com/images/products/sencha-teabag.jpg
+SZK-DEC-001,カフェインレス煎茶 80g,Sencha,煎茶,1728,false,false,,Low,180,true,https://shop.example.com/products/decaf-sencha,https://shop.example.com/images/products/decaf-sencha.jpg
+SZK-GYO-001,玉露「翠」50g,Gyokuro,玉露,3240,true,true,Ochugen;Oseibo;Uchiiwai;Anniversary,High,180,true,https://shop.example.com/products/gyokuro-midori,https://shop.example.com/images/products/gyokuro-midori.jpg
+SZK-GYO-002,玉露「霞」100g,Gyokuro,玉露,5400,true,true,Ochugen;Oseibo;Anniversary,High,180,true,https://shop.example.com/products/gyokuro-kasumi,https://shop.example.com/images/products/gyokuro-kasumi.jpg
+SZK-MAT-001,抹茶「白鷺」30g缶,Matcha,抹茶,2160,false,false,,High,120,true,https://shop.example.com/products/matcha-shirasagi,https://shop.example.com/images/products/matcha-shirasagi.jpg
+SZK-MAT-002,抹茶「千代」40g缶,Matcha,抹茶,4320,true,true,Oseibo;Anniversary,High,120,true,https://shop.example.com/products/matcha-chiyo,https://shop.example.com/images/products/matcha-chiyo.jpg
+SZK-MAT-003,抹茶ラテの素 200g,Matcha,抹茶,1296,false,false,,Medium,270,true,https://shop.example.com/products/greentea-latte,https://shop.example.com/images/products/greentea-latte.jpg
+SZK-HOJ-001,ほうじ茶「香炉」100g,Hojicha,ほうじ茶,1296,false,false,,Medium,180,true,https://shop.example.com/products/hojicha-koro,https://shop.example.com/images/products/hojicha-koro.jpg
+SZK-HOJ-002,棒ほうじ茶 100g,Hojicha,ほうじ茶,1512,false,false,,Medium,180,true,https://shop.example.com/products/bo-hojicha,https://shop.example.com/images/products/bo-hojicha.jpg
+SZK-HOJ-003,カフェインレスほうじ茶 ティーバッグ 2g×20,Hojicha,ほうじ茶,1404,false,false,,Low,365,true,https://shop.example.com/products/decaf-hojicha-teabag,https://shop.example.com/images/products/decaf-hojicha-teabag.jpg
+SZK-WAK-001,和紅茶「夕凪」50g,Wakoucha,和紅茶,1620,false,false,,Medium,365,true,https://shop.example.com/products/wakoucha-yunagi,https://shop.example.com/images/products/wakoucha-yunagi.jpg
+SZK-WAK-002,和紅茶ティーバッグ 2.5g×15,Wakoucha,和紅茶,1188,false,false,,Medium,365,true,https://shop.example.com/products/wakoucha-teabag,https://shop.example.com/images/products/wakoucha-teabag.jpg
+SZK-TEA-001,急須(朱泥・300ml),Teaware,茶器,4950,true,true,Uchiiwai;Anniversary,,,true,https://shop.example.com/products/kyusu-shudei,https://shop.example.com/images/products/kyusu-shudei.jpg
+SZK-TEA-002,湯呑み 2客セット,Teaware,茶器,3850,true,true,Uchiiwai;Anniversary,,,true,https://shop.example.com/products/yunomi-pair,https://shop.example.com/images/products/yunomi-pair.jpg
+SZK-TEA-003,茶筒,Teaware,茶器,2750,false,false,,,,true,https://shop.example.com/products/chazutsu,https://shop.example.com/images/products/chazutsu.jpg
+SZK-TEA-004,抹茶碗と茶筅のセット,Teaware,茶器,6600,true,true,Uchiiwai;Anniversary,,,true,https://shop.example.com/products/chawan-chasen,https://shop.example.com/images/products/chawan-chasen.jpg
+SZK-GFT-001,煎茶2種ギフト,GiftSet,ギフトセット,2700,true,true,Ochugen;Oseibo;Uchiiwai;Anniversary;Novelty,Medium,180,true,https://shop.example.com/products/gift-sencha-duo,https://shop.example.com/images/products/gift-sencha-duo.jpg
+SZK-GFT-002,煎茶・ほうじ茶ティーバッグギフト,GiftSet,ギフトセット,1620,true,true,Uchiiwai;Anniversary;Novelty,Medium,365,true,https://shop.example.com/products/gift-teabag-duo,https://shop.example.com/images/products/gift-teabag-duo.jpg
+SZK-GFT-003,玉露と煎茶の詰め合わせ,GiftSet,ギフトセット,5400,true,true,Ochugen;Oseibo;Anniversary,High,180,true,https://shop.example.com/products/gift-gyokuro-sencha,https://shop.example.com/images/products/gift-gyokuro-sencha.jpg
+SZK-GFT-004,抹茶と茶筅のギフト,GiftSet,ギフトセット,6480,true,true,Oseibo;Uchiiwai;Anniversary,High,120,true,https://shop.example.com/products/gift-matcha-chasen,https://shop.example.com/images/products/gift-matcha-chasen.jpg
+SZK-GFT-005,季節の三種詰め合わせ,GiftSet,ギフトセット,3780,true,true,Ochugen;Oseibo,Medium,180,true,https://shop.example.com/products/gift-seasonal-three,https://shop.example.com/images/products/gift-seasonal-three.jpg
+SZK-GFT-006,プチギフト(ティーバッグ3包),GiftSet,ギフトセット,540,true,false,Uchiiwai;Novelty,Medium,365,true,https://shop.example.com/products/petit-gift,https://shop.example.com/images/products/petit-gift.jpg
+SZK-GFT-007,カフェインレス詰め合わせ,GiftSet,ギフトセット,3240,true,true,Ochugen;Oseibo;Uchiiwai;Anniversary,Low,180,true,https://shop.example.com/products/gift-decaf,https://shop.example.com/images/products/gift-decaf.jpg
+SZK-GFT-008,名入れ茶缶ギフト,GiftSet,ギフトセット,2160,true,false,Anniversary;Novelty,Medium,180,true,https://shop.example.com/products/gift-name-can,https://shop.example.com/images/products/gift-name-can.jpg
+SZK-GFT-009,水出し煎茶ギフト,GiftSet,ギフトセット,2484,true,true,Ochugen,Medium,180,true,https://shop.example.com/products/gift-cold-brew,https://shop.example.com/images/products/gift-cold-brew.jpg
+SZK-GFT-010,極上詰め合わせ,GiftSet,ギフトセット,10800,true,true,Ochugen;Oseibo;Anniversary,High,180,true,https://shop.example.com/products/gift-premium,https://shop.example.com/images/products/gift-premium.jpg

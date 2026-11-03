@@ -1,0 +1,9 @@
+{
+  "printWidth": 120,
+  "overrides": [
+    {
+      "files": "*.{cls,trigger,apex}",
+      "options": { "plugins": ["prettier-plugin-apex"], "tabWidth": 2 }
+    }
+  ]
+}
