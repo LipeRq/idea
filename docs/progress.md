@@ -18,9 +18,28 @@
 
 | 対象 | 状態 |
 |---|---|
-| `salesforce`(転職用の Salesforce ポートフォリオ) | 設計書 8 本・Apex(アクション 2 つとテスト)・項目と権限セット・MCE のコード・サイトマップ・エージェントのテストケース・架空データと期待値まで作成(ブランチ `salesforce-portfolio`)。`npm run check-data`・`npm run lint:apex`・生成スクリプトの型チェックは通過。**Apex の単体テストは組織にデプロイして未実行**。残り:自分の Developer Edition での構築(手順は `salesforce/docs/08-build-guide.md`)、スクリーンショット、README の【】(氏名・3 年間の経験・連絡先)、Data 360 の CSV を Ingestion API で入れるスクリプト(必要なら) |
+| `salesforce`(転職用の Salesforce ポートフォリオ) | 設計書・コード・架空データまで作成済み(ブランチ `salesforce-portfolio`、main には未取り込み)。残りは下の「Salesforce ポートフォリオのやること」 |
 
 棚卸しツールの画面は独立検証と修正まで完了
+
+## Salesforce ポートフォリオのやること
+
+上から順に進める。「担当」は誰が手を動かすか(Claude は次の会話でこの表を読んで再開する)。
+
+| # | やること | 担当 | 状態 |
+|---:|---|---|---|
+| 1 | 設計書(`salesforce/docs/`)を通して読み、3 年間の実務と食い違う所を直す(面接で自分の言葉で説明できるように) | ユーザー | 未 |
+| 2 | 実環境で要確認の 3 点:Data 360 のインサイトの SQL の DMO 項目名(`docs/02-data360.md` の 4)、サイトマップで EC会員ID を送る形(`personalization/sitemap.js`)、配信設定ページの SSJS の関数(`mce/cloudpages/preference-center.html`) | ユーザー | 未 |
+| 3 | `salesforce/README.md` の【】を埋める:氏名、製品ごとの実務の経験(業種・規模・役割)、連絡先 | ユーザー | 未 |
+| 4 | Developer Edition(Agentforce・Data 360 つき)を作り、メタデータをデプロイして Apex の単体テストを実行する(`docs/08-build-guide.md` の 2)。失敗したら結果を Claude に渡して直す | ユーザー → Claude | 未 |
+| 5 | Data 360 の CSV を Ingestion API(バルク)で入れるスクリプトを作る(画面での取り込みが難しければ) | Claude | 未(必要か判断待ち) |
+| 6 | Data 360 を構築し、統合プロファイルの数を期待値 1,462 人と、セグメントの人数を `salesforce/data/README.md` と照合する | ユーザー(つまずいたら Claude) | 未 |
+| 7 | Sales Cloud のフロー F1〜F3、レポート・ダッシュボードを作る(`docs/03-sales-cloud.md` の 4・6) | ユーザー(作り方は Claude が手順にする) | 未 |
+| 8 | Agentforce のエージェントを構築し、テストセンターで 20 件を実行する(`docs/07-agentforce.md`) | ユーザー → Claude | 未 |
+| 9 | スクリーンショット 10 枚(`docs/08-build-guide.md` の 6)と、3〜5 分のデモ動画を撮る | ユーザー | 未 |
+| 10 | 見せ方を決める(GitHub のみ/GitHub+1 ページのサイト/名前を出すか)。下の「ユーザーの判断待ち」 | ユーザー | 判断待ち |
+| 11 | 公開前チェック(`docs/08-build-guide.md` の 7)を通し、別の公開リポジトリに置く | ユーザー+Claude | 未 |
+| 12 | ブランチ `salesforce-portfolio` を main に取り込む(PR) | Claude(依頼があれば) | 未 |
 
 ## 最後に残っているもの
 
@@ -32,6 +51,8 @@
 - 棚卸しツールの画面の未実装:複数ファイルをまとめたAI版、ZIP/フォルダ投入、大きなファイルの計測、Chromium以外の確認
 
 ## ユーザーの判断待ち
+
+- Salesforce ポートフォリオの見せ方:GitHub の README だけにするか、同じ Markdown から 1 ページのサイト(GitHub Pages)も作るか。在職中に実名で公開するか(検索に出さない・応募先にだけ URL を渡す、などの選択肢)
 
 - 見積アシスト:提供形態(SaaS/専用環境)、価格の仮説を顧客に出すか、国内でのAI処理、Salesforce側の決め事、認証方式、承認時の確認を必須のままにするか
 - 営業資料:`docs/manufacturing/sales/README.md` の「判断が必要なこと」
